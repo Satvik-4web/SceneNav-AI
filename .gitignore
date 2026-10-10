@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+dist/
+.cache/
+*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Results and artifacts (keep .gitkeep)
+results/*
+!results/.gitkeep
+!results/README.md
+
+# Data (user-provided images)
+data/references/*
+data/queries/*
+!data/references/.gitkeep
+!data/queries/.gitkeep
+!data/manifests/
+!data/README.md
+
+# Env
+.env
+*.env.local
+
+# Logs
+*.log
+logs/
