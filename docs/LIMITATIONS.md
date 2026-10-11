@@ -70,13 +70,13 @@ None of these are present in this prototype. The "estimated region" output is in
 
 Job results are stored in a Python dictionary. They are lost when the server restarts. This is acceptable for an MVP research prototype but not for production use.
 
-### Single algorithm
+### Algorithms Implemented
 
-Only ORB is implemented. More modern approaches (SIFT, AKAZE, SuperPoint + SuperGlue, LoFTR, DKM) would offer better performance at the cost of additional dependencies or computational requirements.
+ORB (baseline) and SIFT (alternative baseline) are implemented. Learned matching pipelines (SuperPoint + SuperGlue, LoFTR, DKM) are not yet integrated and require deep-learning runtimes.
 
 ### No GPU acceleration
 
-The current pipeline runs on CPU only. ORB is fast enough for the prototype use case (< 0.3 s per pair at 512×512), but for high-resolution imagery or real-time use, GPU-accelerated feature extraction would be needed.
+The current pipeline runs on CPU only. Both ORB (< 0.15 s) and SIFT (< 0.25 s) are sufficiently fast for prototype benchmarking on 768×768 / 1024×1024 aerial patches, but GPU acceleration would be required for gigapixel orthomosaics or real-time flight rates.
 
 ### No streaming or progress updates
 
@@ -86,10 +86,10 @@ The match endpoint is synchronous. For very large images or slow hardware, the H
 
 ## 5. What This System Is NOT
 
-- Not a GPS replacement.
-- Not a proven navigation system.
-- Not validated on real aerial or satellite imagery.
-- Not calibrated for geographic accuracy.
-- Not suitable for safety-critical applications.
+- **Not a GPS/GNSS replacement:** Does not compute or output geographic coordinates.
+- **Not a proven flight navigation system:** Designed purely as an offline research benchmark.
+- **Not calibrated for geographic geodetic accuracy:** Pixel transfer errors reflect 2D raster alignment, not latitude/longitude or physical meter displacement.
+- **Not immune to out-of-plane 3D terrain distortion:** Homography estimation assumes locally planar terrain; severe topography or low-altitude oblique angles violate the planar assumption.
+- **Not suitable for safety-critical or operational deployment.**
 
-The system is a **research prototype** for exploring image-matching algorithms in an offline, reproducible setting.
+The system is a **rigorous academic research prototype** for evaluating image matching and geometric verification on reproducible synthetic and open-access aerial datasets.

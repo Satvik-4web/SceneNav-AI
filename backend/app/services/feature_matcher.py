@@ -67,17 +67,19 @@ def detect_and_match(
     reference: LoadedImage,
     query: LoadedImage,
     *,
+    algorithm: str = "ORB",
     orb_max_features: int = 5000,
     ratio_threshold: float = 0.75,
     mutual_consistency: bool = False,
 ) -> MatchingResult:
     """
-    Detect ORB keypoints in both images and return filtered matches.
+    Detect keypoints (ORB or SIFT) in both images and return filtered matches.
 
     Args:
         reference:          Reference (map/database) image.
         query:              Query (scene to locate) image.
-        orb_max_features:   Maximum ORB keypoints per image.
+        algorithm:          Detector/descriptor algorithm: 'ORB' (default) or 'SIFT'.
+        orb_max_features:   Maximum keypoints per image.
         ratio_threshold:    Lowe's ratio-test threshold.
         mutual_consistency: If True, keep only matches that agree in both directions.
 
@@ -85,8 +87,13 @@ def detect_and_match(
         MatchingResult with statistics and matched point arrays.
     """
     t0 = time.perf_counter()
+    algo_clean = (algorithm or "ORB").strip().upper()
+    if algo_clean not in {"ORB", "SIFT"}:
+        raise ValueError(f"Unsupported algorithm '{algorithm}'. Must be 'ORB' or 'SIFT'.")
+
     result = MatchingResult(
         params={
+            "algorithm": algo_clean,
             "orb_max_features": orb_max_features,
             "ratio_threshold": ratio_threshold,
             "mutual_consistency": mutual_consistency,
@@ -97,11 +104,16 @@ def detect_and_match(
     gray_ref = to_grayscale(reference)
     gray_qry = to_grayscale(query)
 
-    # ORB detector + descriptor
-    orb = cv2.ORB_create(nfeatures=orb_max_features)
+    # Detector + distance metric
+    if algo_clean == "SIFT":
+        detector = cv2.SIFT_create(nfeatures=orb_max_features)
+        norm_type = cv2.NORM_L2
+    else:
+        detector = cv2.ORB_create(nfeatures=orb_max_features)
+        norm_type = cv2.NORM_HAMMING
 
-    kp_ref, des_ref = orb.detectAndCompute(gray_ref, None)
-    kp_qry, des_qry = orb.detectAndCompute(gray_qry, None)
+    kp_ref, des_ref = detector.detectAndCompute(gray_ref, None)
+    kp_qry, des_qry = detector.detectAndCompute(gray_qry, None)
 
     result.reference_keypoints = len(kp_ref) if kp_ref else 0
     result.query_keypoints = len(kp_qry) if kp_qry else 0
@@ -109,8 +121,8 @@ def detect_and_match(
     result.query_keypoints_list = list(kp_qry) if kp_qry else []
 
     logger.info(
-        "ORB keypoints — reference: %d, query: %d",
-        result.reference_keypoints, result.query_keypoints
+        "%s keypoints — reference: %d, query: %d",
+        algo_clean, result.reference_keypoints, result.query_keypoints
     )
 
     # Guard: no descriptors
@@ -144,8 +156,8 @@ def detect_and_match(
             "matching reliability will be low."
         )
 
-    # BFMatcher with Hamming distance (appropriate for binary ORB descriptors)
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
+    # BFMatcher with metric appropriate for descriptor type
+    bf = cv2.BFMatcher(norm_type, crossCheck=False)
 
     # k-NN matching with k=2 for ratio test
     # We need at least 2 training descriptors for knnMatch(k=2)

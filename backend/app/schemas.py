@@ -30,9 +30,13 @@ class MatchStatus(str, Enum):
 
 class MatchParams(BaseModel):
     """User-supplied matching parameters validated before processing."""
+    algorithm: str = Field(
+        default="ORB",
+        description="Feature detector and descriptor: 'ORB' (default) or 'SIFT'."
+    )
     orb_max_features: int = Field(
         default=5000, ge=100, le=20000,
-        description="Maximum ORB keypoints to detect per image."
+        description="Maximum keypoints to detect per image."
     )
     ratio_threshold: float = Field(
         default=0.75, ge=0.5, le=0.95,

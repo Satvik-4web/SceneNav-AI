@@ -49,11 +49,15 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="SceneNav AI — Batch Evaluation")
     p.add_argument(
         "--manifest", required=True,
-        help="Manifest filename in data/manifests/ (e.g. synthetic_pairs.json)"
+        help="Manifest filename in data/manifests/ (e.g. synthetic_pairs.json or real_world_pairs.json)"
     )
     p.add_argument(
         "--output", default=None,
         help="Output directory for results (default: results/eval_<timestamp>/)"
+    )
+    p.add_argument(
+        "--algorithm", choices=["ORB", "SIFT"], default="ORB",
+        help="Feature matching algorithm (default: ORB)"
     )
     p.add_argument("--orb-max-features", type=int, default=5000)
     p.add_argument("--ratio-threshold", type=float, default=0.75)
@@ -61,6 +65,72 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--min-inliers", type=int, default=10)
     p.add_argument("--max-pairs", type=int, default=None, help="Cap number of pairs.")
     return p.parse_args()
+
+
+def generate_markdown_report(
+    summary: EvaluationSummary,
+    provenance: dict,
+    pair_metrics: list[SinglePairMetrics],
+    output_path: Path,
+) -> None:
+    """Generate a clean, reproducible Markdown report of evaluation findings."""
+    manifest_name = provenance.get("manifest", "Unknown")
+    algo = provenance.get("params", {}).get("algorithm", "ORB")
+
+    md = []
+    md.append(f"# SceneNav AI — Evaluation Report: `{manifest_name}` ({algo})")
+    md.append("")
+    md.append(f"**Date/Time:** {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}  ")
+    md.append(f"**Algorithm:** {algo} + Lowe Ratio Test + RANSAC Homography  ")
+    md.append(f"**Manifest:** `{manifest_name}`  ")
+    md.append(f"**Description:** {provenance.get('manifest_description', 'N/A')}  ")
+    md.append("")
+    md.append("## Executive Summary")
+    md.append("")
+    md.append("| Metric | Value | Note |")
+    md.append("| :--- | :--- | :--- |")
+    md.append(f"| **Total Evaluated Pairs** | {summary.total_pairs} | Positive + Negative test cases |")
+    md.append(f"| **Positive Pairs** | {summary.positive_pairs} | Genuine co-located imagery pairs |")
+    md.append(f"| **Negative Pairs** | {summary.negative_pairs} | Unrelated cross-scene negative pairs |")
+    md.append(f"| **Overall Success Count** | {summary.successful_pairs}/{summary.total_pairs} ({summary.success_rate:.1%}) | RANSAC verified matches |")
+    if summary.negative_pairs > 0:
+        md.append(f"| **False Acceptances (Negatives)** | {summary.false_acceptances}/{summary.negative_pairs} ({summary.false_acceptance_rate:.1%}) | Lower is better (ideal: 0.0%) |")
+        md.append(f"| **True Negative Rate** | {summary.true_negative_rate:.1%} | Rejection of unrelated pairs |")
+    if summary.mean_inliers:
+        md.append(f"| **Mean Inlier Count** | {summary.mean_inliers:.1f} | Average RANSAC geometric inliers |")
+    if summary.mean_inlier_ratio:
+        md.append(f"| **Mean Inlier Ratio** | {summary.mean_inlier_ratio:.1%} | Inliers / filtered matches |")
+    if summary.mean_reproj_error_px:
+        md.append(f"| **Mean Reprojection Error** | {summary.mean_reproj_error_px:.2f} px | Inlier fit error |")
+    if summary.mean_corner_error_px is not None:
+        md.append(f"| **Mean Corner Transfer Error** | {summary.mean_corner_error_px:.2f} px | Evaluated strictly on {summary.pairs_with_gt} ground-truth pairs |")
+    else:
+        md.append("| **Mean Corner Transfer Error** | *N/A* | No verified ground truth in selected pairs |")
+    md.append(f"| **Mean Processing Time** | {summary.mean_processing_time_s * 1000:.1f} ms | Per image pair |")
+    md.append(f"| **Total Wall Time** | {provenance.get('total_wall_time_s', 0.0):.2f} s | Batch evaluation runtime |")
+    md.append("")
+    md.append("## Detailed Per-Pair Results")
+    md.append("")
+    md.append("| Pair ID | Status | GT Type | Negative? | Inliers | Inlier Ratio | Reproj Err (px) | Corner Err (px) | Time (s) |")
+    md.append("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |")
+    for p in pair_metrics:
+        reproj = f"{p.mean_reproj_error_px:.2f}" if p.mean_reproj_error_px is not None else "—"
+        corner = f"{p.corner_error_px:.2f}" if p.corner_error_px is not None else "—"
+        is_neg_str = "Yes (FA)" if p.false_acceptance else ("Yes" if p.is_negative else "No")
+        md.append(
+            f"| `{p.pair_id}` | `{p.status}` | `{p.ground_truth_type}` | {is_neg_str} | "
+            f"{p.geometric_inliers} | {p.inlier_ratio:.1%} | {reproj} | {corner} | {p.processing_time_s:.3f} |"
+        )
+    md.append("")
+    md.append("## Academic Integrity & Limitations")
+    md.append("")
+    md.append("1. **Planar-Scene Assumption:** Homography estimation models planar surfaces or purely rotational camera motion. Complex 3D elevation variation requires epipolar geometry or orthorectification.")
+    md.append("2. **Pixel-Space vs Geographic Accuracy:** Corner transfer error measures pixel registration quality against the reference image. It does **not** equal GPS/GNSS navigation error without rigorous georeferencing metadata (GCPs / sensor pose).")
+    md.append("3. **Reproducibility:** All imagery is sourced from US Government public domain repositories (USGS / NAIP, 17 U.S.C. § 105). Checksums and scripts are checked into the repository.")
+    md.append("")
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(md))
 
 
 def main() -> None:
@@ -71,7 +141,7 @@ def main() -> None:
         print(f"ERROR: Manifest not found: {manifest_path}", file=sys.stderr)
         sys.exit(1)
 
-    with open(manifest_path) as f:
+    with open(manifest_path, encoding="utf-8") as f:
         manifest = json.load(f)
 
     pairs = manifest.get("pairs", [])
@@ -83,6 +153,7 @@ def main() -> None:
         pairs = pairs[:args.max_pairs]
 
     params = MatchParams(
+        algorithm=args.algorithm,
         orb_max_features=args.orb_max_features,
         ratio_threshold=args.ratio_threshold,
         ransac_reproj_threshold=args.ransac_reproj_threshold,
@@ -94,14 +165,15 @@ def main() -> None:
         out_dir = Path(args.output)
     else:
         ts = time.strftime("%Y%m%d_%H%M%S")
-        out_dir = settings.results_dir / f"eval_{ts}"
+        out_dir = settings.results_dir / f"eval_{args.algorithm.lower()}_{ts}"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"\nSceneNav AI — Evaluation")
-    print(f"Manifest : {args.manifest}")
-    print(f"Pairs    : {len(pairs)}")
-    print(f"Params   : {params.model_dump()}")
-    print(f"Output   : {out_dir}")
+    print(f"\nSceneNav AI — Evaluation [{args.algorithm}]")
+    print(f"Manifest  : {args.manifest}")
+    print(f"Algorithm : {args.algorithm}")
+    print(f"Pairs     : {len(pairs)}")
+    print(f"Params    : {params.model_dump()}")
+    print(f"Output    : {out_dir}")
     print("-" * 60)
 
     pair_metrics: list[SinglePairMetrics] = []
@@ -112,6 +184,8 @@ def main() -> None:
         ref_path = (settings.data_dir / pair.get("reference", "")).resolve()
         qry_path = (settings.data_dir / pair.get("query", "")).resolve()
         data_root = settings.data_dir.resolve()
+        gt_type = pair.get("ground_truth_type", "synthetic_homography" if "transform" in pair else "unavailable")
+        is_neg = pair.get("is_negative", False)
 
         print(f"[{i+1:3d}/{len(pairs)}] {pair_id} ... ", end="", flush=True)
 
@@ -123,6 +197,8 @@ def main() -> None:
                 pair_id=pair_id,
                 status="processing_error",
                 failure_reason="Path traversal blocked.",
+                ground_truth_type=gt_type,
+                is_negative=is_neg,
             ))
             continue
 
@@ -135,16 +211,21 @@ def main() -> None:
                 pair_id=pair_id,
                 status="invalid_image",
                 failure_reason=str(exc),
+                ground_truth_type=gt_type,
+                is_negative=is_neg,
             ))
             continue
 
         job_id = str(uuid.uuid4())
         result = run_matching_pipeline(ref_img, qry_img, params, job_id=job_id)
 
-        # Compute corner error if synthetic ground truth is available
+        # False acceptance tracking for negative pairs
+        is_fa = bool(is_neg and result.status.value == "success")
+
+        # Compute corner error ONLY if valid positive ground truth is available
         corner_error = None
-        gt_h = pair.get("transform", {}).get("homography_3x3")
-        if gt_h and result.status.value == "success" and result.homography_matrix:
+        gt_h = pair.get("transform", {}).get("homography_3x3") if pair.get("transform") else None
+        if not is_neg and gt_h and result.status.value == "success" and result.homography_matrix:
             try:
                 corner_error = compute_corner_error(
                     np.array(result.homography_matrix),
@@ -168,6 +249,9 @@ def main() -> None:
                 if result.reprojection_error else None
             ),
             corner_error_px=corner_error,
+            ground_truth_type=gt_type,
+            is_negative=is_neg,
+            false_acceptance=is_fa,
             processing_time_s=result.processing_time_s,
             failure_reason=result.failure_reason,
             warnings=result.warnings,
@@ -175,6 +259,8 @@ def main() -> None:
         pair_metrics.append(pm)
 
         status_str = result.status.value.upper()
+        if is_fa:
+            status_str += " [FALSE ACCEPTANCE!]"
         inliers_str = f"inliers={result.geometric_inliers}" if result.geometric_inliers else "no-geometry"
         print(f"{status_str} ({inliers_str}, {result.processing_time_s:.2f}s)")
 
@@ -198,23 +284,31 @@ def main() -> None:
         "total_wall_time_s": total_time,
         "important_disclaimer": (
             "Metrics in this report reflect image-matching performance on the named dataset. "
-            "For synthetic pairs, corner error is a pixel-level metric only. "
+            "For synthetic and planar-crop pairs, corner error is a pixel-level metric only. "
             "These results do NOT constitute evidence of real-world "
             "geographic navigation accuracy."
         ),
     }
-    with open(out_dir / "provenance.json", "w") as f:
+    with open(out_dir / "provenance.json", "w", encoding="utf-8") as f:
         json.dump(provenance, f, indent=2)
+
+    # Generate Markdown report
+    generate_markdown_report(summary, provenance, pair_metrics, out_dir / "REPORT.md")
 
     # Print summary
     print()
     print("=" * 60)
-    print(f"EVALUATION SUMMARY — {args.manifest}")
+    print(f"EVALUATION SUMMARY — {args.manifest} [{args.algorithm}]")
     print("=" * 60)
-    print(f"Total pairs      : {summary.total_pairs}")
-    print(f"Successful        : {summary.successful_pairs}")
-    print(f"Failed            : {summary.failed_pairs}")
+    print(f"Total pairs       : {summary.total_pairs}")
+    print(f"Positive pairs    : {summary.positive_pairs}")
+    print(f"Negative pairs    : {summary.negative_pairs}")
+    print(f"Successful pairs  : {summary.successful_pairs}")
+    print(f"Failed pairs      : {summary.failed_pairs}")
     print(f"Success rate      : {summary.success_rate:.1%}")
+    if summary.negative_pairs > 0:
+        print(f"False acceptances : {summary.false_acceptances}/{summary.negative_pairs} ({summary.false_acceptance_rate:.1%})")
+        print(f"True negative rate: {summary.true_negative_rate:.1%}")
     if summary.mean_inliers:
         print(f"Mean inliers      : {summary.mean_inliers:.1f}")
     if summary.mean_inlier_ratio:
@@ -222,7 +316,7 @@ def main() -> None:
     if summary.mean_reproj_error_px:
         print(f"Mean reproj error : {summary.mean_reproj_error_px:.2f} px")
     if summary.mean_corner_error_px:
-        print(f"Mean corner error : {summary.mean_corner_error_px:.2f} px (synthetic GT only)")
+        print(f"Mean corner error : {summary.mean_corner_error_px:.2f} px ({summary.pairs_with_gt} GT pairs)")
     print(f"Mean proc. time   : {summary.mean_processing_time_s:.3f} s/pair")
     print(f"Total wall time   : {total_time:.1f} s")
     print()
@@ -232,6 +326,7 @@ def main() -> None:
             print(f"  {k}: {v}")
     print()
     print(f"Results saved to: {out_dir}")
+    print("Reports generated: summary.json, pairs.csv, REPORT.md, provenance.json")
     print()
     print("DISCLAIMER: No geographic localization accuracy claims are made.")
 

@@ -29,11 +29,29 @@ The BRIEF binary descriptor is computed at each keypoint location, steered by th
 
 ---
 
-## 2. Descriptor Matching — BFMatcher (Hamming)
+## 1.1 SIFT — Scale-Invariant Feature Transform (Alternative Baseline)
 
-A brute-force matcher computes the Hamming distance between every query descriptor and every reference descriptor.
+**Reference:** D.G. Lowe, "Distinctive Image Features from Scale-Invariant Keypoints," IJCV 2004.
 
-We use **k-NN matching with k=2** to support the ratio test.
+### Detection (Difference-of-Gaussians / Scale-Space Octaves)
+SIFT searches for extrema across scale space using Difference-of-Gaussians (DoG). Keypoint locations and scales are localized via 3D quadratic fitting, eliminating edge responses via the Hessian matrix. Dominant orientations are computed from local gradient histograms.
+
+### Description (Gradient Orientation Histograms)
+A 128-dimensional floating point vector is computed from 4×4 spatial sub-regions with 8 gradient orientation bins. Normalized to unit length and thresholded to illuminate nonlinear illumination changes.
+
+### Comparison: SIFT vs ORB
+- **Scale Space:** SIFT's continuous DoG pyramid handles multi-scale changes (e.g. altitude changes in aerial observation) significantly better than ORB's discrete octave subsampling.
+- **Precision:** Sub-pixel localization in SIFT yields lower reprojection and corner transfer errors on planar scenes.
+- **Computational Cost:** ORB is binary and operates using Hamming popcounts, making it ~1.5× faster on CPU than SIFT's Euclidean distance computations.
+
+---
+
+## 2. Descriptor Matching — BFMatcher (Hamming vs L2)
+
+- For **ORB**: A brute-force matcher computes the **Hamming distance** (bitwise XOR popcount) between 256-bit binary descriptors.
+- For **SIFT**: A brute-force matcher computes the **Euclidean ($L_2$) distance** between 128-dimensional floating point vectors.
+
+In both cases, we use **k-NN matching with k=2** to support Lowe's ratio test.
 
 ---
 
@@ -135,36 +153,51 @@ We report mean, median, and max reprojection error in pixels over all inliers.
 
 ---
 
-## 7. Corner Transfer Error (Synthetic Evaluation Only)
+## 7. Corner Transfer Error (Planar Ground-Truth Evaluation)
 
-For pairs with a known ground-truth homography `H_true`:
+For pairs with a mathematically verified ground-truth homography `H_true` (synthetic transforms or controlled planar orthophoto crops):
 
 ```
-corner_error = mean_i( ||H_est·c_i - H_true·c_i||₂ )
+corner_error = (1 / 4) * sum_{i=1}^4 || H_est · c_i - H_true · c_i ||₂
 ```
 
-where `c_i` are the four corners of the query image.
+where `c_i` are the four corners of the query image in homogeneous coordinates.
 
-**This metric is only meaningful for synthetic pairs where `H_true` is known exactly.** It measures pixel-level geometric accuracy, NOT real-world geographic localization accuracy.
+**Important:** This metric is evaluated **strictly** when `H_true` is known a priori. For uncalibrated real-world observations or negative pairs, corner transfer error is explicitly undefined and reported as `None` (never fabricated). Furthermore, this is a 2D pixel-space alignment metric; it does **not** characterize real-world geographic latitude/longitude navigation accuracy.
+
+---
+
+## 7.1 False Acceptance and Negative Pair Metrics
+
+When evaluating unrelated image pairs (cross-scene pairs):
+- **False Acceptance (FA):** A negative pair incorrectly declared as `status=success` (i.e. passing the inlier threshold and producing an accepted homography).
+- **False Acceptance Rate (FAR):**
+  $$\text{FAR} = \frac{\text{False Acceptances}}{\text{Total Negative Pairs}}$$
+  *(Ideal: 0.0%)*
+- **True Negative Rate (TNR / Specificity):**
+  $$\text{TNR} = \frac{\text{Correctly Rejected Negatives}}{\text{Total Negative Pairs}} = 1.0 - \text{FAR}$$
+  *(Ideal: 100.0%)*
 
 ---
 
 ## 8. Metric Definitions
 
 | Metric | Definition | Valid when |
-|--------|-----------|-----------|
-| `reference_keypoints` | Number of ORB keypoints detected in reference image | Always |
-| `query_keypoints` | Number of ORB keypoints detected in query image | Always |
+| :--- | :--- | :--- |
+| `reference_keypoints` | Keypoints detected in reference image (ORB or SIFT) | Always |
+| `query_keypoints` | Keypoints detected in query image (ORB or SIFT) | Always |
 | `tentative_matches` | Matches returned by k-NN before ratio test | Always |
-| `filtered_matches` | Matches surviving the ratio test | Always |
+| `filtered_matches` | Matches surviving Lowe's ratio test | Always |
 | `geometric_inliers` | RANSAC-consistent correspondences | Geometry succeeds |
 | `inlier_ratio` | `geometric_inliers / filtered_matches` | Geometry succeeds |
 | `mean_reproj_error_px` | Mean reprojection error on inliers | Geometry succeeds |
-| `corner_error_px` | Mean corner transfer error vs. known H | Synthetic GT pairs only |
-| `processing_time_s` | Wall-clock time for the full pipeline | Always |
+| `corner_error_px` | Mean Euclidean corner transfer error vs known $H_{true}$ | Verified GT pairs only |
+| `false_acceptance_rate` | Ratio of negative pairs incorrectly marked as success | Negative evaluation sets |
+| `true_negative_rate` | Ratio of negative pairs correctly rejected | Negative evaluation sets |
+| `processing_time_s` | Wall-clock execution time for feature matching + geometry | Always |
 | `success_rate` | Fraction of pairs reaching `status=success` | Evaluation sets |
 
-**What these metrics are not:**
-- `inlier_ratio` is not a calibrated probability of correct geographic localization.
-- `mean_reproj_error_px` is not a geographic position error in meters.
-- `corner_error_px` on synthetic pairs does not characterize real-world nav error.
+**Crucial Disclaimers:**
+- `inlier_ratio` is not a calibrated probability of geographic localization.
+- `mean_reproj_error_px` is not a physical position error in meters.
+- `corner_error_px` measures 2D raster plane alignment only, not geodetic navigation accuracy.

@@ -114,3 +114,20 @@ class TestDetectAndMatch:
         assert res_mutual.params["mutual_consistency"] is True
         assert res_mutual.filtered_matches <= res_standard.filtered_matches
 
+    def test_sift_matching(self):
+        img = _make_textured_image(seed=8)
+        result = detect_and_match(img, img, algorithm="SIFT", orb_max_features=1000)
+        assert result.success
+        assert result.params["algorithm"] == "SIFT"
+        assert result.reference_keypoints > 0
+        assert result.query_keypoints > 0
+        assert result.filtered_matches > 0
+        assert result.reference_pts is not None
+        assert result.reference_pts.shape == (result.filtered_matches, 2)
+
+    def test_invalid_algorithm_raises(self):
+        img = _make_textured_image(seed=9)
+        with pytest.raises(ValueError, match="Unsupported algorithm"):
+            detect_and_match(img, img, algorithm="UNSUPPORTED_ALGO")
+
+

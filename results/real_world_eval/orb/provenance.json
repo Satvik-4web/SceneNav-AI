@@ -1,0 +1,19 @@
+{
+  "manifest": "real_world_pairs.json",
+  "manifest_description": "SceneNav AI Real-World Aerial Benchmark composed of authentic USGS/USDA NAIP public domain aerial orthophotos. Distinguishes verified planar ground truth, uncalibrated real observations with unavailable ground truth, and unrelated cross-scene negative pairs.",
+  "geographic_content": false,
+  "params": {
+    "algorithm": "ORB",
+    "orb_max_features": 5000,
+    "ratio_threshold": 0.75,
+    "ransac_reproj_threshold": 4.0,
+    "min_inliers": 10,
+    "mutual_consistency": false
+  },
+  "software_versions": {
+    "opencv": "5.0.0",
+    "numpy": "2.2.6"
+  },
+  "total_wall_time_s": 2.3389574000029825,
+  "important_disclaimer": "Metrics in this report reflect image-matching performance on the named dataset. For synthetic and planar-crop pairs, corner error is a pixel-level metric only. These results do NOT constitute evidence of real-world geographic navigation accuracy."
+}

@@ -31,8 +31,11 @@ Thumbs.db
 results/*
 !results/.gitkeep
 !results/README.md
+!results/real_world_eval/
+!results/real_world_eval/**
 
 # Data (user-provided images)
+data/.raw_*
 data/references/*
 data/queries/*
 !data/references/.gitkeep

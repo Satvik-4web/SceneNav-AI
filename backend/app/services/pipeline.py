@@ -73,6 +73,7 @@ def run_matching_pipeline(
     # --- Feature matching ---
     match_result = detect_and_match(
         reference, query,
+        algorithm=getattr(params, "algorithm", "ORB"),
         orb_max_features=params.orb_max_features,
         ratio_threshold=params.ratio_threshold,
         mutual_consistency=params.mutual_consistency,

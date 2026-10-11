@@ -1,0 +1,363 @@
+{
+  "name": "real_world_usgs_aerial_benchmark",
+  "version": "1.0",
+  "description": "SceneNav AI Real-World Aerial Benchmark composed of authentic USGS/USDA NAIP public domain aerial orthophotos. Distinguishes verified planar ground truth, uncalibrated real observations with unavailable ground truth, and unrelated cross-scene negative pairs.",
+  "license": "Public Domain (17 U.S.C. \u00a7 105 - United States Government Work)",
+  "attribution": "United States Geological Survey (USGS) and USDA Farm Service Agency",
+  "geographic_content": false,
+  "important_note": "Pixel coordinates and reprojection errors in this benchmark evaluate 2D planar image registration only. They do not constitute geographic latitude/longitude navigation accuracy without a verified georeferencing model.",
+  "sources": {
+    "greenwood": {
+      "title": "Greenwood Airport Mississippi - USGS Orthophoto 17 Feb 1996",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Greenwood_Airport_Mississippi_-_USGS_Orthophoto_17_Feb_1996.jpg",
+      "expected_sha256": "4f3e7d2c2e4ef678d33e8ca773d254be78ea49ffc2232d01b937124f6b5df80b",
+      "target_ref": "real_usgs_greenwood_ref.png",
+      "license": "Public Domain (17 U.S.C. \u00a7 105)",
+      "attribution": "United States Geological Survey (USGS)",
+      "source_repository": "Wikimedia Commons / USGS National Aerial Photography Program",
+      "sha256_ref_png": "7c427c8d1ed900a9cae834547fa87021d43b48626968716ed626ef17458a8453",
+      "ref_width": 701,
+      "ref_height": 643
+    },
+    "chico": {
+      "title": "Chico Municipal Airport - USGS Aerial Orthophoto",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Chico_Municipal_Airport_-_USGS_Topo.jpg",
+      "expected_sha256": "40172e1cc99bf5e91d73f2475d4f1533b8176cf059a0bda3fb70f634231dd31e",
+      "target_ref": "real_usgs_chico_ref.png",
+      "license": "Public Domain (17 U.S.C. \u00a7 105)",
+      "attribution": "United States Geological Survey (USGS)",
+      "source_repository": "Wikimedia Commons / USGS Topographic & Aerial Series",
+      "sha256_ref_png": "a920a97e9ebac912ec11e21eb854574e4513e9d56cf4862b905fb761fbddafeb",
+      "ref_width": 768,
+      "ref_height": 768
+    },
+    "harris_hill": {
+      "title": "Harris Hill Raceway USGS TNRIS Aerial Orthophoto 2015",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Harris_Hill_Raceway_USGS_TNRIS_20150120.jpg",
+      "expected_sha256": "26498e4bfe8804c531f43ee38d55e0df58821a2109406339bed6a25b91344bac",
+      "target_ref": "real_usgs_harrishill_ref.png",
+      "license": "Public Domain (17 U.S.C. \u00a7 105)",
+      "attribution": "USGS / Texas Natural Resources Information System (TNRIS)",
+      "source_repository": "Wikimedia Commons / USGS High Resolution Orthoimagery",
+      "sha256_ref_png": "37e028c4804087d7080a93ef99e93041891b366f30e246b5639d451ee9a35e33",
+      "ref_width": 1024,
+      "ref_height": 1024
+    }
+  },
+  "total_pairs": 15,
+  "positive_pairs_with_gt": 8,
+  "positive_pairs_uncalibrated": 3,
+  "negative_pairs": 4,
+  "pairs": [
+    {
+      "id": "real_greenwood_01_crop",
+      "scene": "Greenwood Airport, MS (USGS Orthophoto)",
+      "reference": "references/real_usgs_greenwood_ref.png",
+      "query": "queries/real_greenwood_query_crop_runway.png",
+      "ground_truth_type": "planar_homography_gt",
+      "transform": {
+        "type": "planar_crop",
+        "homography_3x3": [
+          [
+            1.0,
+            0.0,
+            120.0
+          ],
+          [
+            0.0,
+            1.0,
+            100.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "description": "Runway intersection sub-patch crop on USGS aerial orthophoto with verified planar ground truth.",
+      "is_negative": false
+    },
+    {
+      "id": "real_greenwood_02_rot_scale",
+      "scene": "Greenwood Airport, MS (USGS Orthophoto)",
+      "reference": "references/real_usgs_greenwood_ref.png",
+      "query": "queries/real_greenwood_query_rot_scale.png",
+      "ground_truth_type": "planar_homography_gt",
+      "transform": {
+        "type": "euclidean_rotation_scale",
+        "homography_3x3": [
+          [
+            0.9110466232422447,
+            -0.1280392528832602,
+            164.7194656664869
+          ],
+          [
+            0.1280392528832602,
+            0.9110466232422447,
+            102.0958764615718
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "rotation_deg": 8.0,
+        "scale": 0.92
+      },
+      "description": "Rotated (8 deg) and scaled (0.92x) aerial patch with verified ground truth homography.",
+      "is_negative": false
+    },
+    {
+      "id": "real_greenwood_03_photometric",
+      "scene": "Greenwood Airport, MS (USGS Orthophoto)",
+      "reference": "references/real_usgs_greenwood_ref.png",
+      "query": "queries/real_greenwood_query_photometric.png",
+      "ground_truth_type": "planar_homography_gt",
+      "transform": {
+        "type": "photometric_crop",
+        "homography_3x3": [
+          [
+            1.0,
+            0.0,
+            150.0
+          ],
+          [
+            0.0,
+            1.0,
+            120.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "description": "Atmospheric/lighting variation and mild blur on real aerial runway sub-patch.",
+      "is_negative": false
+    },
+    {
+      "id": "real_greenwood_04_uncalibrated_obs",
+      "scene": "Greenwood Airport, MS (USGS Orthophoto)",
+      "reference": "references/real_usgs_greenwood_ref.png",
+      "query": "queries/real_greenwood_query_uncalibrated_obs.png",
+      "ground_truth_type": "unavailable",
+      "transform": null,
+      "description": "Real aerial observation with non-planar view distortion. Ground truth homography is explicitly unavailable.",
+      "is_negative": false
+    },
+    {
+      "id": "real_chico_01_crop",
+      "scene": "Chico Municipal Airport, CA (USGS Orthophoto)",
+      "reference": "references/real_usgs_chico_ref.png",
+      "query": "queries/real_chico_query_crop_center.png",
+      "ground_truth_type": "planar_homography_gt",
+      "transform": {
+        "type": "planar_crop",
+        "homography_3x3": [
+          [
+            1.0,
+            0.0,
+            160.0
+          ],
+          [
+            0.0,
+            1.0,
+            140.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "description": "Central airfield sub-patch crop on USGS orthophoto with verified planar ground truth.",
+      "is_negative": false
+    },
+    {
+      "id": "real_chico_02_rot_10",
+      "scene": "Chico Municipal Airport, CA (USGS Orthophoto)",
+      "reference": "references/real_usgs_chico_ref.png",
+      "query": "queries/real_chico_query_rot_10.png",
+      "ground_truth_type": "planar_homography_gt",
+      "transform": {
+        "type": "euclidean_rotation_scale",
+        "homography_3x3": [
+          [
+            0.8863269777109872,
+            -0.1562833599002373,
+            228.9571706029704
+          ],
+          [
+            0.1562833599002373,
+            0.8863269777109872,
+            152.8514443987852
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "rotation_deg": 10.0,
+        "scale": 0.9
+      },
+      "description": "Rotated (10 deg) airfield patch on USGS aerial orthophoto with verified ground truth.",
+      "is_negative": false
+    },
+    {
+      "id": "real_chico_03_scale_08",
+      "scene": "Chico Municipal Airport, CA (USGS Orthophoto)",
+      "reference": "references/real_usgs_chico_ref.png",
+      "query": "queries/real_chico_query_scale_08.png",
+      "ground_truth_type": "planar_homography_gt",
+      "transform": {
+        "type": "euclidean_rotation_scale",
+        "homography_3x3": [
+          [
+            0.82,
+            -0.0,
+            236.91
+          ],
+          [
+            0.0,
+            0.82,
+            236.91
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "rotation_deg": 0.0,
+        "scale": 0.82
+      },
+      "description": "Zoomed/scaled (0.82x) aerial observation patch with verified ground truth homography.",
+      "is_negative": false
+    },
+    {
+      "id": "real_chico_04_uncalibrated_obs",
+      "scene": "Chico Municipal Airport, CA (USGS Orthophoto)",
+      "reference": "references/real_usgs_chico_ref.png",
+      "query": "queries/real_chico_query_uncalibrated_obs.png",
+      "ground_truth_type": "unavailable",
+      "transform": null,
+      "description": "Uncalibrated aerial observation over Chico Airport; ground truth homography unavailable.",
+      "is_negative": false
+    },
+    {
+      "id": "real_harrishill_01_crop",
+      "scene": "Harris Hill Raceway, TX (USGS TNRIS)",
+      "reference": "references/real_usgs_harrishill_ref.png",
+      "query": "queries/real_harrishill_query_crop_track.png",
+      "ground_truth_type": "planar_homography_gt",
+      "transform": {
+        "type": "planar_crop",
+        "homography_3x3": [
+          [
+            1.0,
+            0.0,
+            180.0
+          ],
+          [
+            0.0,
+            1.0,
+            160.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "description": "Road-course track complex crop on USGS TNRIS orthophoto with verified planar ground truth.",
+      "is_negative": false
+    },
+    {
+      "id": "real_harrishill_02_rot_14",
+      "scene": "Harris Hill Raceway, TX (USGS TNRIS)",
+      "reference": "references/real_usgs_harrishill_ref.png",
+      "query": "queries/real_harrishill_query_rot_14.png",
+      "ground_truth_type": "planar_homography_gt",
+      "transform": {
+        "type": "euclidean_rotation_scale",
+        "homography_3x3": [
+          [
+            0.8732661536483969,
+            -0.21772970603970096,
+            272.5098975875566
+          ],
+          [
+            0.21772970603970096,
+            0.8732661536483969,
+            186.3552768938314
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "rotation_deg": 14.0,
+        "scale": 0.9
+      },
+      "description": "Rotated (14 deg) terrain and raceway patch with verified ground truth homography.",
+      "is_negative": false
+    },
+    {
+      "id": "real_harrishill_03_uncalibrated_obs",
+      "scene": "Harris Hill Raceway, TX (USGS TNRIS)",
+      "reference": "references/real_usgs_harrishill_ref.png",
+      "query": "queries/real_harrishill_query_uncalibrated_obs.png",
+      "ground_truth_type": "unavailable",
+      "transform": null,
+      "description": "Uncalibrated aerial observation over Harris Hill terrain; ground truth homography unavailable.",
+      "is_negative": false
+    },
+    {
+      "id": "real_negative_01_chico_on_greenwood",
+      "scene": "Cross-scene negative (Chico query vs Greenwood ref)",
+      "reference": "references/real_usgs_greenwood_ref.png",
+      "query": "queries/real_chico_query_crop_center.png",
+      "ground_truth_type": "negative_unrelated_pair",
+      "transform": null,
+      "description": "Unrelated negative pair: Chico Airport aerial query tested against Greenwood Airport reference map.",
+      "is_negative": true
+    },
+    {
+      "id": "real_negative_02_harrishill_on_greenwood",
+      "scene": "Cross-scene negative (Harris Hill query vs Greenwood ref)",
+      "reference": "references/real_usgs_greenwood_ref.png",
+      "query": "queries/real_harrishill_query_crop_track.png",
+      "ground_truth_type": "negative_unrelated_pair",
+      "transform": null,
+      "description": "Unrelated negative pair: Harris Hill Raceway query tested against Greenwood Airport reference map.",
+      "is_negative": true
+    },
+    {
+      "id": "real_negative_03_greenwood_on_chico",
+      "scene": "Cross-scene negative (Greenwood query vs Chico ref)",
+      "reference": "references/real_usgs_chico_ref.png",
+      "query": "queries/real_greenwood_query_crop_runway.png",
+      "ground_truth_type": "negative_unrelated_pair",
+      "transform": null,
+      "description": "Unrelated negative pair: Greenwood runway query tested against Chico Airport reference map.",
+      "is_negative": true
+    },
+    {
+      "id": "real_negative_04_greenwood_on_harrishill",
+      "scene": "Cross-scene negative (Greenwood query vs Harris Hill ref)",
+      "reference": "references/real_usgs_harrishill_ref.png",
+      "query": "queries/real_greenwood_query_crop_runway.png",
+      "ground_truth_type": "negative_unrelated_pair",
+      "transform": null,
+      "description": "Unrelated negative pair: Greenwood runway query tested against Harris Hill Raceway reference map.",
+      "is_negative": true
+    }
+  ]
+}

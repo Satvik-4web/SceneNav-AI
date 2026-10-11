@@ -52,6 +52,12 @@ DATASET_CATALOG = {
         "license": "Public Domain / CC0",
         "is_offline": True,
     },
+    "real-world": {
+        "name": "USGS Real-World Aerial Orthophoto Benchmark",
+        "description": "Authentic public domain USGS aerial orthophotos with controlled planar crops, uncalibrated observations, and cross-scene negatives.",
+        "license": "Public Domain (17 U.S.C. § 105 - United States Government Work)",
+        "is_offline": False,
+    },
     "wikimedia-commons-aerial": {
         "name": "Wikimedia Commons Curated Orthophoto Sample",
         "description": "Curated public domain / CC BY aerial orthophoto patch pairs.",
@@ -60,11 +66,11 @@ DATASET_CATALOG = {
         "items": [
             {
                 "id": "ortho_pair_01",
-                "reference_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Aerial_view_of_Berlin_Tempelhof_Airport_%282010%29.jpg/1024px-Aerial_view_of_Berlin_Tempelhof_Airport_%282010%29.jpg",
-                "reference_filename": "berlin_tempelhof_ref.jpg",
-                "sha256": None, # Verified post-download or dynamically checked
-                "license": "CC BY-SA 3.0",
-                "attribution": "Wikimedia Commons / Jürgen Matern"
+                "reference_url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Greenwood_Airport_Mississippi_-_USGS_Orthophoto_17_Feb_1996.jpg",
+                "reference_filename": "real_usgs_greenwood_ref.png",
+                "sha256": "4f3e7d2c2e4ef678d33e8ca773d254be78ea49ffc2232d01b937124f6b5df80b",
+                "license": "Public Domain",
+                "attribution": "United States Geological Survey (USGS)"
             }
         ]
     }
@@ -171,6 +177,12 @@ def main():
         logger.info("Executing synthetic test pair generator (100% offline, reproducible)...")
         from generate_test_pairs import main as gen_main
         gen_main()
+        return
+
+    if args.source == "real-world":
+        logger.info("Executing USGS Real-World Aerial Benchmark acquisition...")
+        from download_real_world_data import main as rw_main
+        rw_main([])
         return
 
     meta = DATASET_CATALOG.get(args.source)

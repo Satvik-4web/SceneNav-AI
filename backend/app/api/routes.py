@@ -88,7 +88,10 @@ async def get_capabilities() -> CapabilitiesResponse:
     """Return supported formats, algorithms, and size limits."""
     return CapabilitiesResponse(
         supported_formats=["JPEG", "PNG", "TIFF", "BMP", "WEBP"],
-        algorithms=["ORB + BFMatcher + RANSAC Homography"],
+        algorithms=[
+            "ORB + BFMatcher (Hamming) + RANSAC Homography",
+            "SIFT + BFMatcher (L2) + RANSAC Homography",
+        ],
         max_upload_mb=settings.max_upload_mb,
         max_image_dim=settings.max_image_dim,
         features=[
@@ -115,6 +118,7 @@ async def get_capabilities() -> CapabilitiesResponse:
 async def match_images(
     reference_image: Annotated[UploadFile, File(description="Reference map/database image.")],
     query_image:     Annotated[UploadFile, File(description="Query scene image to locate.")],
+    algorithm:                 Annotated[str,   Form()] = "ORB",
     orb_max_features:          Annotated[int,   Form()] = 5000,
     ratio_threshold:           Annotated[float, Form()] = 0.75,
     ransac_reproj_threshold:   Annotated[float, Form()] = 4.0,
@@ -130,6 +134,7 @@ async def match_images(
     # Validate params via Pydantic (re-raise as 422)
     try:
         params = MatchParams(
+            algorithm=algorithm,
             orb_max_features=orb_max_features,
             ratio_threshold=ratio_threshold,
             ransac_reproj_threshold=ransac_reproj_threshold,

@@ -22,15 +22,16 @@ SceneNav AI matches a query aerial or satellite image against a stored reference
 
 ## Features
 
-- ORB keypoint detection and descriptor matching (Hamming BFMatcher)
-- Lowe's ratio-test filtering
-- RANSAC homography estimation with rigorous validation
-- Query footprint projection into reference-image coordinates
-- Correspondence visualization (tentative matches + inlier-only)
-- FastAPI backend with structured error responses and artifact serving
-- React + Vite research dashboard (dark scientific workstation aesthetic)
-- Reproducible evaluation pipeline with CSV + JSON output
-- Synthetic test pair generator for offline baseline evaluation
+- **Dual Vision Engines:** Classical ORB baseline (Hamming BFMatcher) and SIFT alternative baseline ($L_2$ BFMatcher).
+- **Lowe's Ratio-Test & Mutual Consistency:** Dual-direction cross-check filtering for match ambiguity suppression.
+- **RANSAC Homography Estimation:** Robust planar projective transformation estimation with degenerate model rejection.
+- **Query Footprint Projection:** Projects sensor observation boundaries onto reference coordinate space with area validation.
+- **Real-World Aerial Benchmark:** 15 authentic USGS/USDA NAIP aerial orthophoto pairs with verified planar ground truth, uncalibrated observations, and cross-scene negatives.
+- **False Acceptance Evaluation:** Rigorous negative pair evaluation with explicit False Acceptance Rate and True Negative Rate tracking.
+- **Baseline Comparison Evaluator:** Side-by-side ORB vs SIFT evaluation with automated Markdown, CSV, and JSON report generation.
+- **FastAPI Backend:** Fully validated endpoints, streaming upload guards, strict resolved-path containment, and artifact serving.
+- **React + Vite Dashboard:** Interactive image matching, parameter controls, zoom & pan viewer, and report exporter.
+- **Synthetic Test Pair Generator:** 100% offline procedural test generator for controlled transform benchmarking.
 
 ---
 
@@ -198,80 +199,82 @@ Run the full automated test suite:
 run_tests.bat
 ```
 
+## Running Tests
+ 
+Run the full automated test suite:
+```cmd
+run_tests.bat
+```
+
 Or manually:
 ```bash
-# Backend pytest (68 tests)
+# Backend pytest (76 tests)
 python -m pytest backend/tests/ -v
 
 # Frontend vitest (7 tests)
 cd frontend && npm test
 ```
 
-**Actual test results (verified post-hardening run):**
+**Actual test results (verified real-world validation run):**
 
-- **Backend:** 68 passed in 2.47s (100% pass)
+- **Backend:** 76 passed in 2.65s (100% pass)
   - `test_image_loader.py` — 14 tests
-  - `test_feature_matching.py` — 9 tests
-  - `test_geometry.py` — 10 tests
-  - `test_evaluation.py` — 7 tests
-  - `test_api.py` — 28 tests (endpoints, validation, traversal security, bounded streaming, samples catalog)
+  - `test_feature_matching.py` — 11 tests (ORB, SIFT, ratio filtering, mutual consistency, algorithm validation)
+  - `test_geometry.py` — 10 tests (RANSAC homography, degenerate checks, reprojection error)
+  - `test_evaluation.py` — 13 tests (metrics, failure breakdowns, negative pairs, false acceptances, unavailable GT, reproducibility)
+  - `test_api.py` — 28 tests (endpoints, validation, traversal security, bounded streaming, samples catalog, mutual consistency)
 - **Frontend:** 7 passed in 2 test files (100% pass)
   - `client.test.js` — 4 tests
   - `components.test.jsx` — 3 tests
 
-See [`docs/TESTING.md`](docs/TESTING.md) for full historical archives and security matrix.
-
 ---
 
-## Running an Evaluation
+## Real-World Aerial Benchmark Evaluation
 
+### 1. Acquire Imagery and Generate Benchmark Manifest
 ```bash
-python scripts/run_evaluation.py --manifest synthetic_pairs.json --output results/evaluation_run_latest
+python scripts/download_real_world_data.py --confirm-download
+# Or: python scripts/download_sample_data.py --source real-world
 ```
+Acquires authentic public domain USGS aerial orthophotos (Greenwood-Leflore Airport, Chico Municipal Airport, Harris Hill Raceway) and constructs `data/manifests/real_world_pairs.json`.
 
-**Actual results (ORB-v1 baseline, 24 pairs, verified run):**
+### 2. Compare ORB vs SIFT Baselines
+```bash
+python scripts/compare_baselines.py --manifest real_world_pairs.json
+```
+Runs both ORB and SIFT over the same 15 image pairs, outputting:
+- `results/real_world_eval/orb_summary.json` & `orb_pairs.csv`
+- `results/real_world_eval/sift_summary.json` & `sift_pairs.csv`
+- `results/real_world_eval/COMPARISON_REPORT.md`
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Total pairs | 24 | 3 base scenes × 8 conditions |
-| Successful | 21 (87.5%) | Positive pairs (identity, crops, rotations, etc.) |
-| Failed | 3 (12.5%) | Negative unrelated pairs correctly rejected |
-| Mean inliers (successes) | 1623.0 | RANSAC verified correspondences |
-| Mean inlier ratio | 97.2% | Inliers / filtered matches |
-| Mean reproj. error | 0.61 px | Residual reprojection error on inliers |
-| Mean corner error | 0.34 px | Transfer error vs exact synthetic ground-truth H |
-| Mean processing time | 0.098 s/pair | CPU-based offline inference |
+### Actual Observed Results on Real-World USGS Benchmark
 
-> These are **synthetic image-matching metrics only**.  
-> They do not measure real-world geographic localization accuracy.
+| Metric | ORB Baseline | SIFT Alternative | Analysis / Observation |
+| :--- | :---: | :---: | :--- |
+| **Total Pairs** | 15 | 15 | 8 Planar GT + 3 Uncalibrated Obs + 4 Cross Negatives |
+| **Positive Pairs Success** | 11/11 (100.0%) | 11/11 (100.0%) | Both reliably locate co-located aerial scenes |
+| **False Acceptance Rate** | **0/4 (0.0%)** | **0/4 (0.0%)** | Zero false acceptances across all negative pairs |
+| **True Negative Rate** | **100.0%** | **100.0%** | Rejection of cross-scene query images |
+| **Mean Inliers (Positives)** | 430.2 | 687.4 | SIFT yields **+59.8% more inliers** |
+| **Mean Inlier Ratio** | 97.0% | 99.4% | SIFT: 99.4% vs ORB: 97.0% |
+| **Mean Reprojection Error**| 0.92 px | 0.11 px | SIFT achieves tighter sub-pixel correspondence |
+| **Mean Corner Transfer Error**| 5.33 px | 0.05 px | Evaluated strictly on 8 verified planar GT pairs |
+| **Mean Runtime** | **158.5 ms/pair** | **232.0 ms/pair** | ORB is ~1.5× faster on CPU |
 
----
-
-## Troubleshooting
-
-**`ModuleNotFoundError: No module named 'app'`**  
-→ Set `PYTHONPATH=backend` before running Python scripts.
-
-**Backend shows 422 on match request**  
-→ Check that both files are valid images and parameters are in range.
-
-**Frontend shows "Backend offline"**  
-→ Ensure the backend is running at port 8000. Check CORS settings in `.env`.
-
-**No keypoints detected**  
-→ The image may be too small, blurred, or uniformly coloured. Try a different image.
+> **Academic Integrity Notice:**  
+> These metrics reflect **2D image registration accuracy in pixel space**.  
+> They do **not** measure geographic latitude/longitude navigation accuracy without georeferencing metadata and camera calibration models.
 
 ---
 
 ## Limitations
 
-- ORB degrades on large viewpoint changes (>~30°), featureless textures, and severe blur.
-- A homography is only valid for approximately planar scenes; parallax-heavy scenes require more complex models.
-- No geographic coordinate output — pixel coordinates only without valid georeferencing.
-- Single-algorithm baseline (ORB). SIFT, SuperPoint, LoFTR are future work.
-- Job history is in-memory; restarts clear results.
+- **Planar-Scene Assumption:** Homography estimation models planar terrain surfaces. Steep relief, tall structures, or low-altitude oblique camera angles create out-of-plane parallax that violates the planar assumption.
+- **Pixel Accuracy != Navigation Accuracy:** Reprojection error and corner transfer error measure raster plane alignment against the reference image, not physical ground meters or GPS coordinates.
+- **Texture Dependence:** Feature matching degrades on featureless expanses (dense uniform tree canopies, smooth water bodies, snow).
+- **In-Memory Job Store:** Job history is held in-memory; server restart clears recent matching history.
 
-See [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) for a full discussion.
+See [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) and [`docs/ALGORITHMS.md`](docs/ALGORITHMS.md) for complete technical analysis.
 
 ---
 
@@ -279,5 +282,5 @@ See [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) for a full discussion.
 
 MIT — see `LICENSE`.
 
-> Dataset images generated by `scripts/generate_test_pairs.py` are synthetic  
-> and carry no copyright restrictions.
+> Authentic aerial imagery sourced from United States Geological Survey (USGS) and USDA Farm Service Agency is in the **Public Domain** (17 U.S.C. § 105). Procedural synthetic textures carry no copyright restrictions.
+
