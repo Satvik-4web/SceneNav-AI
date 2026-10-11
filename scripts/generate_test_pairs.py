@@ -128,6 +128,7 @@ def apply_transform(
     params: dict = {"type": transform_type, "note": "SYNTHETIC — pixel metric only"}
 
     if transform_type == "identity":
+        params["homography_3x3"] = np.eye(3, dtype=float).tolist()
         return img_arr.copy(), params
 
     elif transform_type == "crop_center":
@@ -136,27 +137,54 @@ def apply_transform(
         crop = img.crop((margin, margin, w - margin, h - margin))
         crop = crop.resize((w, h), Image.BILINEAR)
         params["margin_px"] = margin
+        s = (w - 2.0 * margin) / float(w)
+        H = np.array([
+            [s, 0.0, float(margin)],
+            [0.0, s, float(margin)],
+            [0.0, 0.0, 1.0]
+        ], dtype=float)
+        params["homography_3x3"] = H.tolist()
         return np.array(crop), params
 
     elif transform_type == "rotate_5":
         rotated = img.rotate(5, expand=False, fillcolor=(128, 128, 128))
         params["angle_deg"] = 5
+        w, h = img.size
+        cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
+        ang = np.deg2rad(5)
+        cos_a, sin_a = np.cos(ang), np.sin(ang)
+        R = np.array([[cos_a, -sin_a, 0.0], [sin_a, cos_a, 0.0], [0.0, 0.0, 1.0]])
+        T1 = np.array([[1.0, 0.0, -cx], [0.0, 1.0, -cy], [0.0, 0.0, 1.0]])
+        T2 = np.array([[1.0, 0.0, cx], [0.0, 1.0, cy], [0.0, 0.0, 1.0]])
+        H = T2 @ R @ T1
+        params["homography_3x3"] = H.tolist()
         return np.array(rotated), params
 
     elif transform_type == "rotate_15":
         rotated = img.rotate(15, expand=False, fillcolor=(128, 128, 128))
         params["angle_deg"] = 15
+        w, h = img.size
+        cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
+        ang = np.deg2rad(15)
+        cos_a, sin_a = np.cos(ang), np.sin(ang)
+        R = np.array([[cos_a, -sin_a, 0.0], [sin_a, cos_a, 0.0], [0.0, 0.0, 1.0]])
+        T1 = np.array([[1.0, 0.0, -cx], [0.0, 1.0, -cy], [0.0, 0.0, 1.0]])
+        T2 = np.array([[1.0, 0.0, cx], [0.0, 1.0, cy], [0.0, 0.0, 1.0]])
+        H = T2 @ R @ T1
+        params["homography_3x3"] = H.tolist()
         return np.array(rotated), params
 
     elif transform_type == "brightness":
         enhancer = ImageEnhance.Brightness(img)
         bright = enhancer.enhance(1.4)
         params["brightness_factor"] = 1.4
+        params["homography_3x3"] = np.eye(3, dtype=float).tolist()
         return np.array(bright), params
 
     elif transform_type == "blur":
         blurred = img.filter(ImageFilter.GaussianBlur(radius=2))
         params["blur_radius"] = 2
+        params["homography_3x3"] = np.eye(3, dtype=float).tolist()
         return np.array(blurred), params
 
     elif transform_type == "scale_0.8":
@@ -167,10 +195,20 @@ def apply_transform(
         crop = img.crop((ox, oy, ox + small_w, oy + small_h))
         scaled = crop.resize((w, h), Image.BILINEAR)
         params["scale"] = 0.8
+        sx = small_w / float(w)
+        sy = small_h / float(h)
+        H = np.array([
+            [sx, 0.0, float(ox)],
+            [0.0, sy, float(oy)],
+            [0.0, 0.0, 1.0]
+        ], dtype=float)
+        params["homography_3x3"] = H.tolist()
         return np.array(scaled), params
 
     elif transform_type == "unrelated":
         rng = np.random.default_rng(seed + 9999)
+        params["homography_3x3"] = None
+        params["is_negative_test"] = True
         return rng.integers(0, 256, img_arr.shape, dtype=np.uint8), params
 
     else:
@@ -214,6 +252,7 @@ def main() -> None:
             qry_filename = f"scene_{scene_idx:02d}_query_{tx_type}.png"
             qry_sha = save_png(qry_arr, QRY_DIR / qry_filename)
 
+            is_negative = (tx_type == "unrelated")
             pair_id = f"scene{scene_idx:02d}_{tx_type}"
             pairs.append({
                 "id": pair_id,
@@ -222,11 +261,13 @@ def main() -> None:
                 "transform": tx_params,
                 "reference_sha256": ref_sha,
                 "query_sha256": qry_sha,
-                "ground_truth_type": "synthetic_pixel",
+                "ground_truth_type": "negative_unrelated_pair" if is_negative else "synthetic_homography",
                 "geographic_ground_truth": False,
+                "is_negative_pair": is_negative,
                 "note": (
-                    "Synthetic pair. Pixel-level metrics only. "
-                    "Not representative of real-world geographic localization accuracy."
+                    "Negative evaluation pair — scenes are unrelated; pipeline is expected to reject."
+                    if is_negative
+                    else "Synthetic pair with known ground-truth homography. Pixel-level metric only."
                 ),
             })
             print(f"  Query [{tx_type}]: {qry_filename}")

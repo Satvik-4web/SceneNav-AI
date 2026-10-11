@@ -11,8 +11,10 @@ Endpoints:
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
+import re
 import uuid
 from pathlib import Path
 from typing import Annotated
@@ -33,10 +35,34 @@ from app.services.pipeline import run_matching_pipeline
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# In-memory job store (MVP: single process, not persistent across restarts)
+# In-memory job store with thread-safe lock and bounded eviction
+MAX_JOB_STORE_ITEMS = 200
 _JOB_STORE: dict[str, MatchResult] = {}
+_JOB_STORE_LOCK = asyncio.Lock()
 
 MAX_UPLOAD_BYTES = settings.max_upload_mb * 1024 * 1024
+
+
+async def _read_upload_file_bounded(upload_file: UploadFile, max_bytes: int) -> bytes:
+    """
+    Read an uploaded file in bounded chunks to prevent memory exhaustion attacks.
+    Aborts immediately with HTTP 413 if max_bytes is exceeded.
+    """
+    chunks = []
+    total = 0
+    chunk_size = 64 * 1024  # 64 KB
+    while True:
+        chunk = await upload_file.read(chunk_size)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail=f"Uploaded file '{upload_file.filename}' exceeds {max_bytes // (1024 * 1024)} MB limit.",
+            )
+        chunks.append(chunk)
+    return b"".join(chunks)
 
 
 # ---------------------------------------------------------------------------
@@ -113,20 +139,9 @@ async def match_images(
     except Exception as exc:
         raise HTTPException(status_code=422, detail=str(exc))
 
-    # Read and size-check uploads
-    ref_bytes = await reference_image.read()
-    qry_bytes = await query_image.read()
-
-    if len(ref_bytes) > MAX_UPLOAD_BYTES:
-        raise HTTPException(
-            status_code=413,
-            detail=f"Reference image exceeds {settings.max_upload_mb} MB limit."
-        )
-    if len(qry_bytes) > MAX_UPLOAD_BYTES:
-        raise HTTPException(
-            status_code=413,
-            detail=f"Query image exceeds {settings.max_upload_mb} MB limit."
-        )
+    # Read and size-check uploads using bounded streaming
+    ref_bytes = await _read_upload_file_bounded(reference_image, MAX_UPLOAD_BYTES)
+    qry_bytes = await _read_upload_file_bounded(query_image, MAX_UPLOAD_BYTES)
 
     # Load and validate images
     try:
@@ -153,7 +168,12 @@ async def match_images(
             detail="An internal processing error occurred. Check server logs."
         )
 
-    _JOB_STORE[job_id] = result
+    async with _JOB_STORE_LOCK:
+        if len(_JOB_STORE) >= MAX_JOB_STORE_ITEMS:
+            for old_id in list(_JOB_STORE.keys())[:50]:
+                _JOB_STORE.pop(old_id, None)
+        _JOB_STORE[job_id] = result
+
     return result
 
 
@@ -168,9 +188,11 @@ async def match_images(
 )
 async def get_job(job_id: str) -> JobStatusResponse:
     """Return job status and result for a previously submitted match."""
-    if job_id not in _JOB_STORE:
-        raise HTTPException(status_code=404, detail=f"Job '{job_id}' not found.")
-    result = _JOB_STORE[job_id]
+    async with _JOB_STORE_LOCK:
+        if job_id not in _JOB_STORE:
+            raise HTTPException(status_code=404, detail=f"Job '{job_id}' not found.")
+        result = _JOB_STORE[job_id]
+
     return JobStatusResponse(
         job_id=job_id,
         status=result.status.value,
@@ -190,22 +212,35 @@ async def get_artifact(job_id: str, filename: str) -> FileResponse:
     """
     Serve a generated artifact image for a valid job.
 
-    Security: only pre-computed job directories are accessible.
-    Path traversal is blocked by validating the job_id and filename
-    against the known results directory.
+    Security:
+    - job_id must match alphanumeric/hyphen pattern.
+    - filename must match safe pattern and be a plain basename.
+    - target path must resolve strictly within the job directory and within results_dir.
+    - only image and JSON formats are served.
     """
-    # Validate job exists
-    if job_id not in _JOB_STORE:
-        raise HTTPException(status_code=404, detail=f"Job '{job_id}' not found.")
+    if not re.match(r"^[a-zA-Z0-9_-]+$", job_id):
+        raise HTTPException(status_code=400, detail="Invalid job ID format.")
 
-    # Block path traversal: filename must be a plain basename
-    safe_name = Path(filename).name
-    if safe_name != filename or "/" in filename or "\\" in filename:
+    if not re.match(r"^[a-zA-Z0-9_.-]+$", filename) or Path(filename).name != filename:
         raise HTTPException(status_code=400, detail="Invalid filename.")
 
-    artifact_path = settings.results_dir / job_id / safe_name
-    if not artifact_path.exists() or not artifact_path.is_file():
-        raise HTTPException(status_code=404, detail=f"Artifact '{filename}' not found.")
+    async with _JOB_STORE_LOCK:
+        if job_id not in _JOB_STORE:
+            raise HTTPException(status_code=404, detail=f"Job '{job_id}' not found.")
+
+    results_root = settings.results_dir.resolve()
+    job_dir = (settings.results_dir / job_id).resolve()
+    artifact_path = (job_dir / filename).resolve()
+
+    try:
+        if (
+            not job_dir.is_relative_to(results_root)
+            or not artifact_path.is_relative_to(job_dir)
+            or not artifact_path.is_file()
+        ):
+            raise HTTPException(status_code=404, detail=f"Artifact '{filename}' not found.")
+    except (ValueError, OSError):
+        raise HTTPException(status_code=404, detail="Invalid artifact path.")
 
     # Only serve image files and JSON
     if artifact_path.suffix.lower() not in {".png", ".jpg", ".jpeg", ".json"}:
@@ -231,15 +266,19 @@ async def run_evaluation(request: EvaluateRequest) -> dict:
     from app.services.evaluation import aggregate_metrics, SinglePairMetrics, save_results_json, save_results_csv
     from app.services.image_loader import load_image_from_path
 
-    manifest_path = settings.data_dir / "manifests" / request.manifest_name
-    if not manifest_path.exists():
-        raise HTTPException(
-            status_code=404,
-            detail=f"Manifest '{request.manifest_name}' not found in data/manifests/."
-        )
+    manifests_root = (settings.data_dir / "manifests").resolve()
+    manifest_path = (manifests_root / request.manifest_name).resolve()
+    try:
+        if not manifest_path.is_relative_to(manifests_root) or not manifest_path.is_file():
+            raise HTTPException(
+                status_code=404,
+                detail=f"Manifest '{request.manifest_name}' not found in data/manifests/."
+            )
+    except (ValueError, OSError):
+        raise HTTPException(status_code=400, detail="Invalid manifest path.")
 
     try:
-        with open(manifest_path) as f:
+        with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Cannot parse manifest: {exc}")
@@ -265,16 +304,26 @@ async def run_evaluation(request: EvaluateRequest) -> dict:
             ))
             continue
 
-        # Restrict paths to data directory (no traversal)
+        # Restrict paths to data directory (no traversal, accounting for symlinks)
+        data_root = settings.data_dir.resolve()
         ref_path = (settings.data_dir / ref_path_str).resolve()
         qry_path = (settings.data_dir / qry_path_str).resolve()
-        data_root = settings.data_dir.resolve()
 
-        if not str(ref_path).startswith(str(data_root)) or not str(qry_path).startswith(str(data_root)):
+        try:
+            is_safe = (
+                ref_path.is_relative_to(data_root)
+                and qry_path.is_relative_to(data_root)
+                and ref_path.is_file()
+                and qry_path.is_file()
+            )
+        except (ValueError, OSError):
+            is_safe = False
+
+        if not is_safe:
             pair_metrics.append(SinglePairMetrics(
                 pair_id=pair_id,
                 status="processing_error",
-                failure_reason="Path traversal detected — access denied.",
+                failure_reason="Path traversal detected or image file does not exist.",
             ))
             continue
 
@@ -320,7 +369,6 @@ async def run_evaluation(request: EvaluateRequest) -> dict:
     # Save results
     eval_dir = settings.results_dir / f"eval_{eval_job_id}"
     eval_dir.mkdir(parents=True, exist_ok=True)
-    import dataclasses
     save_results_json(summary, eval_dir / "summary.json")
     save_results_csv(pair_metrics, eval_dir / "pairs.csv")
 
@@ -370,7 +418,7 @@ async def list_samples() -> SampleListResponse:
             query_path=p.get("query", ""),
             transform_type=tx_type,
             description=p.get("note", "Synthetic evaluation pair."),
-            ground_truth_type=p.get("ground_truth_type", "synthetic_pixel"),
+            ground_truth_type=p.get("ground_truth_type", "synthetic_homography"),
         ))
 
     return SampleListResponse(
@@ -393,14 +441,26 @@ async def get_sample_image(category: str, filename: str) -> FileResponse:
     if category not in {"references", "queries"}:
         raise HTTPException(status_code=400, detail="Invalid sample category.")
 
-    safe_name = Path(filename).name
-    if safe_name != filename or "/" in filename or "\\" in filename:
+    if not re.match(r"^[a-zA-Z0-9_.-]+$", filename) or Path(filename).name != filename:
         raise HTTPException(status_code=400, detail="Invalid filename format.")
 
-    img_path = (settings.data_dir / category / safe_name).resolve()
     data_root = settings.data_dir.resolve()
-    if not str(img_path).startswith(str(data_root)) or not img_path.exists():
+    category_dir = (settings.data_dir / category).resolve()
+    img_path = (category_dir / filename).resolve()
+
+    try:
+        if (
+            not img_path.is_relative_to(category_dir)
+            or not img_path.is_relative_to(data_root)
+            or not img_path.is_file()
+        ):
+            raise HTTPException(status_code=404, detail="Sample image not found.")
+    except (ValueError, OSError):
         raise HTTPException(status_code=404, detail="Sample image not found.")
 
+    if img_path.suffix.lower() not in {".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".webp"}:
+        raise HTTPException(status_code=400, detail="Unsupported sample image type.")
+
     return FileResponse(str(img_path))
+
 

@@ -200,47 +200,47 @@ run_tests.bat
 
 Or manually:
 ```bash
-# Backend pytest (62 tests)
+# Backend pytest (68 tests)
 python -m pytest backend/tests/ -v
 
 # Frontend vitest (7 tests)
 cd frontend && npm test
 ```
 
-**Actual test results (recorded at build time):**
+**Actual test results (verified post-hardening run):**
 
-- **Backend:** 62 passed in 2.38s (100% pass)
+- **Backend:** 68 passed in 2.47s (100% pass)
   - `test_image_loader.py` — 14 tests
   - `test_feature_matching.py` — 9 tests
   - `test_geometry.py` — 10 tests
   - `test_evaluation.py` — 7 tests
-  - `test_api.py` — 22 tests
+  - `test_api.py` — 28 tests (endpoints, validation, traversal security, bounded streaming, samples catalog)
 - **Frontend:** 7 passed in 2 test files (100% pass)
   - `client.test.js` — 4 tests
   - `components.test.jsx` — 3 tests
 
-See [`docs/TESTING.md`](docs/TESTING.md) for details.
+See [`docs/TESTING.md`](docs/TESTING.md) for full historical archives and security matrix.
 
 ---
 
 ## Running an Evaluation
 
 ```bash
-$env:PYTHONPATH="backend"
-python scripts/run_evaluation.py --manifest synthetic_pairs.json
+python scripts/run_evaluation.py --manifest synthetic_pairs.json --output results/evaluation_run_latest
 ```
 
-**Actual results (baseline, ORB-v1, default params, 24 pairs):**
+**Actual results (ORB-v1 baseline, 24 pairs, verified run):**
 
-| Metric | Value |
-|--------|-------|
-| Total pairs | 24 |
-| Successful | 21 (87.5%) |
-| Failed | 3 (unrelated images, correctly rejected) |
-| Mean inliers (successes) | 1623 |
-| Mean inlier ratio | 97.2% |
-| Mean reprojection error | 0.61 px |
-| Mean processing time | 0.105 s/pair |
+| Metric | Value | Notes |
+|--------|-------|-------|
+| Total pairs | 24 | 3 base scenes × 8 conditions |
+| Successful | 21 (87.5%) | Positive pairs (identity, crops, rotations, etc.) |
+| Failed | 3 (12.5%) | Negative unrelated pairs correctly rejected |
+| Mean inliers (successes) | 1623.0 | RANSAC verified correspondences |
+| Mean inlier ratio | 97.2% | Inliers / filtered matches |
+| Mean reproj. error | 0.61 px | Residual reprojection error on inliers |
+| Mean corner error | 0.34 px | Transfer error vs exact synthetic ground-truth H |
+| Mean processing time | 0.098 s/pair | CPU-based offline inference |
 
 > These are **synthetic image-matching metrics only**.  
 > They do not measure real-world geographic localization accuracy.

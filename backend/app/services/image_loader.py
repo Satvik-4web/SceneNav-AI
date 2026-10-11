@@ -89,7 +89,8 @@ def load_image_from_bytes(
             f"Supported: {sorted(SUPPORTED_EXTENSIONS)}"
         )
 
-    # 3. Decode with Pillow first (catches corruption, validates format)
+    # 3. Decode with Pillow (early header check to defend against decompression bombs)
+    Image.MAX_IMAGE_PIXELS = max_dim * max_dim
     try:
         pil_image = Image.open(io.BytesIO(data))
         pil_format = pil_image.format or "UNKNOWN"
@@ -98,9 +99,21 @@ def load_image_from_bytes(
                 f"File claims extension '{suffix}' but Pillow detected format "
                 f"'{pil_format}', which is not in the supported set."
             )
-        # Apply EXIF orientation so coordinates are consistent
+
+        # Early dimension check BEFORE allocating pixel buffers
+        w, h = pil_image.size
+        if w > max_dim or h > max_dim:
+            raise ImageLoadError(
+                f"Image dimensions {w}×{h} px exceed the {max_dim} px per-side limit."
+            )
+        if w < 8 or h < 8:
+            raise ImageLoadError(
+                f"Image dimensions {w}×{h} px are too small for feature detection (minimum 8×8)."
+            )
+
+        # Apply EXIF orientation and load pixel data
         pil_image = _apply_exif_orientation(pil_image)
-        pil_image.load()  # Force decode — catches truncated files
+        pil_image.load()  # Force decode — catches truncated or malformed bodies
     except ImageLoadError:
         raise
     except UnidentifiedImageError:
@@ -110,17 +123,6 @@ def load_image_from_bytes(
         )
     except Exception as exc:
         raise ImageLoadError(f"Failed to open '{filename}': {exc}") from exc
-
-    # 4. Dimension check
-    w, h = pil_image.size
-    if w > max_dim or h > max_dim:
-        raise ImageLoadError(
-            f"Image dimensions {w}×{h} px exceed the {max_dim} px per-side limit."
-        )
-    if w < 8 or h < 8:
-        raise ImageLoadError(
-            f"Image dimensions {w}×{h} px are too small for feature detection (minimum 8×8)."
-        )
 
     # 5. Convert to RGB then to OpenCV BGR
     try:

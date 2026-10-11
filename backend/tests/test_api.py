@@ -256,3 +256,55 @@ class TestMutualConsistency:
         assert data["status"] == "success"
         assert data["algorithm_params"]["mutual_consistency"] is True
 
+
+class TestSecurityHardening:
+    def test_artifact_traversal_in_job_id(self):
+        resp = client.get("/api/v1/artifacts/..%2F..%2Fresults/test.png")
+        assert resp.status_code in (400, 404)
+
+    def test_artifact_invalid_job_id_format(self):
+        resp = client.get("/api/v1/artifacts/job;drop%20tables/test.png")
+        assert resp.status_code == 400
+
+    def test_artifact_forbidden_extension(self):
+        img_bytes = _make_png_bytes(seed=13)
+        match_resp = client.post(
+            "/api/v1/match",
+            files={
+                "reference_image": ("r.png", img_bytes, "image/png"),
+                "query_image": ("q.png", img_bytes, "image/png"),
+            },
+        )
+        job_id = match_resp.json()["job_id"]
+        # Try requesting non-artifact extension
+        resp = client.get(f"/api/v1/artifacts/{job_id}/evil.exe")
+        assert resp.status_code in (400, 404)
+
+    def test_sample_image_traversal_backslashes(self):
+        resp = client.get("/api/v1/samples/image/references/..\\..\\main.py")
+        assert resp.status_code in (400, 404)
+
+    def test_evaluation_manifest_path_traversal(self):
+        resp = client.post(
+            "/api/v1/evaluate",
+            json={"manifest_name": "../../../etc/passwd"}
+        )
+        assert resp.status_code == 422  # blocked by Pydantic validator or router
+
+    def test_upload_streaming_limit(self, monkeypatch):
+        # Temporarily set max_upload_mb to 1MB to test bounded streaming
+        from app.config import settings
+        import app.api.routes as routes
+        monkeypatch.setattr(routes, "MAX_UPLOAD_BYTES", 1024 * 1024)
+
+        oversized_bytes = b"A" * (1024 * 1024 + 100)
+        resp = client.post(
+            "/api/v1/match",
+            files={
+                "reference_image": ("r.png", oversized_bytes, "image/png"),
+                "query_image": ("q.png", b"small", "image/png"),
+            },
+        )
+        assert resp.status_code == 413
+
+
