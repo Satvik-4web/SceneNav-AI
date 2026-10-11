@@ -145,7 +145,7 @@
       "query": "queries/real_greenwood_query_uncalibrated_obs.png",
       "ground_truth_type": "unavailable",
       "transform": null,
-      "description": "Real aerial observation with non-planar view distortion. Ground truth homography is explicitly unavailable.",
+      "description": "Simulated perspective-distortion observation derived from Greenwood Airport source orthophoto (not an independent real-world oblique capture). Ground truth homography is unavailable.",
       "is_negative": false
     },
     {
@@ -246,7 +246,7 @@
       "query": "queries/real_chico_query_uncalibrated_obs.png",
       "ground_truth_type": "unavailable",
       "transform": null,
-      "description": "Uncalibrated aerial observation over Chico Airport; ground truth homography unavailable.",
+      "description": "Simulated perspective-distortion observation derived from Chico Airport source orthophoto (not an independent real-world oblique capture). Ground truth homography is unavailable.",
       "is_negative": false
     },
     {
@@ -316,7 +316,7 @@
       "query": "queries/real_harrishill_query_uncalibrated_obs.png",
       "ground_truth_type": "unavailable",
       "transform": null,
-      "description": "Uncalibrated aerial observation over Harris Hill terrain; ground truth homography unavailable.",
+      "description": "Simulated perspective-distortion observation derived from Harris Hill source orthophoto (not an independent real-world oblique capture). Ground truth homography is unavailable.",
       "is_negative": false
     },
     {

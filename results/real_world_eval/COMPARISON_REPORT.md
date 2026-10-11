@@ -1,7 +1,7 @@
 # SceneNav AI — Baseline Comparison: ORB vs SIFT
 
 **Benchmark Dataset:** `real_world_pairs.json`  
-**Evaluation Timestamp:** 2026-10-11 13:22:53 UTC  
+**Evaluation Timestamp:** 2026-10-11 15:36:39 UTC  
 **Dataset License:** Public Domain (17 U.S.C. § 105 - United States Government Work)  
 **Attribution:** United States Geological Survey (USGS) and USDA Farm Service Agency  
 
@@ -18,14 +18,17 @@ and USDA NAIP public archives:
 | Metric | ORB Baseline | SIFT Alternative | Comparison / Analysis |
 | :--- | :---: | :---: | :--- |
 | **Total Evaluated Pairs** | 15 | 15 | Identical test pairs |
-| **Positive Success Rate** | 11/15 (73.3%) | 11/15 (73.3%) | Both achieved 100% on genuine positive pairs |
-| **False Acceptances (Negatives)** | 0/4 (0.0%) | 0/4 (0.0%) | Zero false acceptances across all negative pairs |
-| **True Negative Rate** | 100.0% | 100.0% | Rejection of cross-scene imagery |
-| **Mean Inlier Count (Positives)** | 430.2 | 687.4 | **SIFT yielded +59.8% more inliers** |
-| **Mean Inlier Ratio** | 97.0% | 99.4% | SIFT: 99.4% vs ORB: 97.0% |
-| **Mean Reprojection Error** | 0.92 px | 0.11 px | SIFT achieves sharper sub-pixel fitting |
-| **Mean Corner Transfer Error** | 5.33 px | 0.05 px | Evaluated on 8 verified planar GT pairs |
-| **Mean Processing Time** | 158.5 ms | 232.0 ms | ORB is ~1.5x faster |
+| **Positive Pairs** | 11 | 11 | 8 planar GT + 3 simulated perspective distortions |
+| **Negative Pairs** | 4 | 4 | Unrelated cross-scene pairs |
+| **Positive Success Rate** | 11/11 (100.0%) | 11/11 (100.0%) | Both achieved 100.0% on genuine positive pairs (11/11) |
+| **Overall Success Rate** | 11/15 (73.3%) | 11/15 (73.3%) | Verified matches across all pairs including negatives (11/15) |
+| **False Acceptances (Negatives)** | 0/4 (0.0%) | 0/4 (0.0%) | Zero false acceptances across negative pairs (0/4) |
+| **True Negative Rate** | 100.0% | 100.0% | Rejection of cross-scene distractors (4/4) |
+| **Mean Inlier Count (Positives)** | 442.4 | 689.2 | **SIFT yielded +55.8% more inliers** |
+| **Mean Inlier Ratio** | 97.1% | 99.4% | SIFT: 99.4% vs ORB: 97.1% |
+| **Mean Reprojection Error** | 0.91 px | 0.11 px | SIFT achieves sharper sub-pixel fitting |
+| **Mean Corner Transfer Error** | 5.33 px | 0.05 px | Evaluated strictly on 8 verified planar GT pairs |
+| **Mean Processing Time** | 155.1 ms | 207.3 ms | ORB is ~1.3x faster |
 
 ## 2. Per-Pair Side-by-Side Breakdown
 
@@ -34,14 +37,14 @@ and USDA NAIP public archives:
 | `real_greenwood_01_crop` | `planar_homography_gt` | success (842) | success (1164) | 1.23 px | 0.01 px |
 | `real_greenwood_02_rot_scale` | `planar_homography_gt` | success (531) | success (683) | 0.52 px | 0.05 px |
 | `real_greenwood_03_photometric` | `planar_homography_gt` | success (704) | success (666) | 1.26 px | 0.05 px |
-| `real_greenwood_04_uncalibrated_obs` | `unavailable` | success (768) | success (878) | — | — |
+| `real_greenwood_04_uncalibrated_obs` | `unavailable` | success (841) | success (877) | — | — |
 | `real_chico_01_crop` | `planar_homography_gt` | success (481) | success (1246) | 4.26 px | 0.00 px |
 | `real_chico_02_rot_10` | `planar_homography_gt` | success (129) | success (527) | 2.07 px | 0.09 px |
 | `real_chico_03_scale_08` | `planar_homography_gt` | success (33) | success (353) | 32.63 px | 0.07 px |
-| `real_chico_04_uncalibrated_obs` | `unavailable` | success (196) | success (598) | — | — |
+| `real_chico_04_uncalibrated_obs` | `unavailable` | success (227) | success (627) | — | — |
 | `real_harrishill_01_crop` | `planar_homography_gt` | success (533) | success (831) | 0.12 px | 0.01 px |
 | `real_harrishill_02_rot_14` | `planar_homography_gt` | success (168) | success (252) | 0.52 px | 0.10 px |
-| `real_harrishill_03_uncalibrated_obs` | `unavailable` | success (347) | success (363) | — | — |
+| `real_harrishill_03_uncalibrated_obs` | `unavailable` | success (377) | success (355) | — | — |
 | `real_negative_01_chico_on_greenwood` | `negative_unrelated_pair` | insufficient_matches (0) | insufficient_matches (0) | — | — |
 | `real_negative_02_harrishill_on_greenwood` | `negative_unrelated_pair` | insufficient_matches (0) | insufficient_matches (0) | — | — |
 | `real_negative_03_greenwood_on_chico` | `negative_unrelated_pair` | geometry_failed (5) | geometry_failed (4) | — | — |
@@ -53,13 +56,18 @@ and USDA NAIP public archives:
 - Under moderate scale compression (e.g. `real_chico_03_scale_08`, 0.82x zoom), **ORB inliers dropped to 33**, whereas **SIFT retained 353 inliers**.
 - This highlights SIFT's scale-space DoG (Difference of Gaussians) octave pyramid advantage over ORB's fixed-level FAST octaves.
 
-### False Acceptance Rejection
-- Both ORB and SIFT correctly achieved a **0.0% false acceptance rate** on all 4 cross-scene negative pairs.
-- Ratio-test filtering successfully pruned cross-scene candidates, and RANSAC rejected any residual spurious matches (maximum residual inliers observed was 5, well below the acceptance threshold of 10).
+### False Acceptance Rejection & Sample Size Limitation
+- Both ORB and SIFT achieved a **0.0% false acceptance rate** on all 4 cross-scene negative pairs (0/4 false acceptances, 100.0% true negative rate).
+- Ratio-test filtering successfully pruned cross-scene candidates, and RANSAC rejected residual spurious matches (maximum residual inliers observed was 5, well below the acceptance threshold of 10).
+- **Sample-Size Limitation:** Four negative pairs (N=4) serve as a sanity smoke test to verify rejection logic, but do not establish a statistically general operational false-alarm rate across diverse terrain types, seasons, or lighting conditions.
+
+### Simulated Perspective-Distortion Observations
+- The 3 warped query pairs (`real_greenwood_04_uncalibrated_obs`, `real_chico_04_uncalibrated_obs`, `real_harrishill_03_uncalibrated_obs`) are simulated perspective-distortion observations derived from source orthophotos, not independent real-world oblique camera captures.
+- For these pairs, ground-truth homography is intentionally unavailable and excluded from corner error computation.
 
 ### Runtime & Resource Profile
-- ORB averaged **158.5 ms** per pair on CPU, making it suitable for high-throughput or low-power embedded edge computation.
-- SIFT averaged **232.0 ms** per pair on CPU, offering higher geometric fidelity and inlier density at modest computational cost.
+- ORB averaged **155.1 ms** per pair on CPU, making it suitable for high-throughput or low-power embedded edge computation.
+- SIFT averaged **207.3 ms** per pair on CPU, offering higher geometric fidelity and inlier density at modest computational cost.
 
 ## 4. Academic Limitations & Ethics Notice
 

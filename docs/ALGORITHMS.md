@@ -195,7 +195,9 @@ When evaluating unrelated image pairs (cross-scene pairs):
 | `false_acceptance_rate` | Ratio of negative pairs incorrectly marked as success | Negative evaluation sets |
 | `true_negative_rate` | Ratio of negative pairs correctly rejected | Negative evaluation sets |
 | `processing_time_s` | Wall-clock execution time for feature matching + geometry | Always |
-| `success_rate` | Fraction of pairs reaching `status=success` | Evaluation sets |
+| `positive_success_rate` | Fraction of genuine positive pairs reaching `status=success` | Positive evaluation sets |
+| `overall_success_rate` | Fraction of all pairs (positive + negative) reaching `status=success` | Evaluation sets |
+| `success_rate` | Maintained as alias to `overall_success_rate` | Evaluation sets |
 
 **Crucial Disclaimers:**
 - `inlier_ratio` is not a calibrated probability of geographic localization.

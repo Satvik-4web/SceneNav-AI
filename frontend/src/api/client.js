@@ -40,6 +40,7 @@ export async function submitMatch(referenceFile, queryFile, params, signal) {
   const form = new FormData();
   form.append('reference_image', referenceFile);
   form.append('query_image', queryFile);
+  form.append('algorithm', params.algorithm || 'ORB');
   form.append('orb_max_features', String(params.orb_max_features));
   form.append('ratio_threshold', String(params.ratio_threshold));
   form.append('ransac_reproj_threshold', String(params.ransac_reproj_threshold));

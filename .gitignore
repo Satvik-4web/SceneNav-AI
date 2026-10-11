@@ -33,6 +33,8 @@ results/*
 !results/README.md
 !results/real_world_eval/
 !results/real_world_eval/**
+!results/e2e_screenshots/
+!results/e2e_screenshots/**
 
 # Data (user-provided images)
 data/.raw_*

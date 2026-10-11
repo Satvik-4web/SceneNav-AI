@@ -69,6 +69,12 @@ class EvaluationSummary:
     failed_pairs: int = 0
     positive_pairs: int = 0
     negative_pairs: int = 0
+    successful_positive_pairs: int = 0
+    failed_positive_pairs: int = 0
+    successful_negative_pairs: int = 0
+    failed_negative_pairs: int = 0
+    positive_success_rate: float = 0.0
+    overall_success_rate: float = 0.0
     false_acceptances: int = 0
     false_acceptance_rate: float = 0.0
     true_negative_rate: float = 1.0
@@ -84,7 +90,7 @@ class EvaluationSummary:
     mean_corner_error_px: Optional[float] = None
     mean_processing_time_s: float = 0.0
 
-    success_rate: float = 0.0
+    success_rate: float = 0.0  # Alias for overall_success_rate (successful_pairs / total_pairs)
     per_pair: list[SinglePairMetrics] = field(default_factory=list)
 
 
@@ -132,24 +138,38 @@ def aggregate_metrics(pair_metrics: list[SinglePairMetrics]) -> EvaluationSummar
     summary.positive_pairs = len(pos_pairs)
     summary.negative_pairs = len(neg_pairs)
 
-    # General success / failure breakdown across all pairs
+    # Positive pair success breakdown
+    pos_successes = [p for p in pos_pairs if p.status == "success"]
+    pos_failures = [p for p in pos_pairs if p.status != "success"]
+    summary.successful_positive_pairs = len(pos_successes)
+    summary.failed_positive_pairs = len(pos_failures)
+    summary.positive_success_rate = (
+        len(pos_successes) / len(pos_pairs) if pos_pairs else 0.0
+    )
+
+    # Negative pair metrics (False Acceptance Analysis)
+    neg_successes = [p for p in neg_pairs if p.status == "success"]
+    neg_failures = [p for p in neg_pairs if p.status != "success"]
+    summary.successful_negative_pairs = len(neg_successes)
+    summary.failed_negative_pairs = len(neg_failures)
+    summary.false_acceptances = len(neg_successes)
+    summary.false_acceptance_rate = (
+        len(neg_successes) / len(neg_pairs) if neg_pairs else 0.0
+    )
+    summary.true_negative_rate = (
+        len(neg_failures) / len(neg_pairs) if neg_pairs else 1.0
+    )
+
+    # General success / failure breakdown across ALL evaluated pairs
     successes = [p for p in pair_metrics if p.status == "success"]
     failures = [p for p in pair_metrics if p.status != "success"]
 
     summary.successful_pairs = len(successes)
     summary.failed_pairs = len(failures)
-    summary.success_rate = len(successes) / len(pair_metrics)
-
-    # Negative pair metrics (False Acceptance Analysis)
-    if neg_pairs:
-        false_acceptances = [p for p in neg_pairs if p.status == "success"]
-        summary.false_acceptances = len(false_acceptances)
-        summary.false_acceptance_rate = len(false_acceptances) / len(neg_pairs)
-        summary.true_negative_rate = (len(neg_pairs) - len(false_acceptances)) / len(neg_pairs)
-    else:
-        summary.false_acceptances = 0
-        summary.false_acceptance_rate = 0.0
-        summary.true_negative_rate = 1.0
+    summary.overall_success_rate = (
+        len(successes) / len(pair_metrics) if pair_metrics else 0.0
+    )
+    summary.success_rate = summary.overall_success_rate
 
     # Failure breakdown
     for pm in failures:

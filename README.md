@@ -199,33 +199,24 @@ Run the full automated test suite:
 run_tests.bat
 ```
 
-## Running Tests
- 
-Run the full automated test suite:
-```cmd
-run_tests.bat
-```
-
 Or manually:
 ```bash
-# Backend pytest (76 tests)
+# Backend pytest
 python -m pytest backend/tests/ -v
 
-# Frontend vitest (7 tests)
+# Frontend vitest
 cd frontend && npm test
 ```
 
-**Actual test results (verified real-world validation run):**
-
-- **Backend:** 76 passed in 2.65s (100% pass)
-  - `test_image_loader.py` — 14 tests
-  - `test_feature_matching.py` — 11 tests (ORB, SIFT, ratio filtering, mutual consistency, algorithm validation)
-  - `test_geometry.py` — 10 tests (RANSAC homography, degenerate checks, reprojection error)
-  - `test_evaluation.py` — 13 tests (metrics, failure breakdowns, negative pairs, false acceptances, unavailable GT, reproducibility)
-  - `test_api.py` — 28 tests (endpoints, validation, traversal security, bounded streaming, samples catalog, mutual consistency)
-- **Frontend:** 7 passed in 2 test files (100% pass)
-  - `client.test.js` — 4 tests
-  - `components.test.jsx` — 3 tests
+**Observed Test Suite Outcomes:**
+- **Backend (pytest):** 88 passed in 18.57s (100% pass)
+  - Unit, Service & Geometry: 35 tests
+  - Evaluation & Audit Regressions: 19 tests
+  - Security & Endpoints: 28 tests
+  - Browser End-to-End (Playwright Chrome): 6 tests
+- **Frontend (vitest):** 7 passed in 1.01s (100% pass)
+- **Production Build:** Vite production build succeeded in 138ms
+- **All-in-One Runner (`run_tests.bat`):** 95 tests passed with exit code 0
 
 ---
 
@@ -251,19 +242,22 @@ Runs both ORB and SIFT over the same 15 image pairs, outputting:
 
 | Metric | ORB Baseline | SIFT Alternative | Analysis / Observation |
 | :--- | :---: | :---: | :--- |
-| **Total Pairs** | 15 | 15 | 8 Planar GT + 3 Uncalibrated Obs + 4 Cross Negatives |
-| **Positive Pairs Success** | 11/11 (100.0%) | 11/11 (100.0%) | Both reliably locate co-located aerial scenes |
-| **False Acceptance Rate** | **0/4 (0.0%)** | **0/4 (0.0%)** | Zero false acceptances across all negative pairs |
-| **True Negative Rate** | **100.0%** | **100.0%** | Rejection of cross-scene query images |
-| **Mean Inliers (Positives)** | 430.2 | 687.4 | SIFT yields **+59.8% more inliers** |
-| **Mean Inlier Ratio** | 97.0% | 99.4% | SIFT: 99.4% vs ORB: 97.0% |
-| **Mean Reprojection Error**| 0.92 px | 0.11 px | SIFT achieves tighter sub-pixel correspondence |
-| **Mean Corner Transfer Error**| 5.33 px | 0.05 px | Evaluated strictly on 8 verified planar GT pairs |
-| **Mean Runtime** | **158.5 ms/pair** | **232.0 ms/pair** | ORB is ~1.5× faster on CPU |
+| **Total Evaluated Pairs** | 15 | 15 | 8 Planar GT + 3 Simulated Distortions + 4 Cross Negatives |
+| **Positive-Pair Success Rate** | **11/11 (100.0%)** | **11/11 (100.0%)** | Both reliably match genuine co-located aerial scenes |
+| **Overall Success Rate** | **11/15 (73.3%)** | **11/15 (73.3%)** | Verified matches across all pairs including rejected negatives |
+| **False Acceptance Rate** | **0/4 (0.0%)** | **0/4 (0.0%)** | Zero false acceptances across negative pairs ($N=4$ smoke test) |
+| **True Negative Rate** | **100.0%** | **100.0%** | Rejection of cross-scene distractor queries (4/4) |
+| **Mean Inliers (Positives)** | 442.4 | 689.2 | SIFT yields **+55.8% more inliers** |
+| **Mean Inlier Ratio** | 97.1% | 99.4% | SIFT: 99.4% vs ORB: 97.1% |
+| **Mean Reprojection Error** | 0.91 px | 0.11 px | SIFT achieves tighter sub-pixel correspondence |
+| **Mean Corner Transfer Error** | 5.33 px | 0.05 px | Evaluated strictly on 8 verified planar GT pairs |
+| **Mean Runtime** | **155.1 ms/pair** | **207.3 ms/pair** | ORB is ~1.3× faster on CPU |
 
-> **Academic Integrity Notice:**  
-> These metrics reflect **2D image registration accuracy in pixel space**.  
-> They do **not** measure geographic latitude/longitude navigation accuracy without georeferencing metadata and camera calibration models.
+> **Evaluation Methodology Notes:**
+> 1. **Positive vs Overall Success:** 11 of 11 positive pairs succeeded (100.0% recall). Across all 15 evaluated pairs (including 4 negative pairs correctly rejected), 11 were accepted (73.3% overall match rate).
+> 2. **Simulated Perspective Distortions:** The 3 warped query pairs (`real_greenwood_04_uncalibrated_obs`, `real_chico_04_uncalibrated_obs`, `real_harrishill_03_uncalibrated_obs`) are simulated perspective-distortion observations derived from source orthophotos, not independent physical oblique flight captures. Ground truth homography is intentionally unavailable and excluded from corner error calculation.
+> 3. **Negative Sample-Size Limitation:** Four negative pairs ($N=4$) verify that cross-scene pairs fail RANSAC and ratio testing, but do not characterize an operational false-alarm rate across arbitrary global terrain or seasonal variations.
+> 4. **Academic Integrity Notice:** These metrics reflect **2D image registration accuracy in pixel space**. They do **not** measure geographic latitude/longitude navigation accuracy without georeferencing metadata and camera calibration models.
 
 ---
 

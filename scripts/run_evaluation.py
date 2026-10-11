@@ -92,7 +92,8 @@ def generate_markdown_report(
     md.append(f"| **Total Evaluated Pairs** | {summary.total_pairs} | Positive + Negative test cases |")
     md.append(f"| **Positive Pairs** | {summary.positive_pairs} | Genuine co-located imagery pairs |")
     md.append(f"| **Negative Pairs** | {summary.negative_pairs} | Unrelated cross-scene negative pairs |")
-    md.append(f"| **Overall Success Count** | {summary.successful_pairs}/{summary.total_pairs} ({summary.success_rate:.1%}) | RANSAC verified matches |")
+    md.append(f"| **Positive-Pair Success Rate** | {summary.successful_positive_pairs}/{summary.positive_pairs} ({summary.positive_success_rate:.1%}) | Verified matches on genuine positive pairs |")
+    md.append(f"| **Overall Success Count** | {summary.successful_pairs}/{summary.total_pairs} ({summary.overall_success_rate:.1%}) | RANSAC verified matches across all pairs |")
     if summary.negative_pairs > 0:
         md.append(f"| **False Acceptances (Negatives)** | {summary.false_acceptances}/{summary.negative_pairs} ({summary.false_acceptance_rate:.1%}) | Lower is better (ideal: 0.0%) |")
         md.append(f"| **True Negative Rate** | {summary.true_negative_rate:.1%} | Rejection of unrelated pairs |")
@@ -305,7 +306,8 @@ def main() -> None:
     print(f"Negative pairs    : {summary.negative_pairs}")
     print(f"Successful pairs  : {summary.successful_pairs}")
     print(f"Failed pairs      : {summary.failed_pairs}")
-    print(f"Success rate      : {summary.success_rate:.1%}")
+    print(f"Positive success  : {summary.successful_positive_pairs}/{summary.positive_pairs} ({summary.positive_success_rate:.1%})")
+    print(f"Overall success   : {summary.successful_pairs}/{summary.total_pairs} ({summary.overall_success_rate:.1%})")
     if summary.negative_pairs > 0:
         print(f"False acceptances : {summary.false_acceptances}/{summary.negative_pairs} ({summary.false_acceptance_rate:.1%})")
         print(f"True negative rate: {summary.true_negative_rate:.1%}")

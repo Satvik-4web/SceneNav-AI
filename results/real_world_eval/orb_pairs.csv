@@ -1,16 +1,16 @@
 pair_id,status,ground_truth_type,is_negative,false_acceptance,reference_keypoints,query_keypoints,tentative_matches,filtered_matches,geometric_inliers,inlier_ratio,mean_reproj_error_px,corner_error_px,processing_time_s,failure_reason
-real_greenwood_01_crop,success,planar_homography_gt,False,False,5000,3721,3721,855,842,0.9848,0.985,1.225,0.3645,
-real_greenwood_02_rot_scale,success,planar_homography_gt,False,False,5000,3576,3576,537,531,0.9888,0.993,0.523,0.1496,
-real_greenwood_03_photometric,success,planar_homography_gt,False,False,5000,3104,3104,714,704,0.9860,0.958,1.265,0.1481,
-real_greenwood_04_uncalibrated_obs,success,unavailable,False,False,5000,3831,3831,783,768,0.9808,1.013,,0.1493,
-real_chico_01_crop,success,planar_homography_gt,False,False,5000,3258,3258,500,481,0.9620,1.126,4.258,0.1802,
-real_chico_02_rot_10,success,planar_homography_gt,False,False,5000,2004,2004,137,129,0.9416,0.891,2.067,0.1690,
-real_chico_03_scale_08,success,planar_homography_gt,False,False,5000,1234,1234,37,33,0.8919,0.828,32.634,0.1547,
-real_chico_04_uncalibrated_obs,success,unavailable,False,False,5000,2320,2320,207,196,0.9469,1.097,,0.1832,
-real_harrishill_01_crop,success,planar_homography_gt,False,False,4791,1286,1286,534,533,0.9981,0.558,0.117,0.2216,
-real_harrishill_02_rot_14,success,planar_homography_gt,False,False,4791,628,628,170,168,0.9882,0.779,0.525,0.2115,
-real_harrishill_03_uncalibrated_obs,success,unavailable,False,False,4791,868,868,348,347,0.9971,0.897,,0.2144,
-real_negative_01_chico_on_greenwood,insufficient_matches,negative_unrelated_pair,True,False,5000,3258,3258,7,0,0.0000,,,0.0560,Only 7 matches remain after filtering (minimum for geometry: 8).
-real_negative_02_harrishill_on_greenwood,insufficient_matches,negative_unrelated_pair,True,False,5000,1286,1286,4,0,0.0000,,,0.0329,Only 4 matches remain after filtering (minimum for geometry: 8).
-real_negative_03_greenwood_on_chico,geometry_failed,negative_unrelated_pair,True,False,5000,3721,3721,13,5,0.3846,,,0.0691,"Geometric verification produced only 5 inliers (threshold: 10). The scenes may be different, or the overlap is too small."
-real_negative_04_greenwood_on_harrishill,geometry_failed,negative_unrelated_pair,True,False,4791,3721,3721,13,4,0.3077,,,0.0731,"Geometric verification produced only 4 inliers (threshold: 10). The scenes may be different, or the overlap is too small."
+real_greenwood_01_crop,success,planar_homography_gt,False,False,5000,3721,3721,855,842,0.9848,0.985,1.225,0.4262,
+real_greenwood_02_rot_scale,success,planar_homography_gt,False,False,5000,3576,3576,537,531,0.9888,0.993,0.523,0.1396,
+real_greenwood_03_photometric,success,planar_homography_gt,False,False,5000,3104,3104,714,704,0.9860,0.958,1.265,0.1363,
+real_greenwood_04_uncalibrated_obs,success,unavailable,False,False,5000,3857,3857,857,841,0.9813,1.026,,0.1423,
+real_chico_01_crop,success,planar_homography_gt,False,False,5000,3258,3258,500,481,0.9620,1.126,4.258,0.1668,
+real_chico_02_rot_10,success,planar_homography_gt,False,False,5000,2004,2004,137,129,0.9416,0.891,2.067,0.1523,
+real_chico_03_scale_08,success,planar_homography_gt,False,False,5000,1234,1234,37,33,0.8919,0.828,32.634,0.1429,
+real_chico_04_uncalibrated_obs,success,unavailable,False,False,5000,2358,2358,236,227,0.9619,1.045,,0.1577,
+real_harrishill_01_crop,success,planar_homography_gt,False,False,4791,1286,1286,534,533,0.9981,0.558,0.117,0.2136,
+real_harrishill_02_rot_14,success,planar_homography_gt,False,False,4791,628,628,170,168,0.9882,0.779,0.525,0.2057,
+real_harrishill_03_uncalibrated_obs,success,unavailable,False,False,4791,823,823,378,377,0.9974,0.828,,0.2068,
+real_negative_01_chico_on_greenwood,insufficient_matches,negative_unrelated_pair,True,False,5000,3258,3258,7,0,0.0000,,,0.0543,Only 7 matches remain after filtering (minimum for geometry: 8).
+real_negative_02_harrishill_on_greenwood,insufficient_matches,negative_unrelated_pair,True,False,5000,1286,1286,4,0,0.0000,,,0.0390,Only 4 matches remain after filtering (minimum for geometry: 8).
+real_negative_03_greenwood_on_chico,geometry_failed,negative_unrelated_pair,True,False,5000,3721,3721,13,5,0.3846,,,0.0661,"Geometric verification produced only 5 inliers (threshold: 10). The scenes may be different, or the overlap is too small."
+real_negative_04_greenwood_on_harrishill,geometry_failed,negative_unrelated_pair,True,False,4791,3721,3721,13,4,0.3077,,,0.0761,"Geometric verification produced only 4 inliers (threshold: 10). The scenes may be different, or the overlap is too small."

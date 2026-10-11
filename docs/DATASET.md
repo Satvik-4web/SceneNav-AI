@@ -29,17 +29,19 @@ The benchmark is partitioned into three distinct ground-truth categories:
    - Track complex planar crop (`real_harrishill_01_crop`)
    - Rotated 14° track sector (`real_harrishill_02_rot_14`)
    - *Ground Truth Type:* `planar_homography_gt` (exact $H_{true}$ recorded in manifest; corner error evaluated).
-2. **Real Observation Pairs with Unavailable Ground Truth (3 pairs):**
-   - Greenwood oblique view observation (`real_greenwood_04_uncalibrated_obs`)
-   - Chico oblique observation (`real_chico_04_uncalibrated_obs`)
-   - Harris Hill elevation observation (`real_harrishill_03_uncalibrated_obs`)
-   - *Ground Truth Type:* `unavailable` (evaluates inlier count and reprojection fit; corner error is explicitly *not* fabricated).
+2. **Simulated Perspective-Distortion Observation Pairs with Unavailable Ground Truth (3 pairs):**
+   - Greenwood simulated perspective observation (`real_greenwood_04_uncalibrated_obs`)
+   - Chico simulated perspective observation (`real_chico_04_uncalibrated_obs`)
+   - Harris Hill simulated perspective observation (`real_harrishill_03_uncalibrated_obs`)
+   - *Provenance & Attribution:* These 3 warped query pairs are simulated perspective-distortion observations derived from source orthophotos (applying subtle multi-axis perspective warping, contrast adjustment, and noise to simulate uncalibrated platform observations), **not** independent real-world oblique aerial captures.
+   - *Ground Truth Type:* `unavailable` (evaluates whether feature correspondence and inlier fit converge under unmodeled perspective skew; corner transfer error is explicitly excluded and never fabricated).
 3. **Cross-Scene Negative Pairs (4 pairs):**
    - Chico runway query vs Greenwood Airport reference (`real_negative_01_chico_on_greenwood`)
    - Harris Hill raceway query vs Greenwood Airport reference (`real_negative_02_harrishill_on_greenwood`)
    - Greenwood runway query vs Chico Airport reference (`real_negative_03_greenwood_on_chico`)
    - Greenwood runway query vs Harris Hill reference (`real_negative_04_greenwood_on_harrishill`)
    - *Ground Truth Type:* `negative_unrelated_pair` (`is_negative: true`; evaluates False Acceptance Rate and True Negative Rate).
+   - *Sample-Size Limitation:* Having four negative pairs ($N=4$) functions as an initial smoke test to confirm that cross-scene image pairs are rejected by Lowe's ratio test and RANSAC consistency checks. It does **not** establish a general, statistically complete operational false-acceptance rate across diverse global terrain, varying seasons, or complex illumination conditions. Rigorous false-alarm quantification requires hundreds or thousands of heterogeneous distractor images.
 
 ---
 

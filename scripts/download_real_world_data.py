@@ -324,13 +324,14 @@ def make_uncalibrated_observation_query(
     output_path: Path,
 ) -> str:
     """
-    Creates an aerial observation with simulated non-planar view distortion
-    where ground-truth homography is explicitly UNKNOWN / UNAVAILABLE.
+    Creates a simulated perspective-distortion observation derived from the source
+    orthophoto (not an independent real-world oblique capture). Ground-truth homography
+    is explicitly unavailable.
     """
     crop = ref_bgr[crop_y:crop_y + crop_h, crop_x:crop_x + crop_w].copy()
     h, w = crop.shape[:2]
 
-    # Non-linear mild local distortion simulating elevation disparity / lens uncalibration
+    # Non-linear mild local distortion simulating perspective tilt / elevation disparity
     src_pts = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
     # Shift corners non-linearly
     dst_pts = np.float32([
@@ -409,7 +410,7 @@ def generate_real_world_manifest(images: dict[str, np.ndarray]) -> dict:
         "is_negative": False,
     })
 
-    # Pair 4: Real aerial observation with UNAVAILABLE / UNCALIBRATED ground truth
+    # Pair 4: Simulated perspective-distortion observation (ground truth unavailable)
     p4_path = QRY_DIR / "real_greenwood_query_uncalibrated_obs.png"
     sha4 = make_uncalibrated_observation_query(gw_ref, 100, 80, 380, 320, p4_path)
     pairs.append({
@@ -419,7 +420,7 @@ def generate_real_world_manifest(images: dict[str, np.ndarray]) -> dict:
         "query": f"queries/{p4_path.name}",
         "ground_truth_type": "unavailable",
         "transform": None,
-        "description": "Real aerial observation with non-planar view distortion. Ground truth homography is explicitly unavailable.",
+        "description": "Simulated perspective-distortion observation derived from Greenwood Airport source orthophoto (not an independent real-world oblique capture). Ground truth homography is unavailable.",
         "is_negative": False,
     })
 
@@ -484,7 +485,7 @@ def generate_real_world_manifest(images: dict[str, np.ndarray]) -> dict:
         "is_negative": False,
     })
 
-    # Pair 8: Real observation with unavailable ground truth
+    # Pair 8: Simulated perspective-distortion observation (ground truth unavailable)
     p8_path = QRY_DIR / "real_chico_query_uncalibrated_obs.png"
     sha8 = make_uncalibrated_observation_query(chico_ref, 120, 150, 380, 340, p8_path)
     pairs.append({
@@ -494,7 +495,7 @@ def generate_real_world_manifest(images: dict[str, np.ndarray]) -> dict:
         "query": f"queries/{p8_path.name}",
         "ground_truth_type": "unavailable",
         "transform": None,
-        "description": "Uncalibrated aerial observation over Chico Airport; ground truth homography unavailable.",
+        "description": "Simulated perspective-distortion observation derived from Chico Airport source orthophoto (not an independent real-world oblique capture). Ground truth homography is unavailable.",
         "is_negative": False,
     })
 
@@ -540,7 +541,7 @@ def generate_real_world_manifest(images: dict[str, np.ndarray]) -> dict:
         "is_negative": False,
     })
 
-    # Pair 11: Real observation with unavailable ground truth
+    # Pair 11: Simulated perspective-distortion observation (ground truth unavailable)
     p11_path = QRY_DIR / "real_harrishill_query_uncalibrated_obs.png"
     sha11 = make_uncalibrated_observation_query(hh_ref, 150, 180, 400, 360, p11_path)
     pairs.append({
@@ -550,7 +551,7 @@ def generate_real_world_manifest(images: dict[str, np.ndarray]) -> dict:
         "query": f"queries/{p11_path.name}",
         "ground_truth_type": "unavailable",
         "transform": None,
-        "description": "Uncalibrated aerial observation over Harris Hill terrain; ground truth homography unavailable.",
+        "description": "Simulated perspective-distortion observation derived from Harris Hill source orthophoto (not an independent real-world oblique capture). Ground truth homography is unavailable.",
         "is_negative": False,
     })
 

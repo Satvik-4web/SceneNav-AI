@@ -23,51 +23,68 @@ run_tests.bat
 
 ---
 
-## Latest Verification Run (Real-World Validation Phase — 2026-10-11)
+## Latest Verification Run (Benchmark Audit & End-to-End Validation Phase — 2026-10-11)
 
 ### 1. Backend Suite (pytest)
-- **Status:** **76 passed in 2.65s** (100% pass rate)
+- **Status:** **88 passed in 18.57s** (100% pass rate)
 - **Command:** `python -m pytest backend/tests/ -v`
 - **Breakdown:**
   - `backend/tests/test_image_loader.py` (14 tests): format validation, size caps, empty files, EXIF orientation, early dimension rejection.
   - `backend/tests/test_feature_matching.py` (11 tests): ORB detection, ratio filtering, parameter tracking, mutual consistency cross-checking, SIFT detection and matching, invalid algorithm rejection.
   - `backend/tests/test_geometry.py` (10 tests): RANSAC homography, degenerate transformation rejection (NaN/Inf, singularity, reflection, extreme scale), reprojection error.
-  - `backend/tests/test_evaluation.py` (13 tests): metric aggregation, failure breakdown, corner transfer error, negative pairs, false acceptance tracking, unavailable ground truth handling, missing file safety, reproducibility of evaluation metrics.
+  - `backend/tests/test_evaluation.py` (19 tests): metric aggregation, failure breakdown, corner transfer error, negative pairs, false acceptance tracking, unavailable ground truth handling, missing file safety, reproducibility of evaluation metrics, and benchmark audit regression tests (overall success rate denominator, positive success rate denominator, negative false acceptance denominator, ground truth corner error exclusion, report text agreement, simulated transformation documentation verification).
   - `backend/tests/test_api.py` (28 tests): health, capabilities, matching, artifact serving, traversal prevention (`..`, encoded, backslash), bounded streaming limits (413), sample catalog, mutual consistency.
+  - `backend/tests/test_browser_e2e.py` (6 tests): Playwright browser end-to-end automation in native headless Chrome:
+    - `test_01_app_page_loads_and_displays_header`: initial dashboard load, branding, panel layout.
+    - `test_02_orb_matching_workflow`: preset pair loading, ORB matching, metrics verification, 4 visualization cards.
+    - `test_03_sift_matching_workflow`: algorithm switching to SIFT, execution, verified inliers.
+    - `test_04_interactive_lightbox_modal`: zoom button interaction, pan stage, Esc key dismiss.
+    - `test_05_unrelated_negative_pair_rejection`: cross-scene negative pair rejection, failure banner, no false footprint overlay.
+    - `test_06_reset_functionality`: input and preview reset, button disabling.
 
 ### 2. Frontend Suite (vitest)
-- **Status:** **7 passed in 1.04s** (100% pass rate)
+- **Status:** **7 passed in 1.01s** (100% pass rate)
 - **Command:** `cd frontend && npm test`
 - **Breakdown:**
   - `frontend/src/tests/client.test.js` (4 tests): health check, capabilities, artifact URL generation, error throwing.
   - `frontend/src/tests/components.test.jsx` (3 tests): null rendering, success state metrics display, failure reason display.
 
 ### 3. Frontend Production Build (vite)
-- **Status:** **Success in 140ms**
+- **Status:** **Success in 138ms**
 - **Command:** `cd frontend && npm run build`
-- **Artifacts:** `dist/index.html` (0.62 kB), `dist/assets/index-B5_FQPkk.css` (8.04 kB), `dist/assets/index-BQgIVpuO.js` (242.91 kB).
+- **Artifacts:** `dist/index.html` (0.62 kB), `dist/assets/index-B5_FQPkk.css` (8.04 kB), `dist/assets/index-BXlLCptn.js` (243.73 kB).
 
-### 4. Real-World USGS Aerial Benchmark Evaluation Run
+### 4. Automated All-in-One Runner (`run_tests.bat`)
+- **Status:** **Passed with exit code 0**
+- **Command:** `run_tests.bat`
+- **Total Tests Verified:** 95 automated tests (88 backend + 7 frontend).
+
+### 5. Real-World USGS Aerial Benchmark Evaluation Run
 - **Command:** `python scripts/compare_baselines.py --manifest real_world_pairs.json`
-- **Dataset:** 15 authentic USGS aerial orthophoto pairs (8 planar ground truth, 3 uncalibrated observations, 4 cross-scene negatives).
+- **Dataset:** 15 authentic USGS aerial orthophoto pairs:
+  - 8 planar ground-truth pairs (`planar_homography_gt`)
+  - 3 simulated perspective-distortion observation pairs (`unavailable` GT, derived from source orthophotos)
+  - 4 cross-scene negative pairs (`negative_unrelated_pair`)
 - **ORB Baseline Outcomes:**
-  - Positive Pairs Success: 11/11 (100.0%)
-  - False Acceptance Count / Rate: **0/4 (0.0%)**
+  - Positive-Pair Success Rate (Recall): **11/11 (100.0%)**
+  - Overall Success Rate (All Pairs): **11/15 (73.3%)**
+  - False Acceptance Count / Rate: **0/4 (0.0%)** (sample size $N=4$ smoke test)
   - True Negative Rate: **100.0%**
-  - Mean Inlier Count: **430.2**
-  - Mean Inlier Ratio: **97.0%**
-  - Mean Reprojection Error: **0.92 px**
-  - Mean Ground-Truth Corner Transfer Error: **5.33 px** (evaluated on 8 verified GT pairs)
-  - Mean Processing Time: **158.5 ms/pair**
+  - Mean Inlier Count (Positives): **442.4**
+  - Mean Inlier Ratio: **97.1%**
+  - Mean Reprojection Error: **0.91 px**
+  - Mean Ground-Truth Corner Transfer Error: **5.33 px** (evaluated strictly on 8 verified planar GT pairs)
+  - Mean Processing Time: **155.1 ms/pair**
 - **SIFT Alternative Baseline Outcomes:**
-  - Positive Pairs Success: 11/11 (100.0%)
-  - False Acceptance Count / Rate: **0/4 (0.0%)**
+  - Positive-Pair Success Rate (Recall): **11/11 (100.0%)**
+  - Overall Success Rate (All Pairs): **11/15 (73.3%)**
+  - False Acceptance Count / Rate: **0/4 (0.0%)** (sample size $N=4$ smoke test)
   - True Negative Rate: **100.0%**
-  - Mean Inlier Count: **687.4** (+59.8% more inliers than ORB)
+  - Mean Inlier Count (Positives): **689.2** (+55.8% more inliers than ORB)
   - Mean Inlier Ratio: **99.4%**
   - Mean Reprojection Error: **0.11 px**
-  - Mean Ground-Truth Corner Transfer Error: **0.05 px** (evaluated on 8 verified GT pairs)
-  - Mean Processing Time: **232.0 ms/pair**
+  - Mean Ground-Truth Corner Transfer Error: **0.05 px** (evaluated strictly on 8 verified planar GT pairs)
+  - Mean Processing Time: **207.3 ms/pair**
 - **Machine-Readable Artifacts:**
   - `results/real_world_eval/orb_summary.json`
   - `results/real_world_eval/orb_pairs.csv`
