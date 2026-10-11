@@ -204,7 +204,7 @@ def run_matching_pipeline(
         warnings=warnings,
         processing_time_s=time.perf_counter() - t_start,
         algorithm_params=params,
-        algorithm_version=settings.algorithm_version,
+        algorithm_version=f"{params.algorithm}-v1",
         software_versions=_software_versions(),
         artifacts={k: str(Path(v).relative_to(settings.results_dir.parent).as_posix())
                    for k, v in artifact_paths.items()},

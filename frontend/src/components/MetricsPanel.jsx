@@ -118,7 +118,7 @@ export default function MetricsPanel({ result }) {
 
       {/* Algorithm record */}
       <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-muted)' }}>
-        Algorithm: {result.algorithm_version} · OpenCV {result.software_versions?.opencv}
+        Algorithm: <strong style={{ color: 'var(--accent-cyan)' }}>{result.algorithm_params?.algorithm || 'ORB'}</strong> ({result.algorithm_version}) · OpenCV {result.software_versions?.opencv}
       </div>
     </div>
   );

@@ -144,6 +144,7 @@ start_all.bat
 This automatically starts both the FastAPI backend (`http://127.0.0.1:8000`) and Vite frontend (`http://localhost:5173`) in dedicated windows.
 
 Or start individually:
+- `python scripts/demo.py` — Runs the reproducible live CLI technical demonstration
 - `run_backend.bat` — Starts the backend server
 - `run_frontend.bat` — Starts the frontend dashboard
 - `run_tests.bat` — Runs the full automated test suite (backend + frontend)
@@ -268,7 +269,7 @@ Runs both ORB and SIFT over the same 15 image pairs, outputting:
 - **Texture Dependence:** Feature matching degrades on featureless expanses (dense uniform tree canopies, smooth water bodies, snow).
 - **In-Memory Job Store:** Job history is held in-memory; server restart clears recent matching history.
 
-See [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) and [`docs/ALGORITHMS.md`](docs/ALGORITHMS.md) for complete technical analysis.
+See [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md), [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md), and [`docs/ALGORITHMS.md`](docs/ALGORITHMS.md) for complete technical analysis.
 
 ---
 

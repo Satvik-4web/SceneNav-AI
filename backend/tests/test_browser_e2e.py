@@ -189,6 +189,7 @@ class TestBrowserEndToEnd:
         expect(page.locator(".metric-card .metric-label:text-is('Qry. Keypoints')")).to_be_visible()
         expect(page.locator(".metric-card .metric-label:text-is('Inliers')")).to_be_visible()
         expect(page.locator("text=Geometric Verification")).to_be_visible()
+        expect(page.locator("text=Algorithm: ORB")).to_be_visible()
 
         # Verify visualizations
         expect(page.locator("text=Visualizations & Corresponding Footprint")).to_be_visible()
@@ -226,9 +227,10 @@ class TestBrowserEndToEnd:
         success_banner.wait_for(state="visible", timeout=25000)
         expect(success_banner).to_contain_text("Match Successful")
 
-        # Verify inlier metrics
+        # Verify inlier metrics and algorithm record
         expect(page.locator(".metric-card .metric-label:text-is('Inliers')")).to_be_visible()
         expect(page.locator("text=Geometric Verification")).to_be_visible()
+        expect(page.locator("text=Algorithm: SIFT")).to_be_visible()
 
         # Capture screenshot
         page.screenshot(path=str(SCREENSHOT_DIR / "03_sift_match_success.png"))
