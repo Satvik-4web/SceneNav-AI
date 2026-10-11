@@ -19,11 +19,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
+from starlette.concurrency import run_in_threadpool
 
 from app.config import settings
 from app.schemas import (
     CapabilitiesResponse, EvaluateRequest, HealthResponse,
     JobStatusResponse, MatchParams, MatchResult, MatchStatus,
+    SamplePairInfo, SampleListResponse,
 )
 from app.services.image_loader import load_image_from_bytes, ImageLoadError
 from app.services.pipeline import run_matching_pipeline
@@ -91,6 +93,7 @@ async def match_images(
     ratio_threshold:           Annotated[float, Form()] = 0.75,
     ransac_reproj_threshold:   Annotated[float, Form()] = 4.0,
     min_inliers:               Annotated[int,   Form()] = 10,
+    mutual_consistency:        Annotated[bool,  Form()] = False,
 ) -> MatchResult:
     """
     Match a query image against a reference image.
@@ -105,6 +108,7 @@ async def match_images(
             ratio_threshold=ratio_threshold,
             ransac_reproj_threshold=ransac_reproj_threshold,
             min_inliers=min_inliers,
+            mutual_consistency=mutual_consistency,
         )
     except Exception as exc:
         raise HTTPException(status_code=422, detail=str(exc))
@@ -135,10 +139,12 @@ async def match_images(
     except ImageLoadError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
-    # Run pipeline
+    # Run pipeline in worker thread to prevent event-loop blocking
     job_id = str(uuid.uuid4())
     try:
-        result = run_matching_pipeline(ref_img, qry_img, params, job_id=job_id)
+        result = await run_in_threadpool(
+            run_matching_pipeline, ref_img, qry_img, params, job_id=job_id
+        )
     except Exception as exc:
         logger.exception("Unexpected error in matching pipeline for job %s", job_id)
         # Return structured error rather than exposing stack trace
@@ -328,3 +334,73 @@ async def run_evaluation(request: EvaluateRequest) -> dict:
         "mean_processing_time_s": summary.mean_processing_time_s,
         "failure_breakdown": summary.failure_breakdown,
     }
+
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/samples
+# ---------------------------------------------------------------------------
+
+@router.get(
+    "/api/v1/samples",
+    response_model=SampleListResponse,
+    tags=["Samples"],
+)
+async def list_samples() -> SampleListResponse:
+    """Return available sample pairs from the synthetic manifest for easy UI demo."""
+    manifest_path = settings.data_dir / "manifests" / "synthetic_pairs.json"
+    if not manifest_path.exists():
+        raise HTTPException(status_code=404, detail="Synthetic samples manifest not found.")
+
+    try:
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Cannot read samples manifest: {exc}")
+
+    pairs_out: list[SamplePairInfo] = []
+    for p in data.get("pairs", []):
+        tx = p.get("transform", {})
+        tx_type = tx.get("type", "unknown")
+        pair_id = p.get("id", "pair")
+        label = f"{pair_id.replace('_', ' ').title()} ({tx_type})"
+        pairs_out.append(SamplePairInfo(
+            id=pair_id,
+            label=label,
+            reference_path=p.get("reference", ""),
+            query_path=p.get("query", ""),
+            transform_type=tx_type,
+            description=p.get("note", "Synthetic evaluation pair."),
+            ground_truth_type=p.get("ground_truth_type", "synthetic_pixel"),
+        ))
+
+    return SampleListResponse(
+        manifest_name=data.get("name", "synthetic_pairs"),
+        description=data.get("description", "Synthetic benchmark pairs"),
+        pairs=pairs_out,
+    )
+
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/samples/image/{category}/{filename}
+# ---------------------------------------------------------------------------
+
+@router.get(
+    "/api/v1/samples/image/{category}/{filename}",
+    tags=["Samples"],
+)
+async def get_sample_image(category: str, filename: str) -> FileResponse:
+    """Safely serve a reference or query sample image for UI preview."""
+    if category not in {"references", "queries"}:
+        raise HTTPException(status_code=400, detail="Invalid sample category.")
+
+    safe_name = Path(filename).name
+    if safe_name != filename or "/" in filename or "\\" in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename format.")
+
+    img_path = (settings.data_dir / category / safe_name).resolve()
+    data_root = settings.data_dir.resolve()
+    if not str(img_path).startswith(str(data_root)) or not img_path.exists():
+        raise HTTPException(status_code=404, detail="Sample image not found.")
+
+    return FileResponse(str(img_path))
+

@@ -20,8 +20,9 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:5173"]
 
     # Storage — paths are resolved relative to the project root
-    results_dir: Path = Path("results")
-    data_dir: Path = Path("data")
+    base_dir: Path = Path(__file__).resolve().parent.parent.parent
+    results_dir: Path = Path(__file__).resolve().parent.parent.parent / "results"
+    data_dir: Path = Path(__file__).resolve().parent.parent.parent / "data"
 
     # Upload limits
     max_upload_mb: int = 50

@@ -75,6 +75,7 @@ def run_matching_pipeline(
         reference, query,
         orb_max_features=params.orb_max_features,
         ratio_threshold=params.ratio_threshold,
+        mutual_consistency=params.mutual_consistency,
     )
     warnings.extend(match_result.warnings)
 

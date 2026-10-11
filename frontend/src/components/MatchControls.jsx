@@ -35,6 +35,7 @@ const DEFAULTS = {
   ratio_threshold: 0.75,
   ransac_reproj_threshold: 4.0,
   min_inliers: 10,
+  mutual_consistency: false,
 };
 
 export default function MatchControls({ params, onChange }) {
@@ -65,7 +66,24 @@ export default function MatchControls({ params, onChange }) {
           <div className="control-hint">{hint}</div>
         </div>
       ))}
-      <button className="btn-secondary small" style={{ fontSize: 11, padding: '4px 10px' }} onClick={handleReset}>
+
+      {/* Mutual Consistency Toggle */}
+      <div className="control-group" style={{ marginTop: 8, padding: '8px 10px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius)' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12 }}>
+          <input
+            type="checkbox"
+            checked={Boolean(params.mutual_consistency)}
+            onChange={(e) => handleChange('mutual_consistency', e.target.checked)}
+            style={{ accentColor: 'var(--accent-blue)' }}
+          />
+          <span style={{ fontWeight: 600 }}>Mutual Consistency Check</span>
+        </label>
+        <div className="control-hint" style={{ marginTop: 2 }}>
+          Enforces bidirectional cross-check filtering (discards asymmetric nearest-neighbor matches).
+        </div>
+      </div>
+
+      <button className="btn-secondary small" style={{ fontSize: 11, padding: '4px 10px', marginTop: 4 }} onClick={handleReset}>
         Reset to defaults
       </button>
       <div className="disclaimer" style={{ marginTop: 8 }}>
@@ -76,3 +94,4 @@ export default function MatchControls({ params, onChange }) {
 }
 
 export { DEFAULTS };
+

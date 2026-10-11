@@ -46,6 +46,26 @@ class MatchParams(BaseModel):
         default=10, ge=4, le=500,
         description="Minimum geometric inliers required for a valid homography."
     )
+    mutual_consistency: bool = Field(
+        default=False,
+        description="Enforce bidirectional cross-check filtering for matches."
+    )
+
+
+class SamplePairInfo(BaseModel):
+    id: str
+    label: str
+    reference_path: str
+    query_path: str
+    transform_type: str
+    description: str
+    ground_truth_type: str
+
+
+class SampleListResponse(BaseModel):
+    manifest_name: str
+    description: str
+    pairs: list[SamplePairInfo]
 
 
 class EvaluateRequest(BaseModel):

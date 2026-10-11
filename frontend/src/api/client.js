@@ -44,6 +44,7 @@ export async function submitMatch(referenceFile, queryFile, params, signal) {
   form.append('ratio_threshold', String(params.ratio_threshold));
   form.append('ransac_reproj_threshold', String(params.ransac_reproj_threshold));
   form.append('min_inliers', String(params.min_inliers));
+  form.append('mutual_consistency', String(Boolean(params.mutual_consistency)));
 
   const resp = await fetch(`${BASE_URL}/api/v1/match`, {
     method: 'POST',
@@ -63,6 +64,25 @@ export async function submitMatch(referenceFile, queryFile, params, signal) {
 }
 
 /**
+ * Fetch available sample pairs from manifest.
+ */
+export async function fetchSamples() {
+  const resp = await fetch(`${BASE_URL}/api/v1/samples`);
+  if (!resp.ok) throw new Error(`Failed to fetch samples: ${resp.status}`);
+  return resp.json();
+}
+
+/**
+ * Fetch a sample image as a File object for dropzone loading.
+ */
+export async function fetchSampleImageFile(category, filename) {
+  const resp = await fetch(`${BASE_URL}/api/v1/samples/image/${category}/${filename}`);
+  if (!resp.ok) throw new Error(`Failed to fetch sample image: ${resp.status}`);
+  const blob = await resp.blob();
+  return new File([blob], filename, { type: blob.type || 'image/png' });
+}
+
+/**
  * Get artifact URL for a job.
  */
 export function artifactUrl(jobId, filename) {
@@ -77,3 +97,4 @@ export async function fetchJob(jobId) {
   if (!resp.ok) throw new Error(`Job fetch failed: ${resp.status}`);
   return resp.json();
 }
+

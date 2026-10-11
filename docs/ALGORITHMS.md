@@ -57,6 +57,17 @@ This rejects ambiguous matches where a query descriptor looks nearly equally lik
 
 ---
 
+## 3.1 Mutual Consistency (Cross-Check) Filtering
+
+When enabled (`mutual_consistency=True`), the pipeline enforces bidirectional agreement:
+1. Matches are computed forward: $\text{Query} \to \text{Reference}$ (with ratio test).
+2. Nearest neighbor matches are computed backward: $\text{Reference} \to \text{Query}$.
+3. Only correspondences $(q, r)$ where $r$'s best match is $q$ and $q$'s best match is $r$ are preserved.
+
+This suppresses asymmetric outlier correspondences, especially in repetitive or clutter-dense scenes.
+
+---
+
 ## 4. RANSAC Homography Estimation
 
 **Reference:** M.A. Fischler and R.C. Bolles, "Random sample consensus," CACM 1981.  

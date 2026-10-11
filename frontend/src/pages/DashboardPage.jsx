@@ -1,8 +1,6 @@
-/**
- * SceneNav AI — Main Research Dashboard Page
- */
 import { useState, useRef } from 'react';
 import ImageDropZone from '../components/ImageDropZone';
+import SampleDataSelector from '../components/SampleDataSelector';
 import MatchControls, { DEFAULTS } from '../components/MatchControls';
 import MetricsPanel from '../components/MetricsPanel';
 import ResultVisualizations from '../components/ResultVisualizations';
@@ -19,6 +17,13 @@ export default function DashboardPage() {
   const [result, setResult] = useState(null);
   const abortRef = useRef(null);
   const { history, addResult, clearHistory, exportJSON } = useMatchHistory();
+
+  const handleSelectSample = (refFile, qryFile) => {
+    setReferenceFile(refFile);
+    setQueryFile(qryFile);
+    setResult(null);
+    setError(null);
+  };
 
   const canSubmit = referenceFile && queryFile && !loading;
 
@@ -104,6 +109,7 @@ export default function DashboardPage() {
         {/* Image Inputs */}
         <div className="panel">
           <div className="panel-title">Image Inputs</div>
+          <SampleDataSelector onSelectSample={handleSelectSample} disabled={loading} />
           <ImageDropZone
             label="Reference Image (map/database)"
             file={referenceFile}

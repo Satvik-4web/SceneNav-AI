@@ -37,6 +37,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("scenenav.download")
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
+sys.path.insert(0, str(PROJECT_ROOT / "backend"))
 DATA_DIR = PROJECT_ROOT / "data"
 REFERENCES_DIR = DATA_DIR / "references"
 QUERIES_DIR = DATA_DIR / "queries"

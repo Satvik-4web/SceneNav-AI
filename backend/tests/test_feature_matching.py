@@ -105,3 +105,12 @@ class TestDetectAndMatch:
             assert result.query_pts is not None
             assert result.reference_pts.shape == (result.filtered_matches, 2)
             assert result.query_pts.shape == (result.filtered_matches, 2)
+
+    def test_mutual_consistency_filtering(self):
+        img = _make_textured_image(seed=7)
+        res_standard = detect_and_match(img, img, mutual_consistency=False)
+        res_mutual = detect_and_match(img, img, mutual_consistency=True)
+        assert res_mutual.success
+        assert res_mutual.params["mutual_consistency"] is True
+        assert res_mutual.filtered_matches <= res_standard.filtered_matches
+

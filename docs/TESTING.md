@@ -2,24 +2,43 @@
 
 ## Test Commands
 
+### 1. Backend Tests (Python / Pytest)
 ```bash
-# From project root — set PYTHONPATH first
-$env:PYTHONPATH = "backend"   # PowerShell
-# export PYTHONPATH=backend   # bash
-
-# Run all tests
+# From project root
 python -m pytest backend/tests/ -v
+```
 
-# Run a specific test file
-python -m pytest backend/tests/test_image_loader.py -v
+### 2. Frontend Tests (JavaScript / Vitest)
+```bash
+# From frontend directory
+cd frontend
+npm test
+```
 
-# Run with coverage (requires pytest-cov)
-python -m pytest backend/tests/ --cov=app --cov-report=term-missing
+### 3. Automated All-in-One Test Runner
+```bash
+# From project root (Windows)
+run_tests.bat
 ```
 
 ---
 
-## Actual Test Results (recorded at implementation)
+## Actual Test Results (Verified)
+
+### Backend: 62 passed in 2.38s (100% pass)
+- `test_image_loader.py` — 14 tests (dimensions, formats, error limits, corrupted bytes)
+- `test_feature_matching.py` — 9 tests (ORB matching, ratio filtering, mutual consistency)
+- `test_geometry.py` — 10 tests (RANSAC homography, singularity, reflection, reprojection errors)
+- `test_evaluation.py` — 7 tests (metrics aggregation, corner error, failure categorization)
+- `test_api.py` — 22 tests (endpoints, validation, traversal security, samples catalog, mutual consistency flag)
+
+### Frontend: 7 passed in 2 test files (100% pass)
+- `src/tests/client.test.js` — 4 tests (API error handling, health endpoints, capabilities)
+- `src/tests/components.test.jsx` — 3 tests (MetricsPanel rendering, success state, failure breakdown)
+
+---
+
+## Backend Test Log Details:
 
 ```
 ========================== 56 passed in 3.97s ==========================

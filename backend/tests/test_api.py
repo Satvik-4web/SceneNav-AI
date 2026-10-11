@@ -208,3 +208,51 @@ class TestArtifactEndpoint:
         # Attempt path traversal
         resp = client.get(f"/api/v1/artifacts/{job_id}/../../etc/passwd")
         assert resp.status_code in (400, 404)
+
+
+class TestSamplesEndpoint:
+    def test_list_samples_returns_data(self):
+        resp = client.get("/api/v1/samples")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "pairs" in data
+        assert len(data["pairs"]) > 0
+        first = data["pairs"][0]
+        assert "id" in first
+        assert "reference_path" in first
+        assert "query_path" in first
+
+    def test_serve_sample_image(self):
+        resp_list = client.get("/api/v1/samples")
+        assert resp_list.status_code == 200
+        pairs = resp_list.json()["pairs"]
+        first_ref = pairs[0]["reference_path"].replace("references/", "")
+        resp_img = client.get(f"/api/v1/samples/image/references/{first_ref}")
+        assert resp_img.status_code == 200
+        assert len(resp_img.content) > 0
+
+    def test_sample_image_invalid_category(self):
+        resp = client.get("/api/v1/samples/image/secret_dir/image.png")
+        assert resp.status_code == 400
+
+    def test_sample_image_path_traversal(self):
+        resp = client.get("/api/v1/samples/image/references/..%2F..%2Fmain.py")
+        assert resp.status_code in (400, 404)
+
+
+class TestMutualConsistency:
+    def test_match_with_mutual_consistency_flag(self):
+        img_bytes = _make_png_bytes(seed=12)
+        resp = client.post(
+            "/api/v1/match",
+            files={
+                "reference_image": ("r.png", img_bytes, "image/png"),
+                "query_image": ("q.png", img_bytes, "image/png"),
+            },
+            data={"mutual_consistency": "true"},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["status"] == "success"
+        assert data["algorithm_params"]["mutual_consistency"] is True
+

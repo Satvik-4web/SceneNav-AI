@@ -69,18 +69,17 @@ def detect_and_match(
     *,
     orb_max_features: int = 5000,
     ratio_threshold: float = 0.75,
+    mutual_consistency: bool = False,
 ) -> MatchingResult:
     """
     Detect ORB keypoints in both images and return filtered matches.
 
     Args:
-        reference:         Reference (map/database) image.
-        query:             Query (scene to locate) image.
-        orb_max_features:  Maximum ORB keypoints per image.
-        ratio_threshold:   Lowe's ratio-test threshold.
-                           A match pair (m, n) is kept when
-                           m.distance < ratio_threshold * n.distance.
-                           Typical range: 0.6–0.8.
+        reference:          Reference (map/database) image.
+        query:              Query (scene to locate) image.
+        orb_max_features:   Maximum ORB keypoints per image.
+        ratio_threshold:    Lowe's ratio-test threshold.
+        mutual_consistency: If True, keep only matches that agree in both directions.
 
     Returns:
         MatchingResult with statistics and matched point arrays.
@@ -90,6 +89,7 @@ def detect_and_match(
         params={
             "orb_max_features": orb_max_features,
             "ratio_threshold": ratio_threshold,
+            "mutual_consistency": mutual_consistency,
         }
     )
 
@@ -170,6 +170,17 @@ def detect_and_match(
         m, n = match_pair
         if m.distance < ratio_threshold * n.distance:
             good.append(m)
+
+    # Optional mutual consistency (cross-check) filtering
+    if mutual_consistency and len(good) > 0 and len(des_qry) > 0:
+        back_matches = bf.match(des_ref, des_qry)
+        back_map = {bm.queryIdx: bm.trainIdx for bm in back_matches}
+        consistent = [m for m in good if back_map.get(m.trainIdx) == m.queryIdx]
+        logger.info(
+            "Mutual consistency: %d matches → %d consistent matches",
+            len(good), len(consistent)
+        )
+        good = consistent
 
     result.good_matches = good
     result.filtered_matches = len(good)

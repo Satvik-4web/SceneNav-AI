@@ -134,14 +134,26 @@ and a manifest at `data/manifests/synthetic_pairs.json`.
 
 ---
 
-## Running the Backend
+## Quick Start (One-Click)
+
+On Windows, simply run:
+```cmd
+start_all.bat
+```
+This automatically starts both the FastAPI backend (`http://127.0.0.1:8000`) and Vite frontend (`http://localhost:5173`) in dedicated windows.
+
+Or start individually:
+- `run_backend.bat` — Starts the backend server
+- `run_frontend.bat` — Starts the frontend dashboard
+- `run_tests.bat` — Runs the full automated test suite (backend + frontend)
+
+---
+
+## Running the Backend Manually
 
 ```bash
 # From project root
-$env:PYTHONPATH="backend"   # Windows PowerShell
-# export PYTHONPATH=backend  # Linux / macOS
-
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+python -m uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000
 ```
 
 Verify:
@@ -154,7 +166,7 @@ API docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
 
-## Running the Frontend
+## Running the Frontend Manually
 
 ```bash
 cd frontend
@@ -168,37 +180,44 @@ The Vite dev server proxies `/api` and `/health` to `http://127.0.0.1:8000`.
 
 ## Sample Workflow
 
-1. Start the backend (see above).
-2. Open the frontend in a browser.
-3. Drag a **reference image** into the left panel (e.g. `data/references/scene_00_reference.png`).
-4. Drag a **query image** (e.g. `data/queries/scene_00_query_rotate_5.png`).
-5. Adjust parameters if desired (defaults are reasonable).
+1. Start both servers (`start_all.bat` or manually).
+2. Open [http://localhost:5173](http://localhost:5173).
+3. **One-Click Demo:** In the *Preset Test Pairs* dropdown, select any condition (e.g. *Scene 00 (Rotate 5)* or *Scene 00 (Crop Center)*). Both images load automatically!
+4. Alternatively, drag and drop custom local images into the Reference and Query zones.
+5. Adjust parameters if desired (e.g., enable **Mutual Consistency Check** for bidirectional verification).
 6. Click **Run Matching**.
-7. View the metrics, correspondence visualizations, and estimated footprint.
-8. Click **Export Report JSON** to save the experiment record.
+7. View metrics cards, honest failure diagnostics, and click any artifact to open the **interactive zoom & pan viewer**.
+8. Click **Export Report JSON** to download the reproducible experiment record.
 
 ---
 
 ## Running Tests
 
+Run the full automated test suite:
+```cmd
+run_tests.bat
+```
+
+Or manually:
 ```bash
-# From project root
-$env:PYTHONPATH="backend"
+# Backend pytest (62 tests)
 python -m pytest backend/tests/ -v
+
+# Frontend vitest (7 tests)
+cd frontend && npm test
 ```
 
 **Actual test results (recorded at build time):**
 
-```
-56 tests passed in 3.97s
-```
-
-Coverage:
-- `test_image_loader.py`    — 12 tests
-- `test_feature_matching.py`— 8 tests  
-- `test_geometry.py`        — 10 tests
-- `test_evaluation.py`      — 7 tests
-- `test_api.py`             — 17 tests (FastAPI TestClient)
+- **Backend:** 62 passed in 2.38s (100% pass)
+  - `test_image_loader.py` — 14 tests
+  - `test_feature_matching.py` — 9 tests
+  - `test_geometry.py` — 10 tests
+  - `test_evaluation.py` — 7 tests
+  - `test_api.py` — 22 tests
+- **Frontend:** 7 passed in 2 test files (100% pass)
+  - `client.test.js` — 4 tests
+  - `components.test.jsx` — 3 tests
 
 See [`docs/TESTING.md`](docs/TESTING.md) for details.
 
