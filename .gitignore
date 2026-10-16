@@ -35,6 +35,8 @@ results/*
 !results/real_world_eval/**
 !results/e2e_screenshots/
 !results/e2e_screenshots/**
+!results/audit_release_20261015/
+!results/audit_release_20261015/**
 
 # Data (user-provided images)
 data/.raw_*

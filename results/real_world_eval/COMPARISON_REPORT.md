@@ -1,7 +1,7 @@
 # SceneNav AI — Baseline Comparison: ORB vs SIFT
 
 **Benchmark Dataset:** `real_world_pairs.json`  
-**Evaluation Timestamp:** 2026-10-11 15:36:39 UTC  
+**Evaluation Timestamp:** 2026-10-15 09:34:28 UTC  
 **Dataset License:** Public Domain (17 U.S.C. § 105 - United States Government Work)  
 **Attribution:** United States Geological Survey (USGS) and USDA Farm Service Agency  
 
@@ -18,17 +18,17 @@ and USDA NAIP public archives:
 | Metric | ORB Baseline | SIFT Alternative | Comparison / Analysis |
 | :--- | :---: | :---: | :--- |
 | **Total Evaluated Pairs** | 15 | 15 | Identical test pairs |
-| **Positive Pairs** | 11 | 11 | 8 planar GT + 3 simulated perspective distortions |
+| **Positive Pairs** | 11 | 11 | Genuine co-located imagery pairs |
 | **Negative Pairs** | 4 | 4 | Unrelated cross-scene pairs |
-| **Positive Success Rate** | 11/11 (100.0%) | 11/11 (100.0%) | Both achieved 100.0% on genuine positive pairs (11/11) |
-| **Overall Success Rate** | 11/15 (73.3%) | 11/15 (73.3%) | Verified matches across all pairs including negatives (11/15) |
-| **False Acceptances (Negatives)** | 0/4 (0.0%) | 0/4 (0.0%) | Zero false acceptances across negative pairs (0/4) |
-| **True Negative Rate** | 100.0% | 100.0% | Rejection of cross-scene distractors (4/4) |
-| **Mean Inlier Count (Positives)** | 442.4 | 689.2 | **SIFT yielded +55.8% more inliers** |
+| **Positive Success Rate** | 11/11 (100.0%) | 11/11 (100.0%) | Genuine positive pairs (11/11 vs 11/11) |
+| **Overall Success Rate** | 11/15 (73.3%) | 11/15 (73.3%) | All pairs including negatives (11/15 vs 11/15) |
+| **False Acceptances (Negatives)** | 0/4 (0.0%) | 0/4 (0.0%) | False acceptances across negatives (0/4 vs 0/4) |
+| **True Negative Rate** | 100.0% | 100.0% | Rejection of cross-scene distractors |
+| **Mean Inlier Count (Positives)** | 442.4 | 689.2 | SIFT inlier delta: +55.8% |
 | **Mean Inlier Ratio** | 97.1% | 99.4% | SIFT: 99.4% vs ORB: 97.1% |
-| **Mean Reprojection Error** | 0.91 px | 0.11 px | SIFT achieves sharper sub-pixel fitting |
-| **Mean Corner Transfer Error** | 5.33 px | 0.05 px | Evaluated strictly on 8 verified planar GT pairs |
-| **Mean Processing Time** | 155.1 ms | 207.3 ms | ORB is ~1.3x faster |
+| **Mean Reprojection Error** | 0.91 px | 0.11 px | Sub-pixel RANSAC inlier fit |
+| **Mean Corner Transfer Error** | 5.33 px | 0.05 px | Evaluated strictly on verified ground-truth pairs |
+| **Mean Processing Time** | 137.8 ms | 196.2 ms | ORB is ~1.4x faster |
 
 ## 2. Per-Pair Side-by-Side Breakdown
 
@@ -66,8 +66,8 @@ and USDA NAIP public archives:
 - For these pairs, ground-truth homography is intentionally unavailable and excluded from corner error computation.
 
 ### Runtime & Resource Profile
-- ORB averaged **155.1 ms** per pair on CPU, making it suitable for high-throughput or low-power embedded edge computation.
-- SIFT averaged **207.3 ms** per pair on CPU, offering higher geometric fidelity and inlier density at modest computational cost.
+- ORB averaged **137.8 ms** per pair on CPU, making it suitable for high-throughput or low-power embedded edge computation.
+- SIFT averaged **196.2 ms** per pair on CPU, offering higher geometric fidelity and inlier density at modest computational cost.
 
 ## 4. Academic Limitations & Ethics Notice
 

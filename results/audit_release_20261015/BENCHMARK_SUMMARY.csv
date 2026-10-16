@@ -1,0 +1,91 @@
+pair_id,status,localization_status,ground_truth_type,is_negative,false_acceptance,reference_keypoints,query_keypoints,tentative_matches,filtered_matches,geometric_inliers,inlier_ratio,mean_reproj_error_px,corner_error_px,center_error_m,corner_error_m,processing_time_s,failure_reason,benchmark_suite,algorithm
+georef_greenwood_01_crop,success,localized,georeferenced_gt,False,False,5000,3037,3037,807,800,0.9913,0.809,0.994,0.128,0.993,0.2990,,georeferenced,ORB
+georef_greenwood_02_rot_scale,success,localized,georeferenced_gt,False,False,5000,2735,2735,566,557,0.9841,1.006,0.909,0.179,0.909,0.1447,,georeferenced,ORB
+georef_greenwood_03_perspective,success,localized,georeferenced_gt,False,False,5000,2607,2607,569,560,0.9842,0.973,0.301,0.054,0.301,0.1293,,georeferenced,ORB
+georef_chico_01_crop,success,localized,georeferenced_gt,False,False,5000,1071,1071,39,35,0.8974,0.825,23.763,6.409,23.770,0.1419,,georeferenced,ORB
+georef_chico_02_rot_scale,insufficient_matches,rejected,georeferenced_gt,False,False,5000,393,393,6,0,0.0000,,,,,0.0211,Only 6 matches remain after filtering (minimum for geometry: 8).,georeferenced,ORB
+georef_negative_cross_scene,insufficient_matches,rejected,negative_pair,True,False,5000,1071,1071,2,0,0.0000,,,,,0.0282,Only 2 matches remain after filtering (minimum for geometry: 8).,georeferenced,ORB
+georef_greenwood_01_crop,success,localized,georeferenced_gt,False,False,5001,946,946,700,700,1.0000,0.010,0.010,0.002,0.010,0.1611,,georeferenced,SIFT
+georef_greenwood_02_rot_scale,success,localized,georeferenced_gt,False,False,5001,1089,1089,450,445,0.9889,0.137,0.079,0.102,0.079,0.1602,,georeferenced,SIFT
+georef_greenwood_03_perspective,success,localized,georeferenced_gt,False,False,5001,1035,1035,458,455,0.9934,0.130,0.032,0.014,0.032,0.1606,,georeferenced,SIFT
+georef_chico_01_crop,success,localized,georeferenced_gt,False,False,5001,565,565,506,506,1.0000,0.020,0.010,0.004,0.010,0.2077,,georeferenced,SIFT
+georef_chico_02_rot_scale,success,localized,georeferenced_gt,False,False,5001,520,520,186,184,0.9892,0.141,0.093,0.072,0.093,0.1948,,georeferenced,SIFT
+georef_negative_cross_scene,insufficient_matches,rejected,negative_pair,True,False,5001,565,565,4,0,0.0000,,,,,0.0741,Only 4 matches remain after filtering (minimum for geometry: 8).,georeferenced,SIFT
+real_greenwood_01_crop,success,image_match_only,planar_homography_gt,False,False,5000,3721,3721,855,842,0.9848,0.985,1.225,,,0.2765,,real_world,ORB
+real_greenwood_02_rot_scale,success,image_match_only,planar_homography_gt,False,False,5000,3576,3576,537,531,0.9888,0.993,0.523,,,0.1330,,real_world,ORB
+real_greenwood_03_photometric,success,image_match_only,planar_homography_gt,False,False,5000,3104,3104,714,704,0.9860,0.958,1.265,,,0.1314,,real_world,ORB
+real_greenwood_04_uncalibrated_obs,success,image_match_only,unavailable,False,False,5000,3857,3857,857,841,0.9813,1.026,,,,0.1401,,real_world,ORB
+real_chico_01_crop,success,image_match_only,planar_homography_gt,False,False,5000,3258,3258,500,481,0.9620,1.126,4.258,,,0.1611,,real_world,ORB
+real_chico_02_rot_10,success,image_match_only,planar_homography_gt,False,False,5000,2004,2004,137,129,0.9416,0.891,2.067,,,0.1452,,real_world,ORB
+real_chico_03_scale_08,success,image_match_only,planar_homography_gt,False,False,5000,1234,1234,37,33,0.8919,0.828,32.634,,,0.1349,,real_world,ORB
+real_chico_04_uncalibrated_obs,success,image_match_only,unavailable,False,False,5000,2358,2358,236,227,0.9619,1.045,,,,0.1498,,real_world,ORB
+real_harrishill_01_crop,success,image_match_only,planar_homography_gt,False,False,4791,1286,1286,534,533,0.9981,0.558,0.117,,,0.2052,,real_world,ORB
+real_harrishill_02_rot_14,success,image_match_only,planar_homography_gt,False,False,4791,628,628,170,168,0.9882,0.779,0.525,,,0.1945,,real_world,ORB
+real_harrishill_03_uncalibrated_obs,success,image_match_only,unavailable,False,False,4791,823,823,378,377,0.9974,0.828,,,,0.1997,,real_world,ORB
+real_negative_01_chico_on_greenwood,insufficient_matches,rejected,negative_unrelated_pair,True,False,5000,3258,3258,7,0,0.0000,,,,,0.0464,Only 7 matches remain after filtering (minimum for geometry: 8).,real_world,ORB
+real_negative_02_harrishill_on_greenwood,insufficient_matches,rejected,negative_unrelated_pair,True,False,5000,1286,1286,4,0,0.0000,,,,,0.0298,Only 4 matches remain after filtering (minimum for geometry: 8).,real_world,ORB
+real_negative_03_greenwood_on_chico,geometry_failed,rejected,negative_unrelated_pair,True,False,5000,3721,3721,13,5,0.3846,,,,,0.0558,"Geometric verification produced only 5 inliers (threshold: 10). The scenes may be different, or the overlap is too small.",real_world,ORB
+real_negative_04_greenwood_on_harrishill,geometry_failed,rejected,negative_unrelated_pair,True,False,4791,3721,3721,13,4,0.3077,,,,,0.0629,"Geometric verification produced only 4 inliers (threshold: 10). The scenes may be different, or the overlap is too small.",real_world,ORB
+real_greenwood_01_crop,success,image_match_only,planar_homography_gt,False,False,5001,1568,1568,1164,1164,1.0000,0.008,0.008,,,0.1833,,real_world,SIFT
+real_greenwood_02_rot_scale,success,image_match_only,planar_homography_gt,False,False,5001,1793,1793,688,683,0.9927,0.135,0.047,,,0.1921,,real_world,SIFT
+real_greenwood_03_photometric,success,image_match_only,planar_homography_gt,False,False,5001,1613,1613,670,666,0.9940,0.188,0.046,,,0.1844,,real_world,SIFT
+real_greenwood_04_uncalibrated_obs,success,image_match_only,unavailable,False,False,5001,1880,1880,881,877,0.9955,0.138,,,,0.1955,,real_world,SIFT
+real_chico_01_crop,success,image_match_only,planar_homography_gt,False,False,5001,1341,1341,1246,1246,1.0000,0.005,0.002,,,0.2412,,real_world,SIFT
+real_chico_02_rot_10,success,image_match_only,planar_homography_gt,False,False,5001,1265,1265,530,527,0.9943,0.161,0.087,,,0.2189,,real_world,SIFT
+real_chico_03_scale_08,success,image_match_only,planar_homography_gt,False,False,5001,1054,1054,360,353,0.9806,0.150,0.070,,,0.2110,,real_world,SIFT
+real_chico_04_uncalibrated_obs,success,image_match_only,unavailable,False,False,5001,1102,1102,633,627,0.9905,0.135,,,,0.2257,,real_world,SIFT
+real_harrishill_01_crop,success,image_match_only,planar_homography_gt,False,False,3752,861,861,831,831,1.0000,0.008,0.012,,,0.3402,,real_world,SIFT
+real_harrishill_02_rot_14,success,image_match_only,planar_homography_gt,False,False,3752,401,401,253,252,0.9960,0.108,0.102,,,0.2906,,real_world,SIFT
+real_harrishill_03_uncalibrated_obs,success,image_match_only,unavailable,False,False,3752,573,573,357,355,0.9944,0.120,,,,0.2908,,real_world,SIFT
+real_negative_01_chico_on_greenwood,insufficient_matches,rejected,negative_unrelated_pair,True,False,5001,1341,1341,6,0,0.0000,,,,,0.0838,Only 6 matches remain after filtering (minimum for geometry: 8).,real_world,SIFT
+real_negative_02_harrishill_on_greenwood,insufficient_matches,rejected,negative_unrelated_pair,True,False,5001,861,861,6,0,0.0000,,,,,0.0817,Only 6 matches remain after filtering (minimum for geometry: 8).,real_world,SIFT
+real_negative_03_greenwood_on_chico,geometry_failed,rejected,negative_unrelated_pair,True,False,5001,1568,1568,8,4,0.5000,,,,,0.0933,"Geometric verification produced only 4 inliers (threshold: 10). The scenes may be different, or the overlap is too small.",real_world,SIFT
+real_negative_04_greenwood_on_harrishill,insufficient_matches,rejected,negative_unrelated_pair,True,False,3752,1568,1568,7,0,0.0000,,,,,0.1109,Only 7 matches remain after filtering (minimum for geometry: 8).,real_world,SIFT
+scene00_identity,success,image_match_only,synthetic_homography,False,False,3491,3491,3491,3491,3491,1.0000,0.000,0.000,,,0.2195,,synthetic,ORB
+scene00_crop_center,success,image_match_only,synthetic_homography,False,False,3491,2536,2536,486,451,0.9280,0.996,1.590,,,0.0855,,synthetic,ORB
+scene00_rotate_5,success,image_match_only,synthetic_homography,False,False,3491,3601,3601,1797,1759,0.9789,0.832,0.186,,,0.0957,,synthetic,ORB
+scene00_rotate_15,success,image_match_only,synthetic_homography,False,False,3491,3519,3519,1466,1416,0.9659,0.959,0.985,,,0.0933,,synthetic,ORB
+scene00_brightness,success,image_match_only,synthetic_homography,False,False,3491,4165,4165,3255,3237,0.9945,0.029,0.021,,,0.0994,,synthetic,ORB
+scene00_blur,success,image_match_only,synthetic_homography,False,False,3491,363,363,260,253,0.9731,0.436,0.313,,,0.0738,,synthetic,ORB
+scene00_scale_0.8,success,image_match_only,synthetic_homography,False,False,3491,2710,2710,846,798,0.9433,0.902,0.157,,,0.0875,,synthetic,ORB
+scene00_unrelated,insufficient_matches,rejected,negative_unrelated_pair,False,False,3491,4244,4244,3,0,0.0000,,,,,0.0429,Only 3 matches remain after filtering (minimum for geometry: 8).,synthetic,ORB
+scene01_identity,success,image_match_only,synthetic_homography,False,False,3555,3555,3555,3555,3555,1.0000,0.000,0.000,,,0.0985,,synthetic,ORB
+scene01_crop_center,success,image_match_only,synthetic_homography,False,False,3555,2549,2549,521,482,0.9251,0.940,0.412,,,0.0879,,synthetic,ORB
+scene01_rotate_5,success,image_match_only,synthetic_homography,False,False,3555,3570,3570,1733,1700,0.9810,0.821,0.157,,,0.0944,,synthetic,ORB
+scene01_rotate_15,success,image_match_only,synthetic_homography,False,False,3555,3553,3553,1496,1445,0.9659,0.929,0.288,,,0.0936,,synthetic,ORB
+scene01_brightness,success,image_match_only,synthetic_homography,False,False,3555,4143,4143,3317,3298,0.9943,0.030,0.016,,,0.1027,,synthetic,ORB
+scene01_blur,success,image_match_only,synthetic_homography,False,False,3555,426,426,327,324,0.9908,0.678,0.766,,,0.0741,,synthetic,ORB
+scene01_scale_0.8,success,image_match_only,synthetic_homography,False,False,3555,2737,2737,858,806,0.9394,0.926,0.245,,,0.0915,,synthetic,ORB
+scene01_unrelated,insufficient_matches,rejected,negative_unrelated_pair,False,False,3555,4222,4222,0,0,0.0000,,,,,0.0430,"No matches survived the ratio test. The images may show different scenes, or image quality may be insufficient.",synthetic,ORB
+scene02_identity,success,image_match_only,synthetic_homography,False,False,3409,3409,3409,3409,3409,1.0000,0.000,0.000,,,0.0936,,synthetic,ORB
+scene02_crop_center,success,image_match_only,synthetic_homography,False,False,3409,2501,2501,487,458,0.9405,0.936,0.524,,,0.0859,,synthetic,ORB
+scene02_rotate_5,success,image_match_only,synthetic_homography,False,False,3409,3458,3458,1740,1709,0.9822,0.811,0.179,,,0.0961,,synthetic,ORB
+scene02_rotate_15,success,image_match_only,synthetic_homography,False,False,3409,3451,3451,1395,1356,0.9720,0.929,0.374,,,0.0944,,synthetic,ORB
+scene02_brightness,success,image_match_only,synthetic_homography,False,False,3409,4059,4059,3153,3133,0.9937,0.043,0.027,,,0.1118,,synthetic,ORB
+scene02_blur,success,image_match_only,synthetic_homography,False,False,3409,359,359,269,267,0.9926,0.658,0.669,,,0.0854,,synthetic,ORB
+scene02_scale_0.8,success,image_match_only,synthetic_homography,False,False,3409,2627,2627,775,735,0.9484,0.933,0.222,,,0.1020,,synthetic,ORB
+scene02_unrelated,insufficient_matches,rejected,negative_unrelated_pair,False,False,3409,4217,4217,1,0,0.0000,,,,,0.0469,Only 1 matches remain after filtering (minimum for geometry: 8).,synthetic,ORB
+scene00_identity,success,image_match_only,synthetic_homography,False,False,1005,1005,1005,1005,1005,1.0000,0.000,0.000,,,0.1339,,synthetic,SIFT
+scene00_crop_center,success,image_match_only,synthetic_homography,False,False,1005,1552,1552,405,358,0.8840,0.174,0.087,,,0.1359,,synthetic,SIFT
+scene00_rotate_5,success,image_match_only,synthetic_homography,False,False,1005,1065,1065,481,449,0.9335,0.310,0.071,,,0.1239,,synthetic,SIFT
+scene00_rotate_15,success,image_match_only,synthetic_homography,False,False,1005,1009,1009,398,369,0.9271,0.310,0.110,,,0.1274,,synthetic,SIFT
+scene00_brightness,success,image_match_only,synthetic_homography,False,False,1005,1497,1497,992,968,0.9758,0.032,0.020,,,0.1355,,synthetic,SIFT
+scene00_blur,success,image_match_only,synthetic_homography,False,False,1005,266,266,190,189,0.9947,0.386,0.129,,,0.1246,,synthetic,SIFT
+scene00_scale_0.8,success,image_match_only,synthetic_homography,False,False,1005,1416,1416,440,395,0.8977,0.161,0.096,,,0.1297,,synthetic,SIFT
+scene00_unrelated,insufficient_matches,rejected,negative_unrelated_pair,False,False,1005,828,828,0,0,0.0000,,,,,0.0573,"No matches survived the ratio test. The images may show different scenes, or image quality may be insufficient.",synthetic,SIFT
+scene01_identity,success,image_match_only,synthetic_homography,False,False,962,962,962,962,962,1.0000,0.000,0.000,,,0.1227,,synthetic,SIFT
+scene01_crop_center,success,image_match_only,synthetic_homography,False,False,962,1533,1533,337,297,0.8813,0.217,0.133,,,0.1304,,synthetic,SIFT
+scene01_rotate_5,success,image_match_only,synthetic_homography,False,False,962,1032,1032,486,443,0.9115,0.370,0.049,,,0.1304,,synthetic,SIFT
+scene01_rotate_15,success,image_match_only,synthetic_homography,False,False,962,1025,1025,416,360,0.8654,0.310,0.160,,,0.1242,,synthetic,SIFT
+scene01_brightness,success,image_match_only,synthetic_homography,False,False,962,1396,1396,931,911,0.9785,0.021,0.004,,,0.1298,,synthetic,SIFT
+scene01_blur,success,image_match_only,synthetic_homography,False,False,962,271,271,176,174,0.9886,0.395,0.205,,,0.1250,,synthetic,SIFT
+scene01_scale_0.8,success,image_match_only,synthetic_homography,False,False,962,1422,1422,392,350,0.8929,0.206,0.107,,,0.1385,,synthetic,SIFT
+scene01_unrelated,insufficient_matches,rejected,negative_unrelated_pair,False,False,962,814,814,0,0,0.0000,,,,,0.0684,"No matches survived the ratio test. The images may show different scenes, or image quality may be insufficient.",synthetic,SIFT
+scene02_identity,success,image_match_only,synthetic_homography,False,False,1041,1041,1041,1041,1041,1.0000,0.000,0.000,,,0.1314,,synthetic,SIFT
+scene02_crop_center,success,image_match_only,synthetic_homography,False,False,1041,1479,1479,389,351,0.9023,0.230,0.171,,,0.1300,,synthetic,SIFT
+scene02_rotate_5,success,image_match_only,synthetic_homography,False,False,1041,1073,1073,511,486,0.9511,0.386,0.116,,,0.1282,,synthetic,SIFT
+scene02_rotate_15,success,image_match_only,synthetic_homography,False,False,1041,1021,1021,418,384,0.9187,0.364,0.142,,,0.1302,,synthetic,SIFT
+scene02_brightness,success,image_match_only,synthetic_homography,False,False,1041,1493,1493,1066,980,0.9193,0.022,0.009,,,0.1252,,synthetic,SIFT
+scene02_blur,success,image_match_only,synthetic_homography,False,False,1041,289,289,218,214,0.9817,0.384,0.105,,,0.1207,,synthetic,SIFT
+scene02_scale_0.8,success,image_match_only,synthetic_homography,False,False,1041,1318,1318,430,394,0.9163,0.222,0.125,,,0.1292,,synthetic,SIFT
+scene02_unrelated,insufficient_matches,rejected,negative_unrelated_pair,False,False,1041,802,802,1,0,0.0000,,,,,0.0577,Only 1 matches remain after filtering (minimum for geometry: 8).,synthetic,SIFT

@@ -1,0 +1,1035 @@
+================================================================================
+SCENENAV AI — AUTOMATED TEST EXECUTION LOG (FINAL RELEASE AUDIT)
+Environment: Windows 11, Python 3.10.11, Node v24.19.0, npm 11.17.0
+OpenCV: 5.0.0 | Rasterio: 1.4.4 | PyProj: 3.7.1 | Playwright: 1.63.0
+================================================================================
+
+>>> RUNNING: Master Batch Test Suite (run_tests.bat)
+>>> COMMAND: cmd /c run_tests.bat
+>>> EXIT CODE: 0
+--- STDOUT ---
+===================================================
+Running SceneNav AI Automated Tests
+===================================================
+[1/2] Running Backend Tests (pytest)...
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\satvi\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: D:\drdo\SceneNav-AI
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=auto, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 105 items
+
+backend/tests/test_api.py::TestHealth::test_health_returns_ok 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
+PASSED                                                                   [  0%]
+backend/tests/test_api.py::TestCapabilities::test_capabilities_returns_formats 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/capabilities "HTTP/1.1 200 OK"
+PASSED                                                                   [  1%]
+backend/tests/test_api.py::TestMatchEndpoint::test_valid_images_return_result 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'ref.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'qry.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2719, query: 2719
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2719 tentative \u2192 2719 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2719/2719 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(1.522072466436826e-14, 1.5309571008996947e-15) TR=(199.0, 1.0410265314717004e-14) BR=(199.0, 199.0) BL=(-4.548113764128812e-15, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\24255c04-fcbf-4224-848a-db05ab9cba69
+INFO     app.services.pipeline:pipeline.py:297 Job 24255c04-fcbf-4224-848a-db05ab9cba69 completed: status=MatchStatus.SUCCESS inliers=2719 time=0.30s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+PASSED                                                                   [  2%]
+backend/tests/test_api.py::TestMatchEndpoint::test_identical_images_succeed 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'ref.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'qry.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2693, query: 2693
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2693 tentative \u2192 2693 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2693/2693 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(1.9522054532281584e-14, 2.0340178245046095e-14) TR=(199.0, -1.7678164179513222e-15) BR=(199.0, 199.0) BL=(-2.478909174555722e-14, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\db7bcd42-c2d5-45c1-a02c-40f084abae1b
+INFO     app.services.pipeline:pipeline.py:297 Job db7bcd42-c2d5-45c1-a02c-40f084abae1b completed: status=MatchStatus.SUCCESS inliers=2693 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+PASSED                                                                   [  3%]
+backend/tests/test_api.py::TestMatchEndpoint::test_corrupted_reference_returns_400 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 400 Bad Request"
+PASSED                                                                   [  4%]
+backend/tests/test_api.py::TestMatchEndpoint::test_corrupted_query_returns_400 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'ref.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 400 Bad Request"
+PASSED                                                                   [  5%]
+backend/tests/test_api.py::TestMatchEndpoint::test_invalid_params_returns_error 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 422 Unprocessable Entity"
+PASSED                                                                   [  6%]
+backend/tests/test_api.py::TestMatchEndpoint::test_result_has_job_id 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2726, query: 2726
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2726 tentative \u2192 2726 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2726/2726 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(-1.036823723394014e-14, -2.7808540585820725e-15) TR=(199.0, -1.2878819172679364e-14) BR=(199.0, 199.0) BL=(2.4674616936801695e-14, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\eb5f5339-f677-4309-9079-2227dc25d517
+INFO     app.services.pipeline:pipeline.py:297 Job eb5f5339-f677-4309-9079-2227dc25d517 completed: status=MatchStatus.SUCCESS inliers=2726 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+PASSED                                                                   [  7%]
+backend/tests/test_api.py::TestMatchEndpoint::test_algorithm_params_in_result 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 107.0 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 107.0 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 764, query: 764
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 764 tentative \u2192 764 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 764/764 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(-2.043050668557424e-15, 3.435909211802672e-16) TR=(199.0, 2.1571645565741232e-14) BR=(199.0, 199.0) BL=(-1.3010155866315879e-14, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\7aa8869f-59ea-4c68-b7df-85c328a62f72
+INFO     app.services.pipeline:pipeline.py:297 Job 7aa8869f-59ea-4c68-b7df-85c328a62f72 completed: status=MatchStatus.SUCCESS inliers=764 time=0.04s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+PASSED                                                                   [  8%]
+backend/tests/test_api.py::TestJobEndpoint::test_existing_job_returned 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2718, query: 2718
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2718 tentative \u2192 2718 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2718/2718 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(1.0713770772245376e-14, 1.1582134761968618e-15) TR=(199.0, 8.338832689679457e-15) BR=(199.0, 199.0) BL=(5.280382217359627e-15, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\2d1afb94-4226-4853-8dc0-30fc68af2eaa
+INFO     app.services.pipeline:pipeline.py:297 Job 2d1afb94-4226-4853-8dc0-30fc68af2eaa completed: status=MatchStatus.SUCCESS inliers=2718 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/jobs/2d1afb94-4226-4853-8dc0-30fc68af2eaa "HTTP/1.1 200 OK"
+PASSED                                                                   [  9%]
+backend/tests/test_api.py::TestJobEndpoint::test_nonexistent_job_returns_404 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/jobs/nonexistent-job-id-xyz "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 10%]
+backend/tests/test_api.py::TestArtifactEndpoint::test_valid_artifact_served 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2656, query: 2656
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2656 tentative \u2192 2656 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2656/2656 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(5.0497599612406576e-17, 4.4390265084342986e-15) TR=(199.0, 4.957767696541198e-15) BR=(199.0, 199.0) BL=(-4.227454195352646e-15, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\00ce71d1-accd-4a0e-a98c-1290baa25c56
+INFO     app.services.pipeline:pipeline.py:297 Job 00ce71d1-accd-4a0e-a98c-1290baa25c56 completed: status=MatchStatus.SUCCESS inliers=2656 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/artifacts/00ce71d1-accd-4a0e-a98c-1290baa25c56/01_side_by_side.png "HTTP/1.1 200 OK"
+PASSED                                                                   [ 11%]
+backend/tests/test_api.py::TestArtifactEndpoint::test_nonexistent_job_artifact_404 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/artifacts/bad-job-id/file.png "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 12%]
+backend/tests/test_api.py::TestArtifactEndpoint::test_path_traversal_blocked 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2677, query: 2677
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2677 tentative \u2192 2677 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2677/2677 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(-6.2020679899037114e-15, -8.773110716901473e-15) TR=(199.0, -7.493079609208458e-15) BR=(199.0, 199.0) BL=(6.013745037158295e-15, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\9178b308-695d-463d-a69b-671588933adc
+INFO     app.services.pipeline:pipeline.py:297 Job 9178b308-695d-463d-a69b-671588933adc completed: status=MatchStatus.SUCCESS inliers=2677 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/etc/passwd "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 13%]
+backend/tests/test_api.py::TestSamplesEndpoint::test_list_samples_returns_data 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples "HTTP/1.1 200 OK"
+PASSED                                                                   [ 14%]
+backend/tests/test_api.py::TestSamplesEndpoint::test_serve_sample_image 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples/image/references/scene_00_reference.png "HTTP/1.1 200 OK"
+PASSED                                                                   [ 15%]
+backend/tests/test_api.py::TestSamplesEndpoint::test_sample_image_invalid_category 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples/image/secret_dir/image.png "HTTP/1.1 400 Bad Request"
+PASSED                                                                   [ 16%]
+backend/tests/test_api.py::TestSamplesEndpoint::test_sample_image_path_traversal 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples/image/references/..%2F..%2Fmain.py "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 17%]
+backend/tests/test_api.py::TestMutualConsistency::test_match_with_mutual_consistency_flag 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2664, query: 2664
+INFO     app.services.feature_matcher:feature_matcher.py:191 Mutual consistency: 2664 matches \u2192 2664 consistent matches\nINFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2664 tentative \u2192 2664 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2664/2664 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(-6.858737058526186e-15, -1.1797233484967928e-14) TR=(199.0, -2.275201170636587e-16) BR=(199.0, 199.0) BL=(-1.558062388145893e-14, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\47144045-1685-43b6-921c-d105f56de878
+INFO     app.services.pipeline:pipeline.py:297 Job 47144045-1685-43b6-921c-d105f56de878 completed: status=MatchStatus.SUCCESS inliers=2664 time=0.07s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+PASSED                                                                   [ 18%]
+backend/tests/test_api.py::TestSecurityHardening::test_artifact_traversal_in_job_id 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/artifacts/..%2F..%2Fresults/test.png "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 19%]
+backend/tests/test_api.py::TestSecurityHardening::test_artifact_invalid_job_id_format 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/artifacts/job;drop%20tables/test.png "HTTP/1.1 400 Bad Request"
+PASSED                                                                   [ 20%]
+backend/tests/test_api.py::TestSecurityHardening::test_artifact_forbidden_extension 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.8 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.8 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2693, query: 2693
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2693 tentative \u2192 2693 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2693/2693 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(1.1345549777712783e-14, 2.3992206536912163e-14) TR=(199.0, -8.680713821916132e-15) BR=(199.0, 199.0) BL=(-3.593630452350567e-15, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\d65f969b-9164-42f8-a58d-787374b598fe
+INFO     app.services.pipeline:pipeline.py:297 Job d65f969b-9164-42f8-a58d-787374b598fe completed: status=MatchStatus.SUCCESS inliers=2693 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/artifacts/d65f969b-9164-42f8-a58d-787374b598fe/evil.exe "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 20%]
+backend/tests/test_api.py::TestSecurityHardening::test_sample_image_traversal_backslashes 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples/image/references/..\..\main.py "HTTP/1.1 400 Bad Request"
+PASSED                                                                   [ 21%]
+backend/tests/test_api.py::TestSecurityHardening::test_evaluation_manifest_path_traversal 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/evaluate "HTTP/1.1 422 Unprocessable Entity"
+PASSED                                                                   [ 22%]
+backend/tests/test_api.py::TestSecurityHardening::test_upload_streaming_limit 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 413 Request Entity Too Large"
+PASSED                                                                   [ 23%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_01_app_page_loads_and_displays_header PASSED [ 24%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_02_orb_matching_workflow PASSED [ 25%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_03_sift_matching_workflow PASSED [ 26%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_04_interactive_lightbox_modal PASSED [ 27%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_05_unrelated_negative_pair_rejection PASSED [ 28%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_06_reset_functionality PASSED [ 29%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_07_georeferenced_localization_workflow PASSED [ 30%]
+backend/tests/test_evaluation.py::TestAggregateMetrics::test_empty_returns_zero PASSED [ 31%]
+backend/tests/test_evaluation.py::TestAggregateMetrics::test_all_success PASSED [ 32%]
+backend/tests/test_evaluation.py::TestAggregateMetrics::test_mixed_success_failure PASSED [ 33%]
+backend/tests/test_evaluation.py::TestAggregateMetrics::test_failure_breakdown PASSED [ 34%]
+backend/tests/test_evaluation.py::TestAggregateMetrics::test_mean_reproj_error_only_from_successes PASSED [ 35%]
+backend/tests/test_evaluation.py::TestCornerError::test_identical_homographies_zero_error PASSED [ 36%]
+backend/tests/test_evaluation.py::TestCornerError::test_translated_homography_error PASSED [ 37%]
+backend/tests/test_evaluation.py::TestNegativePairsAndFalseAcceptance::test_clean_negative_rejection PASSED [ 38%]
+backend/tests/test_evaluation.py::TestNegativePairsAndFalseAcceptance::test_false_acceptance_detected PASSED [ 39%]
+backend/tests/test_evaluation.py::TestUnavailableGroundTruth::test_unavailable_ground_truth_does_not_fabricate_error PASSED [ 40%]
+backend/tests/test_evaluation.py::TestUnavailableGroundTruth::test_all_unavailable_returns_none PASSED [ 40%]
+backend/tests/test_evaluation.py::TestEvaluationMissingFilesAndInvalidPairs::test_missing_files_recorded_as_invalid PASSED [ 41%]
+backend/tests/test_evaluation.py::TestEvaluationReproducibility::test_reproducible_aggregation_metrics PASSED [ 42%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_overall_success_rate_uses_all_pairs_as_denominator PASSED [ 43%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_positive_success_rate_uses_only_positive_pairs_as_denominator PASSED [ 44%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_negative_false_acceptance_rate_uses_only_negative_pairs_as_denominator PASSED [ 45%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_ground_truth_corner_error_excluded_for_unavailable_and_negative PASSED [ 46%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_generated_report_text_agrees_with_machine_readable_summaries PASSED [ 47%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_dataset_documentation_describes_simulated_transformations_accurately PASSED [ 48%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_identical_images_produce_matches 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_1.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3911, query: 3911
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3911 tentative \u2192 3911 filtered\nPASSED                                                                   [ 49%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_same_scene_crops_produce_matches 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_7.png': 400x400 px, 3 ch, 439.8 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'crop.png': 300x300 px, 3 ch, 247.7 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 1954, query: 1755
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 1755 tentative \u2192 308 filtered\nPASSED                                                                   [ 50%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_unrelated_images_fewer_matches 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_10.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_999.png': 300x300 px, 3 ch, 247.5 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3919, query: 3929
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3929 tentative \u2192 99 filtered\nPASSED                                                                   [ 51%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_blank_image_graceful_failure 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'blank.png': 100x100 px, 3 ch, 0.3 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_5.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3921, query: 0
+PASSED                                                                   [ 52%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_ratio_threshold_affects_filtered_count 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_3.png': 300x300 px, 3 ch, 247.5 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3939, query: 3939
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.60): 3939 tentative \u2192 3939 filtered\nINFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3939, query: 3939
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.90): 3939 tentative \u2192 3939 filtered\nPASSED                                                                   [ 53%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_statistics_recorded 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_2.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3941, query: 3941
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3941 tentative \u2192 3941 filtered\nPASSED                                                                   [ 54%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_params_recorded 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_4.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 927, query: 927
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.70): 927 tentative \u2192 927 filtered\nPASSED                                                                   [ 55%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_point_arrays_shape 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_6.png': 300x300 px, 3 ch, 247.5 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3924, query: 3924
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3924 tentative \u2192 3924 filtered\nPASSED                                                                   [ 56%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_mutual_consistency_filtering 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_7.png': 300x300 px, 3 ch, 247.5 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3917, query: 3917
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3917 tentative \u2192 3917 filtered\nINFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3917, query: 3917
+INFO     app.services.feature_matcher:feature_matcher.py:191 Mutual consistency: 3917 matches \u2192 3917 consistent matches\nINFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3917 tentative \u2192 3917 filtered\nPASSED                                                                   [ 57%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_sift_matching 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_8.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 SIFT keypoints — reference: 357, query: 357
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 357 tentative \u2192 357 filtered\nPASSED                                                                   [ 58%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_invalid_algorithm_raises 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_9.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+PASSED                                                                   [ 59%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_clean_correspondences_succeed 
+-------------------------------- live log call --------------------------------
+INFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 80/80 inliers (100.0%)
+PASSED                                                                   [ 60%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_too_few_points_fails PASSED [ 60%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_reprojection_error_computed 
+-------------------------------- live log call --------------------------------
+INFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 60/60 inliers (100.0%)
+PASSED                                                                   [ 61%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_inlier_ratio_below_min_fails 
+-------------------------------- live log call --------------------------------
+INFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 20/20 inliers (100.0%)
+PASSED                                                                   [ 62%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_random_points_geometry_fails_or_low_inliers 
+-------------------------------- live log call --------------------------------
+INFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 5/50 inliers (10.0%)
+PASSED                                                                   [ 63%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_coordinate_convention 
+-------------------------------- live log call --------------------------------
+INFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 80/80 inliers (100.0%)
+PASSED                                                                   [ 64%]
+backend/tests/test_geometry.py::TestValidateHomography::test_identity_is_valid PASSED [ 65%]
+backend/tests/test_geometry.py::TestValidateHomography::test_nan_detected PASSED [ 66%]
+backend/tests/test_geometry.py::TestValidateHomography::test_inf_detected PASSED [ 67%]
+backend/tests/test_geometry.py::TestValidateHomography::test_singular_detected PASSED [ 68%]
+backend/tests/test_geometry.py::TestValidateHomography::test_reflection_detected PASSED [ 69%]
+backend/tests/test_geometry.py::TestValidateHomography::test_extreme_scale_detected PASSED [ 70%]
+backend/tests/test_geometry.py::TestReprojectionError::test_exact_homography_zero_error PASSED [ 71%]
+backend/tests/test_georeferencing.py::TestMetadataExtraction::test_extract_valid_geotiff PASSED [ 72%]
+backend/tests/test_georeferencing.py::TestMetadataExtraction::test_extract_png_is_not_georeferenced PASSED [ 73%]
+backend/tests/test_georeferencing.py::TestMetadataExtraction::test_extract_corrupted_data_returns_unreferenced 
+-------------------------------- live log call --------------------------------
+INFO     rasterio._env:io.py:140 GDAL signalled an error: err_no=4, msg="`/vsimem/eb77d22e-d2ed-47d0-9939-e33175bd7bfc/eb77d22e-d2ed-47d0-9939-e33175bd7bfc.tif' not recognized as being in a supported file format."
+PASSED                                                                   [ 74%]
+backend/tests/test_georeferencing.py::TestMetadataExtraction::test_extract_nonexistent_file_returns_unreferenced PASSED [ 75%]
+backend/tests/test_georeferencing.py::TestCoordinateTransformations::test_pixel_to_projected_and_inverse PASSED [ 76%]
+backend/tests/test_georeferencing.py::TestCoordinateTransformations::test_projected_to_wgs84_roundtrip PASSED [ 77%]
+backend/tests/test_georeferencing.py::TestCoordinateTransformations::test_projected_to_wgs84_invalid_crs_raises PASSED [ 78%]
+backend/tests/test_georeferencing.py::TestFootprintAndBounds::test_footprint_within_bounds PASSED [ 79%]
+backend/tests/test_georeferencing.py::TestFootprintAndBounds::test_footprint_outside_bounds_warns PASSED [ 80%]
+backend/tests/test_georeferencing.py::TestFootprintAndBounds::test_unreferenced_raster_produces_none_footprints PASSED [ 80%]
+backend/tests/test_georeferencing.py::TestMetricDistanceCalculations::test_geodesic_distance_known_meridian PASSED [ 81%]
+backend/tests/test_georeferencing.py::TestMetricDistanceCalculations::test_geodesic_distance_zero_for_identical PASSED [ 82%]
+backend/tests/test_georeferencing.py::TestMetricDistanceCalculations::test_corner_error_m PASSED [ 83%]
+backend/tests/test_georeferencing.py::TestPipelineLocalizationIntegration::test_georeferenced_match_yields_localized_status 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'georef_usgs_greenwood.tif': 701x643 px, 3 ch, 1322.2 KB, format=TIFF
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'georef_greenwood_crop_center.tif': 260x260 px, 3 ch, 198.6 KB, format=TIFF
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 5000, query: 3037
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3037 tentative \u2192 807 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 800/807 inliers (99.1%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(200.5756378173828, 180.75820922851562) TR=(458.7421875, 180.31431579589844) BR=(460.9267883300781, 440.4981994628906) BL=(200.04299926757812, 439.1695556640625) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\3bd6045f-58b0-4db1-90b3-3332c8a164b1
+INFO     app.services.pipeline:pipeline.py:297 Job 3bd6045f-58b0-4db1-90b3-3332c8a164b1 completed: status=MatchStatus.SUCCESS inliers=800 time=0.17s
+PASSED                                                                   [ 84%]
+backend/tests/test_georeferencing.py::TestPipelineLocalizationIntegration::test_standard_png_yields_image_match_only 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'scene_00_reference.png': 512x512 px, 3 ch, 488.8 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'scene_00_query_identity.png': 512x512 px, 3 ch, 488.8 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3491, query: 3491
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3491 tentative \u2192 3491 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 3491/3491 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(-2.9419019575028377e-14, -1.060132630146442e-14) TR=(511.0, -3.1355766338155965e-15) BR=(511.0, 511.0) BL=(-8.633004691162034e-15, 511.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\871e70b8-d423-4c25-a645-b5c22a13f431
+INFO     app.services.pipeline:pipeline.py:297 Job 871e70b8-d423-4c25-a645-b5c22a13f431 completed: status=MatchStatus.SUCCESS inliers=3491 time=0.12s
+PASSED                                                                   [ 85%]
+backend/tests/test_georeferencing.py::TestPipelineLocalizationIntegration::test_negative_pair_yields_rejected_status 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'georef_usgs_greenwood.tif': 701x643 px, 3 ch, 1322.2 KB, format=TIFF
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'georef_chico_crop_runway.tif': 280x280 px, 3 ch, 230.2 KB, format=TIFF
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 5000, query: 1071
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 1071 tentative \u2192 2 filtered\nPASSED                                                                   [ 86%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_valid_rgb_png 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'test.png': 200x150 px, 3 ch, 88.2 KB, format=PNG
+PASSED                                                                   [ 87%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_valid_jpeg 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'photo.jpg': 320x240 px, 3 ch, 57.2 KB, format=JPEG
+PASSED                                                                   [ 88%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_grayscale_converted_to_rgb_bgr 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'gray.png': 80x80 px, 3 ch, 6.4 KB, format=PNG
+PASSED                                                                   [ 89%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_empty_bytes_raises PASSED [ 90%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_unsupported_extension_raises PASSED [ 91%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_corrupted_data_raises PASSED [ 92%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_too_large_raises PASSED [ 93%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_max_dim_enforced PASSED [ 94%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_too_small_raises PASSED [ 95%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_filename_stored 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'myimage.png': 100x100 px, 3 ch, 29.5 KB, format=PNG
+PASSED                                                                   [ 96%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_file_size_stored 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'test.png': 100x100 px, 3 ch, 29.5 KB, format=PNG
+PASSED                                                                   [ 97%]
+backend/tests/test_image_loader.py::TestToGrayscale::test_produces_2d_array 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'test.png': 64x64 px, 3 ch, 12.1 KB, format=PNG
+PASSED                                                                   [ 98%]
+backend/tests/test_image_loader.py::TestLoadFromPath::test_missing_file_raises PASSED [ 99%]
+backend/tests/test_image_loader.py::TestLoadFromPath::test_valid_file 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'valid.png': 50x50 px, 3 ch, 7.4 KB, format=PNG
+PASSED                                                                   [100%]
+
+============================== warnings summary ===============================
+C:\Users\satvi\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\testclient.py:1
+  C:\Users\satvi\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+backend/tests/test_georeferencing.py::TestMetadataExtraction::test_extract_valid_geotiff
+backend/tests/test_georeferencing.py::TestFootprintAndBounds::test_footprint_within_bounds
+backend/tests/test_georeferencing.py::TestFootprintAndBounds::test_footprint_outside_bounds_warns
+  C:\Users\satvi\AppData\Local\Programs\Python\Python310\lib\site-packages\rasterio\transform.py:178: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    return Affine.translation(west, north) * Affine.scale(xsize, -ysize)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+====================== 105 passed, 4 warnings in 15.30s =======================
+
+[2/2] Running Frontend Tests (vitest)...
+
+> frontend@0.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90mD:/drdo/SceneNav-AI/frontend[39m
+
+ [32mâœ“[39m src/tests/client.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32mâœ“[39m src/tests/components.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[32m 125[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m   Start at [22m 15:47:19
+[2m   Duration [22m 26.27s[2m (environment 89%, import 10%)[22m
+
+
+All automated test suites passed successfully!
+--- STDERR ---
+(none)
+
+================================================================================
+
+>>> RUNNING: Backend Pytest Suite (pytest backend/tests/ -v)
+>>> COMMAND: python -m pytest backend/tests/ -v
+>>> EXIT CODE: 0
+--- STDOUT ---
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\satvi\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: D:\drdo\SceneNav-AI
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=auto, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 105 items
+
+backend/tests/test_api.py::TestHealth::test_health_returns_ok 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
+PASSED                                                                   [  0%]
+backend/tests/test_api.py::TestCapabilities::test_capabilities_returns_formats 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/capabilities "HTTP/1.1 200 OK"
+PASSED                                                                   [  1%]
+backend/tests/test_api.py::TestMatchEndpoint::test_valid_images_return_result 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'ref.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'qry.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2719, query: 2719
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2719 tentative \u2192 2719 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2719/2719 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(1.522072466436826e-14, 1.5309571008996947e-15) TR=(199.0, 1.0410265314717004e-14) BR=(199.0, 199.0) BL=(-4.548113764128812e-15, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\470b805c-b9e7-4bd3-bfa8-c266cbc80ef8
+INFO     app.services.pipeline:pipeline.py:297 Job 470b805c-b9e7-4bd3-bfa8-c266cbc80ef8 completed: status=MatchStatus.SUCCESS inliers=2719 time=0.23s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+PASSED                                                                   [  2%]
+backend/tests/test_api.py::TestMatchEndpoint::test_identical_images_succeed 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'ref.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'qry.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2693, query: 2693
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2693 tentative \u2192 2693 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2693/2693 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(1.9522054532281584e-14, 2.0340178245046095e-14) TR=(199.0, -1.7678164179513222e-15) BR=(199.0, 199.0) BL=(-2.478909174555722e-14, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\ff893084-2999-4a3b-ba01-272541fc85b4
+INFO     app.services.pipeline:pipeline.py:297 Job ff893084-2999-4a3b-ba01-272541fc85b4 completed: status=MatchStatus.SUCCESS inliers=2693 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+PASSED                                                                   [  3%]
+backend/tests/test_api.py::TestMatchEndpoint::test_corrupted_reference_returns_400 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 400 Bad Request"
+PASSED                                                                   [  4%]
+backend/tests/test_api.py::TestMatchEndpoint::test_corrupted_query_returns_400 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'ref.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 400 Bad Request"
+PASSED                                                                   [  5%]
+backend/tests/test_api.py::TestMatchEndpoint::test_invalid_params_returns_error 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 422 Unprocessable Entity"
+PASSED                                                                   [  6%]
+backend/tests/test_api.py::TestMatchEndpoint::test_result_has_job_id 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2726, query: 2726
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2726 tentative \u2192 2726 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2726/2726 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(-1.036823723394014e-14, -2.7808540585820725e-15) TR=(199.0, -1.2878819172679364e-14) BR=(199.0, 199.0) BL=(2.4674616936801695e-14, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\102ed652-33ab-404f-9f18-e50513c0479d
+INFO     app.services.pipeline:pipeline.py:297 Job 102ed652-33ab-404f-9f18-e50513c0479d completed: status=MatchStatus.SUCCESS inliers=2726 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+PASSED                                                                   [  7%]
+backend/tests/test_api.py::TestMatchEndpoint::test_algorithm_params_in_result 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 107.0 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 107.0 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 764, query: 764
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 764 tentative \u2192 764 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 764/764 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(-2.043050668557424e-15, 3.435909211802672e-16) TR=(199.0, 2.1571645565741232e-14) BR=(199.0, 199.0) BL=(-1.3010155866315879e-14, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\cda52d27-5de5-4425-8612-f4ca611f25c8
+INFO     app.services.pipeline:pipeline.py:297 Job cda52d27-5de5-4425-8612-f4ca611f25c8 completed: status=MatchStatus.SUCCESS inliers=764 time=0.04s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+PASSED                                                                   [  8%]
+backend/tests/test_api.py::TestJobEndpoint::test_existing_job_returned 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2718, query: 2718
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2718 tentative \u2192 2718 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2718/2718 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(1.0713770772245376e-14, 1.1582134761968618e-15) TR=(199.0, 8.338832689679457e-15) BR=(199.0, 199.0) BL=(5.280382217359627e-15, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\cd32f977-5ecf-4cfb-aad1-486db30a45c1
+INFO     app.services.pipeline:pipeline.py:297 Job cd32f977-5ecf-4cfb-aad1-486db30a45c1 completed: status=MatchStatus.SUCCESS inliers=2718 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/jobs/cd32f977-5ecf-4cfb-aad1-486db30a45c1 "HTTP/1.1 200 OK"
+PASSED                                                                   [  9%]
+backend/tests/test_api.py::TestJobEndpoint::test_nonexistent_job_returns_404 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/jobs/nonexistent-job-id-xyz "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 10%]
+backend/tests/test_api.py::TestArtifactEndpoint::test_valid_artifact_served 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2656, query: 2656
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2656 tentative \u2192 2656 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2656/2656 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(5.0497599612406576e-17, 4.4390265084342986e-15) TR=(199.0, 4.957767696541198e-15) BR=(199.0, 199.0) BL=(-4.227454195352646e-15, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\befea758-e9f2-42cf-8464-edbeaec16e48
+INFO     app.services.pipeline:pipeline.py:297 Job befea758-e9f2-42cf-8464-edbeaec16e48 completed: status=MatchStatus.SUCCESS inliers=2656 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/artifacts/befea758-e9f2-42cf-8464-edbeaec16e48/01_side_by_side.png "HTTP/1.1 200 OK"
+PASSED                                                                   [ 11%]
+backend/tests/test_api.py::TestArtifactEndpoint::test_nonexistent_job_artifact_404 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/artifacts/bad-job-id/file.png "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 12%]
+backend/tests/test_api.py::TestArtifactEndpoint::test_path_traversal_blocked 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2677, query: 2677
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2677 tentative \u2192 2677 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2677/2677 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(-6.2020679899037114e-15, -8.773110716901473e-15) TR=(199.0, -7.493079609208458e-15) BR=(199.0, 199.0) BL=(6.013745037158295e-15, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\a9db7153-fcac-4544-ae43-f35cfddf89d2
+INFO     app.services.pipeline:pipeline.py:297 Job a9db7153-fcac-4544-ae43-f35cfddf89d2 completed: status=MatchStatus.SUCCESS inliers=2677 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/etc/passwd "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 13%]
+backend/tests/test_api.py::TestSamplesEndpoint::test_list_samples_returns_data 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples "HTTP/1.1 200 OK"
+PASSED                                                                   [ 14%]
+backend/tests/test_api.py::TestSamplesEndpoint::test_serve_sample_image 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples/image/references/scene_00_reference.png "HTTP/1.1 200 OK"
+PASSED                                                                   [ 15%]
+backend/tests/test_api.py::TestSamplesEndpoint::test_sample_image_invalid_category 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples/image/secret_dir/image.png "HTTP/1.1 400 Bad Request"
+PASSED                                                                   [ 16%]
+backend/tests/test_api.py::TestSamplesEndpoint::test_sample_image_path_traversal 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples/image/references/..%2F..%2Fmain.py "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 17%]
+backend/tests/test_api.py::TestMutualConsistency::test_match_with_mutual_consistency_flag 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.9 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2664, query: 2664
+INFO     app.services.feature_matcher:feature_matcher.py:191 Mutual consistency: 2664 matches \u2192 2664 consistent matches\nINFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2664 tentative \u2192 2664 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2664/2664 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(-6.858737058526186e-15, -1.1797233484967928e-14) TR=(199.0, -2.275201170636587e-16) BR=(199.0, 199.0) BL=(-1.558062388145893e-14, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\895ea1de-0c28-49a7-87e9-cec82dc6939b
+INFO     app.services.pipeline:pipeline.py:297 Job 895ea1de-0c28-49a7-87e9-cec82dc6939b completed: status=MatchStatus.SUCCESS inliers=2664 time=0.07s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+PASSED                                                                   [ 18%]
+backend/tests/test_api.py::TestSecurityHardening::test_artifact_traversal_in_job_id 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/artifacts/..%2F..%2Fresults/test.png "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 19%]
+backend/tests/test_api.py::TestSecurityHardening::test_artifact_invalid_job_id_format 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/artifacts/job;drop%20tables/test.png "HTTP/1.1 400 Bad Request"
+PASSED                                                                   [ 20%]
+backend/tests/test_api.py::TestSecurityHardening::test_artifact_forbidden_extension 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'r.png': 200x200 px, 3 ch, 106.8 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'q.png': 200x200 px, 3 ch, 106.8 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 2693, query: 2693
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 2693 tentative \u2192 2693 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 2693/2693 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(1.1345549777712783e-14, 2.3992206536912163e-14) TR=(199.0, -8.680713821916132e-15) BR=(199.0, 199.0) BL=(-3.593630452350567e-15, 199.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\5a8a86ea-6e3c-4012-a8dc-5003839ce98e
+INFO     app.services.pipeline:pipeline.py:297 Job 5a8a86ea-6e3c-4012-a8dc-5003839ce98e completed: status=MatchStatus.SUCCESS inliers=2693 time=0.06s
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 200 OK"
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/artifacts/5a8a86ea-6e3c-4012-a8dc-5003839ce98e/evil.exe "HTTP/1.1 404 Not Found"
+PASSED                                                                   [ 20%]
+backend/tests/test_api.py::TestSecurityHardening::test_sample_image_traversal_backslashes 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/samples/image/references/..\..\main.py "HTTP/1.1 400 Bad Request"
+PASSED                                                                   [ 21%]
+backend/tests/test_api.py::TestSecurityHardening::test_evaluation_manifest_path_traversal 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/evaluate "HTTP/1.1 422 Unprocessable Entity"
+PASSED                                                                   [ 22%]
+backend/tests/test_api.py::TestSecurityHardening::test_upload_streaming_limit 
+-------------------------------- live log call --------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/match "HTTP/1.1 413 Request Entity Too Large"
+PASSED                                                                   [ 23%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_01_app_page_loads_and_displays_header PASSED [ 24%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_02_orb_matching_workflow PASSED [ 25%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_03_sift_matching_workflow PASSED [ 26%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_04_interactive_lightbox_modal PASSED [ 27%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_05_unrelated_negative_pair_rejection PASSED [ 28%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_06_reset_functionality PASSED [ 29%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_07_georeferenced_localization_workflow PASSED [ 30%]
+backend/tests/test_evaluation.py::TestAggregateMetrics::test_empty_returns_zero PASSED [ 31%]
+backend/tests/test_evaluation.py::TestAggregateMetrics::test_all_success PASSED [ 32%]
+backend/tests/test_evaluation.py::TestAggregateMetrics::test_mixed_success_failure PASSED [ 33%]
+backend/tests/test_evaluation.py::TestAggregateMetrics::test_failure_breakdown PASSED [ 34%]
+backend/tests/test_evaluation.py::TestAggregateMetrics::test_mean_reproj_error_only_from_successes PASSED [ 35%]
+backend/tests/test_evaluation.py::TestCornerError::test_identical_homographies_zero_error PASSED [ 36%]
+backend/tests/test_evaluation.py::TestCornerError::test_translated_homography_error PASSED [ 37%]
+backend/tests/test_evaluation.py::TestNegativePairsAndFalseAcceptance::test_clean_negative_rejection PASSED [ 38%]
+backend/tests/test_evaluation.py::TestNegativePairsAndFalseAcceptance::test_false_acceptance_detected PASSED [ 39%]
+backend/tests/test_evaluation.py::TestUnavailableGroundTruth::test_unavailable_ground_truth_does_not_fabricate_error PASSED [ 40%]
+backend/tests/test_evaluation.py::TestUnavailableGroundTruth::test_all_unavailable_returns_none PASSED [ 40%]
+backend/tests/test_evaluation.py::TestEvaluationMissingFilesAndInvalidPairs::test_missing_files_recorded_as_invalid PASSED [ 41%]
+backend/tests/test_evaluation.py::TestEvaluationReproducibility::test_reproducible_aggregation_metrics PASSED [ 42%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_overall_success_rate_uses_all_pairs_as_denominator PASSED [ 43%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_positive_success_rate_uses_only_positive_pairs_as_denominator PASSED [ 44%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_negative_false_acceptance_rate_uses_only_negative_pairs_as_denominator PASSED [ 45%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_ground_truth_corner_error_excluded_for_unavailable_and_negative PASSED [ 46%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_generated_report_text_agrees_with_machine_readable_summaries PASSED [ 47%]
+backend/tests/test_evaluation.py::TestBenchmarkAuditRegressions::test_dataset_documentation_describes_simulated_transformations_accurately PASSED [ 48%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_identical_images_produce_matches 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_1.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3911, query: 3911
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3911 tentative \u2192 3911 filtered\nPASSED                                                                   [ 49%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_same_scene_crops_produce_matches 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_7.png': 400x400 px, 3 ch, 439.8 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'crop.png': 300x300 px, 3 ch, 247.7 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 1954, query: 1755
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 1755 tentative \u2192 308 filtered\nPASSED                                                                   [ 50%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_unrelated_images_fewer_matches 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_10.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_999.png': 300x300 px, 3 ch, 247.5 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3919, query: 3929
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3929 tentative \u2192 99 filtered\nPASSED                                                                   [ 51%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_blank_image_graceful_failure 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'blank.png': 100x100 px, 3 ch, 0.3 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_5.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3921, query: 0
+PASSED                                                                   [ 52%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_ratio_threshold_affects_filtered_count 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_3.png': 300x300 px, 3 ch, 247.5 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3939, query: 3939
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.60): 3939 tentative \u2192 3939 filtered\nINFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3939, query: 3939
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.90): 3939 tentative \u2192 3939 filtered\nPASSED                                                                   [ 53%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_statistics_recorded 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_2.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3941, query: 3941
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3941 tentative \u2192 3941 filtered\nPASSED                                                                   [ 54%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_params_recorded 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_4.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 927, query: 927
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.70): 927 tentative \u2192 927 filtered\nPASSED                                                                   [ 55%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_point_arrays_shape 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_6.png': 300x300 px, 3 ch, 247.5 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3924, query: 3924
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3924 tentative \u2192 3924 filtered\nPASSED                                                                   [ 56%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_mutual_consistency_filtering 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_7.png': 300x300 px, 3 ch, 247.5 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3917, query: 3917
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3917 tentative \u2192 3917 filtered\nINFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3917, query: 3917
+INFO     app.services.feature_matcher:feature_matcher.py:191 Mutual consistency: 3917 matches \u2192 3917 consistent matches\nINFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3917 tentative \u2192 3917 filtered\nPASSED                                                                   [ 57%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_sift_matching 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_8.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 SIFT keypoints — reference: 357, query: 357
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 357 tentative \u2192 357 filtered\nPASSED                                                                   [ 58%]
+backend/tests/test_feature_matching.py::TestDetectAndMatch::test_invalid_algorithm_raises 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'textured_9.png': 300x300 px, 3 ch, 247.6 KB, format=PNG
+PASSED                                                                   [ 59%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_clean_correspondences_succeed 
+-------------------------------- live log call --------------------------------
+INFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 80/80 inliers (100.0%)
+PASSED                                                                   [ 60%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_too_few_points_fails PASSED [ 60%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_reprojection_error_computed 
+-------------------------------- live log call --------------------------------
+INFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 60/60 inliers (100.0%)
+PASSED                                                                   [ 61%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_inlier_ratio_below_min_fails 
+-------------------------------- live log call --------------------------------
+INFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 20/20 inliers (100.0%)
+PASSED                                                                   [ 62%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_random_points_geometry_fails_or_low_inliers 
+-------------------------------- live log call --------------------------------
+INFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 5/50 inliers (10.0%)
+PASSED                                                                   [ 63%]
+backend/tests/test_geometry.py::TestVerifyGeometry::test_coordinate_convention 
+-------------------------------- live log call --------------------------------
+INFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 80/80 inliers (100.0%)
+PASSED                                                                   [ 64%]
+backend/tests/test_geometry.py::TestValidateHomography::test_identity_is_valid PASSED [ 65%]
+backend/tests/test_geometry.py::TestValidateHomography::test_nan_detected PASSED [ 66%]
+backend/tests/test_geometry.py::TestValidateHomography::test_inf_detected PASSED [ 67%]
+backend/tests/test_geometry.py::TestValidateHomography::test_singular_detected PASSED [ 68%]
+backend/tests/test_geometry.py::TestValidateHomography::test_reflection_detected PASSED [ 69%]
+backend/tests/test_geometry.py::TestValidateHomography::test_extreme_scale_detected PASSED [ 70%]
+backend/tests/test_geometry.py::TestReprojectionError::test_exact_homography_zero_error PASSED [ 71%]
+backend/tests/test_georeferencing.py::TestMetadataExtraction::test_extract_valid_geotiff PASSED [ 72%]
+backend/tests/test_georeferencing.py::TestMetadataExtraction::test_extract_png_is_not_georeferenced PASSED [ 73%]
+backend/tests/test_georeferencing.py::TestMetadataExtraction::test_extract_corrupted_data_returns_unreferenced 
+-------------------------------- live log call --------------------------------
+INFO     rasterio._env:io.py:140 GDAL signalled an error: err_no=4, msg="`/vsimem/ce0bc83d-51e9-4a8d-83a7-997ef3090951/ce0bc83d-51e9-4a8d-83a7-997ef3090951.tif' not recognized as being in a supported file format."
+PASSED                                                                   [ 74%]
+backend/tests/test_georeferencing.py::TestMetadataExtraction::test_extract_nonexistent_file_returns_unreferenced PASSED [ 75%]
+backend/tests/test_georeferencing.py::TestCoordinateTransformations::test_pixel_to_projected_and_inverse PASSED [ 76%]
+backend/tests/test_georeferencing.py::TestCoordinateTransformations::test_projected_to_wgs84_roundtrip PASSED [ 77%]
+backend/tests/test_georeferencing.py::TestCoordinateTransformations::test_projected_to_wgs84_invalid_crs_raises PASSED [ 78%]
+backend/tests/test_georeferencing.py::TestFootprintAndBounds::test_footprint_within_bounds PASSED [ 79%]
+backend/tests/test_georeferencing.py::TestFootprintAndBounds::test_footprint_outside_bounds_warns PASSED [ 80%]
+backend/tests/test_georeferencing.py::TestFootprintAndBounds::test_unreferenced_raster_produces_none_footprints PASSED [ 80%]
+backend/tests/test_georeferencing.py::TestMetricDistanceCalculations::test_geodesic_distance_known_meridian PASSED [ 81%]
+backend/tests/test_georeferencing.py::TestMetricDistanceCalculations::test_geodesic_distance_zero_for_identical PASSED [ 82%]
+backend/tests/test_georeferencing.py::TestMetricDistanceCalculations::test_corner_error_m PASSED [ 83%]
+backend/tests/test_georeferencing.py::TestPipelineLocalizationIntegration::test_georeferenced_match_yields_localized_status 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'georef_usgs_greenwood.tif': 701x643 px, 3 ch, 1322.2 KB, format=TIFF
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'georef_greenwood_crop_center.tif': 260x260 px, 3 ch, 198.6 KB, format=TIFF
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 5000, query: 3037
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3037 tentative \u2192 807 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 800/807 inliers (99.1%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(200.5756378173828, 180.75820922851562) TR=(458.7421875, 180.31431579589844) BR=(460.9267883300781, 440.4981994628906) BL=(200.04299926757812, 439.1695556640625) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\465e0921-a246-4c3a-bef0-9d4636cdbea8
+INFO     app.services.pipeline:pipeline.py:297 Job 465e0921-a246-4c3a-bef0-9d4636cdbea8 completed: status=MatchStatus.SUCCESS inliers=800 time=0.21s
+PASSED                                                                   [ 84%]
+backend/tests/test_georeferencing.py::TestPipelineLocalizationIntegration::test_standard_png_yields_image_match_only 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'scene_00_reference.png': 512x512 px, 3 ch, 488.8 KB, format=PNG
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'scene_00_query_identity.png': 512x512 px, 3 ch, 488.8 KB, format=PNG
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 3491, query: 3491
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 3491 tentative \u2192 3491 filtered\nINFO     app.services.geometric_verification:geometric_verification.py:135 RANSAC homography: 3491/3491 inliers (100.0%)
+INFO     app.services.region_estimator:region_estimator.py:146 Projected footprint: TL=(-2.9419019575028377e-14, -1.060132630146442e-14) TR=(511.0, -3.1355766338155965e-15) BR=(511.0, 511.0) BL=(-8.633004691162034e-15, 511.0) (overlap=100.0%)
+INFO     app.services.visualization:visualization.py:93 Saved 4 visualization artifacts to D:\drdo\SceneNav-AI\results\e51c52b3-f25f-4938-ab12-223af9d0b9fd
+INFO     app.services.pipeline:pipeline.py:297 Job e51c52b3-f25f-4938-ab12-223af9d0b9fd completed: status=MatchStatus.SUCCESS inliers=3491 time=0.13s
+PASSED                                                                   [ 85%]
+backend/tests/test_georeferencing.py::TestPipelineLocalizationIntegration::test_negative_pair_yields_rejected_status 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'georef_usgs_greenwood.tif': 701x643 px, 3 ch, 1322.2 KB, format=TIFF
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'georef_chico_crop_runway.tif': 280x280 px, 3 ch, 230.2 KB, format=TIFF
+INFO     app.services.feature_matcher:feature_matcher.py:123 ORB keypoints — reference: 5000, query: 1071
+INFO     app.services.feature_matcher:feature_matcher.py:201 Ratio test (threshold=0.75): 1071 tentative \u2192 2 filtered\nPASSED                                                                   [ 86%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_valid_rgb_png 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'test.png': 200x150 px, 3 ch, 88.2 KB, format=PNG
+PASSED                                                                   [ 87%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_valid_jpeg 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'photo.jpg': 320x240 px, 3 ch, 57.2 KB, format=JPEG
+PASSED                                                                   [ 88%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_grayscale_converted_to_rgb_bgr 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'gray.png': 80x80 px, 3 ch, 6.4 KB, format=PNG
+PASSED                                                                   [ 89%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_empty_bytes_raises PASSED [ 90%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_unsupported_extension_raises PASSED [ 91%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_corrupted_data_raises PASSED [ 92%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_too_large_raises PASSED [ 93%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_max_dim_enforced PASSED [ 94%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_too_small_raises PASSED [ 95%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_filename_stored 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'myimage.png': 100x100 px, 3 ch, 29.5 KB, format=PNG
+PASSED                                                                   [ 96%]
+backend/tests/test_image_loader.py::TestLoadImageFromBytes::test_file_size_stored 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'test.png': 100x100 px, 3 ch, 29.5 KB, format=PNG
+PASSED                                                                   [ 97%]
+backend/tests/test_image_loader.py::TestToGrayscale::test_produces_2d_array 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'test.png': 64x64 px, 3 ch, 12.1 KB, format=PNG
+PASSED                                                                   [ 98%]
+backend/tests/test_image_loader.py::TestLoadFromPath::test_missing_file_raises PASSED [ 99%]
+backend/tests/test_image_loader.py::TestLoadFromPath::test_valid_file 
+-------------------------------- live log call --------------------------------
+INFO     app.services.image_loader:image_loader.py:138 Loaded 'valid.png': 50x50 px, 3 ch, 7.4 KB, format=PNG
+PASSED                                                                   [100%]
+
+============================== warnings summary ===============================
+C:\Users\satvi\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\testclient.py:1
+  C:\Users\satvi\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+backend/tests/test_georeferencing.py::TestMetadataExtraction::test_extract_valid_geotiff
+backend/tests/test_georeferencing.py::TestFootprintAndBounds::test_footprint_within_bounds
+backend/tests/test_georeferencing.py::TestFootprintAndBounds::test_footprint_outside_bounds_warns
+  C:\Users\satvi\AppData\Local\Programs\Python\Python310\lib\site-packages\rasterio\transform.py:178: PendingDeprecationWarning: Use `@` matmul instead of `*` mul operator for matrix multiplication
+    return Affine.translation(west, north) * Affine.scale(xsize, -ysize)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+====================== 105 passed, 4 warnings in 15.38s =======================
+--- STDERR ---
+(none)
+
+================================================================================
+
+>>> RUNNING: Playwright Browser E2E Suite (pytest backend/tests/test_browser_e2e.py -v)
+>>> COMMAND: python -m pytest backend/tests/test_browser_e2e.py -v
+>>> EXIT CODE: 0
+--- STDOUT ---
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\satvi\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: D:\drdo\SceneNav-AI
+configfile: pyproject.toml
+plugins: anyio-4.15.1, asyncio-1.4.0
+asyncio: mode=auto, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 7 items
+
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_01_app_page_loads_and_displays_header PASSED [ 14%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_02_orb_matching_workflow PASSED [ 28%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_03_sift_matching_workflow PASSED [ 42%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_04_interactive_lightbox_modal PASSED [ 57%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_05_unrelated_negative_pair_rejection PASSED [ 71%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_06_reset_functionality PASSED [ 85%]
+backend/tests/test_browser_e2e.py::TestBrowserEndToEnd::test_07_georeferenced_localization_workflow PASSED [100%]
+
+============================= 7 passed in 11.67s ==============================
+--- STDERR ---
+(none)
+
+================================================================================
+
+>>> RUNNING: Frontend Vitest Suite (npm test in frontend/)
+>>> COMMAND: npm test --prefix frontend
+>>> EXIT CODE: 0
+--- STDOUT ---
+
+> frontend@0.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90mD:/drdo/SceneNav-AI/frontend[39m
+
+ [32mâœ“[39m src/tests/client.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32mâœ“[39m src/tests/components.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[32m 100[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m   Start at [22m 15:48:15
+[2m   Duration [22m 1.18s[2m (environment 81%, import 8%, tests 6%, transform 5%, worker 1%)[22m
+
+--- STDERR ---
+(none)
+
+================================================================================
+
+>>> RUNNING: Frontend Production Build (npm run build in frontend/)
+>>> COMMAND: npm run build --prefix frontend
+>>> EXIT CODE: 0
+--- STDOUT ---
+
+> frontend@0.0.0 build
+> vite build
+
+[36mvite v8.3.4 [32mbuilding client environment for production...[36m[39m
+transforming...
+âœ“ 28 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.62 kB â”‚ gzip:  0.42 kB
+dist/assets/index-B5_FQPkk.css    8.04 kB â”‚ gzip:  2.18 kB
+dist/assets/index-CfIJChM8.js   248.53 kB â”‚ gzip: 76.79 kB
+
+[32mâœ“ built in 438ms[39m
+--- STDERR ---
+(none)
+
+================================================================================
+
+>>> RUNNING: Georeferenced CLI Demo
+>>> COMMAND: python scripts/demo.py --dataset georeferenced
+>>> EXIT CODE: 1
+--- STDOUT ---
+
+============================================================================
+  SCENENAV AI — ACADEMIC RESEARCH PROTOTYPE DEMO [GEOREFERENCED]
+============================================================================
+  Objective: Honest evaluation of aerial image registration & geometric verification.
+  Dataset  : georeferenced_aerial_benchmark
+  License  : Public Domain (USGS / USDA NAIP)
+  Attribution: United States Geological Survey (USGS)
+
+----------------------------------------------------------------------------
+  DEMO STEP 1: Genuine Positive Scene Matching with ORB Baseline
+----------------------------------------------------------------------------
+  Target Pair ID : georef_greenwood_01_crop
+  Description    : Greenwood Airport runway center crop (pure translation in UTM 16N)
+  Algorithm      : ORB (ORB-v1)
+  Outcome Status : SUCCESS
+  Keypoints      : Reference = 5000 | Query = 3037
+  Correspondences: Tentative = 3037 -> Ratio-Filtered = 807
+  RANSAC Inliers : 800 / 807 (99.1%)
+  Reproj. Error  : Mean = 0.81 px (Max = 3.93 px)
+  Processing Time: 375.4 ms
+  Corner Err (GT): 0.99 px (evaluated against true mathematical planar homography)
+
+----------------------------------------------------------------------------
+  DEMO STEP 2: SIFT Alternative Baseline (Continuous Scale-Space)
+----------------------------------------------------------------------------
+  Algorithm      : SIFT (SIFT-v1)
+  Outcome Status : SUCCESS
+  Keypoints      : Reference = 5001 | Query = 946
+  Correspondences: Tentative = 946 -> Ratio-Filtered = 700
+  RANSAC Inliers : 700 / 700 (100.0%)
+  Reproj. Error  : Mean = 0.01 px
+  Processing Time: 632.2 ms
+  Corner Err (GT): 0.01 px (sub-pixel precision via 3D scale-space fitting)
+--- STDERR ---
+Traceback (most recent call last):
+  File "D:\drdo\SceneNav-AI\scripts\demo.py", line 277, in <module>
+    main()
+  File "D:\drdo\SceneNav-AI\scripts\demo.py", line 273, in main
+    run_demo(dataset=args.dataset, output_dir=Path(args.output))
+  File "D:\drdo\SceneNav-AI\scripts\demo.py", line 157, in run_demo
+    print(f"\n  Comparison     : SIFT inlier yield vs ORB: {diff_inlier_str} (runtime delta: {timing_str}).")
+NameError: name 'timing_str' is not defined
+
+================================================================================
+
+>>> RUNNING: Real-World CLI Demo
+>>> COMMAND: python scripts/demo.py --dataset real-world
+>>> EXIT CODE: 1
+--- STDOUT ---
+
+============================================================================
+  SCENENAV AI — ACADEMIC RESEARCH PROTOTYPE DEMO [REAL-WORLD]
+============================================================================
+  Objective: Honest evaluation of aerial image registration & geometric verification.
+  Dataset  : real_world_usgs_aerial_benchmark
+  License  : Public Domain (17 U.S.C. § 105 - United States Government Work)
+  Attribution: United States Geological Survey (USGS) and USDA Farm Service Agency
+
+----------------------------------------------------------------------------
+  DEMO STEP 1: Genuine Positive Scene Matching with ORB Baseline
+----------------------------------------------------------------------------
+  Target Pair ID : real_greenwood_01_crop
+  Description    : Runway intersection sub-patch crop on USGS aerial orthophoto with verified planar ground truth.
+  Algorithm      : ORB (ORB-v1)
+  Outcome Status : SUCCESS
+  Keypoints      : Reference = 5000 | Query = 3721
+  Correspondences: Tentative = 3721 -> Ratio-Filtered = 855
+  RANSAC Inliers : 842 / 855 (98.5%)
+  Reproj. Error  : Mean = 0.98 px (Max = 3.90 px)
+  Processing Time: 295.5 ms
+  Corner Err (GT): 1.23 px (evaluated against true mathematical planar homography)
+
+----------------------------------------------------------------------------
+  DEMO STEP 2: SIFT Alternative Baseline (Continuous Scale-Space)
+----------------------------------------------------------------------------
+  Algorithm      : SIFT (SIFT-v1)
+  Outcome Status : SUCCESS
+  Keypoints      : Reference = 5001 | Query = 1568
+  Correspondences: Tentative = 1568 -> Ratio-Filtered = 1164
+  RANSAC Inliers : 1164 / 1164 (100.0%)
+  Reproj. Error  : Mean = 0.01 px
+  Processing Time: 188.0 ms
+  Corner Err (GT): 0.01 px (sub-pixel precision via 3D scale-space fitting)
+--- STDERR ---
+Traceback (most recent call last):
+  File "D:\drdo\SceneNav-AI\scripts\demo.py", line 277, in <module>
+    main()
+  File "D:\drdo\SceneNav-AI\scripts\demo.py", line 273, in main
+    run_demo(dataset=args.dataset, output_dir=Path(args.output))
+  File "D:\drdo\SceneNav-AI\scripts\demo.py", line 157, in run_demo
+    print(f"\n  Comparison     : SIFT inlier yield vs ORB: {diff_inlier_str} (runtime delta: {timing_str}).")
+NameError: name 'timing_str' is not defined
+
+================================================================================
+
+>>> RUNNING: Synthetic CLI Demo
+>>> COMMAND: python scripts/demo.py --dataset synthetic
+>>> EXIT CODE: 1
+--- STDOUT ---
+
+============================================================================
+  SCENENAV AI — ACADEMIC RESEARCH PROTOTYPE DEMO [SYNTHETIC]
+============================================================================
+  Objective: Honest evaluation of aerial image registration & geometric verification.
+  Dataset  : synthetic_pairs
+  License  : Generated by SceneNav AI — no copyright restrictions on synthetic content.
+  Attribution: USGS / Public Domain
+
+----------------------------------------------------------------------------
+  DEMO STEP 1: Genuine Positive Scene Matching with ORB Baseline
+----------------------------------------------------------------------------
+  Target Pair ID : scene00_identity
+  Description    : N/A
+  Algorithm      : ORB (ORB-v1)
+  Outcome Status : SUCCESS
+  Keypoints      : Reference = 3491 | Query = 3491
+  Correspondences: Tentative = 3491 -> Ratio-Filtered = 3491
+  RANSAC Inliers : 3491 / 3491 (100.0%)
+  Reproj. Error  : Mean = 0.00 px (Max = 0.00 px)
+  Processing Time: 240.8 ms
+  Corner Err (GT): 0.00 px (evaluated against true mathematical planar homography)
+
+----------------------------------------------------------------------------
+  DEMO STEP 2: SIFT Alternative Baseline (Continuous Scale-Space)
+----------------------------------------------------------------------------
+  Algorithm      : SIFT (SIFT-v1)
+  Outcome Status : SUCCESS
+  Keypoints      : Reference = 1005 | Query = 1005
+  Correspondences: Tentative = 1005 -> Ratio-Filtered = 1005
+  RANSAC Inliers : 1005 / 1005 (100.0%)
+  Reproj. Error  : Mean = 0.00 px
+  Processing Time: 114.0 ms
+  Corner Err (GT): 0.00 px (sub-pixel precision via 3D scale-space fitting)
+--- STDERR ---
+Traceback (most recent call last):
+  File "D:\drdo\SceneNav-AI\scripts\demo.py", line 277, in <module>
+    main()
+  File "D:\drdo\SceneNav-AI\scripts\demo.py", line 273, in main
+    run_demo(dataset=args.dataset, output_dir=Path(args.output))
+  File "D:\drdo\SceneNav-AI\scripts\demo.py", line 157, in run_demo
+    print(f"\n  Comparison     : SIFT inlier yield vs ORB: {diff_inlier_str} (runtime delta: {timing_str}).")
+NameError: name 'timing_str' is not defined
+
+================================================================================
+
