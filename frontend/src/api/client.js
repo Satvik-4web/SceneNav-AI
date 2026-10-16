@@ -66,9 +66,11 @@ export async function submitMatch(referenceFile, queryFile, params, signal) {
 
 /**
  * Fetch available sample pairs from manifest.
+ * @param {string} [manifest] - Optional manifest filename (e.g. 'georeferenced_pairs.json')
  */
-export async function fetchSamples() {
-  const resp = await fetch(`${BASE_URL}/api/v1/samples`);
+export async function fetchSamples(manifest) {
+  const url = manifest ? `${BASE_URL}/api/v1/samples?manifest=${encodeURIComponent(manifest)}` : `${BASE_URL}/api/v1/samples`;
+  const resp = await fetch(url);
   if (!resp.ok) throw new Error(`Failed to fetch samples: ${resp.status}`);
   return resp.json();
 }
@@ -80,8 +82,11 @@ export async function fetchSampleImageFile(category, filename) {
   const resp = await fetch(`${BASE_URL}/api/v1/samples/image/${category}/${filename}`);
   if (!resp.ok) throw new Error(`Failed to fetch sample image: ${resp.status}`);
   const blob = await resp.blob();
-  return new File([blob], filename, { type: blob.type || 'image/png' });
+  const isTiff = filename.toLowerCase().endsWith('.tif') || filename.toLowerCase().endsWith('.tiff');
+  const mimeType = isTiff ? 'image/tiff' : (blob.type || 'image/png');
+  return new File([blob], filename, { type: mimeType });
 }
+
 
 /**
  * Get artifact URL for a job.

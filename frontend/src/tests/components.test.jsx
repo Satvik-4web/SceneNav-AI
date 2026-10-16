@@ -47,4 +47,47 @@ describe('MetricsPanel Component', () => {
     expect(screen.getByText(/Insufficient Matches/i)).toBeDefined();
     expect(screen.getByText(/Only 3 matches remain after filtering/i)).toBeDefined();
   });
+
+  it('renders localized badge and geographic coordinates when georeferenced', () => {
+    const mockLocalizedResult = {
+      job_id: 'loc-job-123',
+      status: 'success',
+      localization_status: 'localized',
+      reference_keypoints: 5000,
+      query_keypoints: 3000,
+      tentative_matches: 800,
+      filtered_matches: 800,
+      geometric_inliers: 790,
+      inlier_ratio: 0.987,
+      reprojection_error: { mean_px: 0.81, median_px: 0.6, max_px: 2.1 },
+      processing_time_s: 0.22,
+      algorithm_version: 'ORB-v1',
+      software_versions: { opencv: '4.8.0' },
+      warnings: [],
+      georeference: {
+        is_georeferenced: true,
+        crs: 'EPSG:32616',
+        crs_epsg: 32616,
+        crs_name: 'WGS 84 / UTM zone 16N',
+        gsd_x: 1.0,
+      },
+      geographic_footprint: {
+        center: { lat: 33.487987, lon: -84.085158 },
+        top_left: { lat: 33.489111, lon: -84.086222 },
+        top_right: { lat: 33.489111, lon: -84.084111 },
+        bottom_right: { lat: 33.486888, lon: -84.084111 },
+        bottom_left: { lat: 33.486888, lon: -84.086222 },
+      },
+      projected_footprint: {
+        center: { x: 770829.6, y: 3709190.5 },
+      },
+    };
+
+    render(<MetricsPanel result={mockLocalizedResult} />);
+    expect(screen.getByText(/LOCALIZED/i)).toBeDefined();
+    expect(screen.getByText(/Geographic Footprint/i)).toBeDefined();
+    expect(screen.getByText('EPSG:32616')).toBeDefined();
+    expect(screen.getByText(/33.487987/)).toBeDefined();
+  });
 });
+
