@@ -107,21 +107,29 @@ def generate_markdown_report(
         md.append(f"| **Mean Corner Transfer Error** | {summary.mean_corner_error_px:.2f} px | Evaluated strictly on {summary.pairs_with_gt} ground-truth pairs |")
     else:
         md.append("| **Mean Corner Transfer Error** | *N/A* | No verified ground truth in selected pairs |")
+    if summary.localized_pairs > 0:
+        md.append(f"| **Georeferenced Localized Pairs** | {summary.localized_pairs}/{summary.total_pairs} | Reference raster with valid CRS & Affine transform |")
+        if summary.mean_center_error_m is not None:
+            md.append(f"| **Mean Center Localization Error** | {summary.mean_center_error_m:.2f} m | Geodesic distance on WGS-84 against ground truth |")
+        if summary.mean_corner_error_m is not None:
+            md.append(f"| **Mean Corner Localization Error** | {summary.mean_corner_error_m:.2f} m | Mean geodesic corner error against ground truth |")
     md.append(f"| **Mean Processing Time** | {summary.mean_processing_time_s * 1000:.1f} ms | Per image pair |")
     md.append(f"| **Total Wall Time** | {provenance.get('total_wall_time_s', 0.0):.2f} s | Batch evaluation runtime |")
     md.append("")
     md.append("## Detailed Per-Pair Results")
     md.append("")
-    md.append("| Pair ID | Status | GT Type | Negative? | Inliers | Inlier Ratio | Reproj Err (px) | Corner Err (px) | Time (s) |")
-    md.append("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |")
+    md.append("| Pair ID | Status | Localization | GT Type | Negative? | Inliers | Reproj Err (px) | Corner Err (px) | Center Err (m) | Time (s) |")
+    md.append("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |")
     for p in pair_metrics:
         reproj = f"{p.mean_reproj_error_px:.2f}" if p.mean_reproj_error_px is not None else "—"
         corner = f"{p.corner_error_px:.2f}" if p.corner_error_px is not None else "—"
+        center_m = f"{p.center_error_m:.2f}" if p.center_error_m is not None else "—"
         is_neg_str = "Yes (FA)" if p.false_acceptance else ("Yes" if p.is_negative else "No")
         md.append(
-            f"| `{p.pair_id}` | `{p.status}` | `{p.ground_truth_type}` | {is_neg_str} | "
-            f"{p.geometric_inliers} | {p.inlier_ratio:.1%} | {reproj} | {corner} | {p.processing_time_s:.3f} |"
+            f"| `{p.pair_id}` | `{p.status}` | `{p.localization_status}` | `{p.ground_truth_type}` | {is_neg_str} | "
+            f"{p.geometric_inliers} | {reproj} | {corner} | {center_m} | {p.processing_time_s:.3f} |"
         )
+
     md.append("")
     md.append("## Academic Integrity & Limitations")
     md.append("")
@@ -225,6 +233,9 @@ def main() -> None:
 
         # Compute corner error ONLY if valid positive ground truth is available
         corner_error = None
+        center_error_m = None
+        corner_error_m = None
+
         gt_h = pair.get("transform", {}).get("homography_3x3") if pair.get("transform") else None
         if not is_neg and gt_h and result.status.value == "success" and result.homography_matrix:
             try:
@@ -236,9 +247,41 @@ def main() -> None:
             except Exception:
                 pass
 
+        # Compute metric localization error if georeferenced ground truth is available
+        gt_center_wgs84 = pair.get("ground_truth_center_wgs84")
+        if (
+            not is_neg
+            and gt_center_wgs84
+            and result.status.value == "success"
+            and result.geographic_footprint
+            and result.geographic_footprint.center
+        ):
+            from app.services.georeferencing import compute_geodesic_distance_m
+            center_error_m = compute_geodesic_distance_m(
+                result.geographic_footprint.center,
+                (gt_center_wgs84[0], gt_center_wgs84[1]),
+            )
+
+        gt_fp_geo = pair.get("ground_truth_footprint_geographic")
+        if (
+            not is_neg
+            and gt_fp_geo
+            and result.status.value == "success"
+            and result.geographic_footprint
+        ):
+            from app.services.georeferencing import compute_geodesic_distance_m
+            c_errs = [
+                compute_geodesic_distance_m(result.geographic_footprint.top_left, (gt_fp_geo["top_left"]["lat"], gt_fp_geo["top_left"]["lon"])),
+                compute_geodesic_distance_m(result.geographic_footprint.top_right, (gt_fp_geo["top_right"]["lat"], gt_fp_geo["top_right"]["lon"])),
+                compute_geodesic_distance_m(result.geographic_footprint.bottom_right, (gt_fp_geo["bottom_right"]["lat"], gt_fp_geo["bottom_right"]["lon"])),
+                compute_geodesic_distance_m(result.geographic_footprint.bottom_left, (gt_fp_geo["bottom_left"]["lat"], gt_fp_geo["bottom_left"]["lon"])),
+            ]
+            corner_error_m = float(np.mean(c_errs))
+
         pm = SinglePairMetrics(
             pair_id=pair_id,
             status=result.status.value,
+            localization_status=result.localization_status.value,
             reference_keypoints=result.reference_keypoints,
             query_keypoints=result.query_keypoints,
             tentative_matches=result.tentative_matches,
@@ -250,6 +293,8 @@ def main() -> None:
                 if result.reprojection_error else None
             ),
             corner_error_px=corner_error,
+            center_error_m=center_error_m,
+            corner_error_m=corner_error_m,
             ground_truth_type=gt_type,
             is_negative=is_neg,
             false_acceptance=is_fa,
@@ -258,6 +303,7 @@ def main() -> None:
             warnings=result.warnings,
         )
         pair_metrics.append(pm)
+
 
         status_str = result.status.value.upper()
         if is_fa:

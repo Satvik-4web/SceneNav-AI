@@ -329,3 +329,51 @@ class TestBrowserEndToEnd:
 
         # Capture screenshot
         page.screenshot(path=str(SCREENSHOT_DIR / "06_reset_state.png"))
+
+    def test_07_georeferenced_localization_workflow(self, page: Page, live_servers: dict):
+        page.goto(live_servers["frontend"], wait_until="networkidle")
+
+        # Click the Georef GeoTIFF preset tab
+        tab_btn = page.locator("#tab-georeferenced_pairs")
+        tab_btn.wait_for(state="visible", timeout=10000)
+        tab_btn.click()
+
+        # Select a georeferenced test pair
+        select_loc = page.locator("#sample-pair-select")
+        select_loc.wait_for(state="visible", timeout=10000)
+
+        # Wait for georeferenced options to populate
+        page.wait_for_timeout(500)
+        target_value = ""
+        for val in select_loc.locator("option").all():
+            v = val.get_attribute("value")
+            if v and "georef_greenwood" in v:
+                target_value = v
+                break
+
+        assert target_value, "No georef test pair found in dropdown"
+        select_loc.select_option(value=target_value)
+
+        # Wait for images to load into preview
+        page.wait_for_selector(".image-drop-zone.has-image", timeout=10000)
+
+        # Click Run Matching
+        match_btn = page.locator("button:has-text('Run Matching')")
+        expect(match_btn).to_be_enabled()
+        match_btn.click()
+
+        # Wait for match completion
+        success_banner = page.locator(".status-banner.success")
+        success_banner.wait_for(state="visible", timeout=25000)
+        expect(success_banner).to_contain_text("Match Successful")
+
+        # Verify LOCALIZED badge is visible
+        expect(page.locator("text=LOCALIZED")).to_be_visible()
+
+        # Verify Geographic Footprint section is visible with WGS84 and CRS
+        expect(page.locator("text=Geographic Footprint")).to_be_visible()
+        expect(page.locator("text=EPSG:32616").first).to_be_visible()
+        expect(page.locator("text=Estimated Center (Lat/Lon)")).to_be_visible()
+
+        # Capture screenshot
+        page.screenshot(path=str(SCREENSHOT_DIR / "07_georeferenced_localization_success.png"))
