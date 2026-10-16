@@ -15,6 +15,7 @@ SceneNav-AI/
 │       ├── feature_matcher.py       # ORB + BFMatcher + ratio test
 │       ├── geometric_verification.py# RANSAC homography
 │       ├── region_estimator.py      # Footprint projection
+│       ├── georeferencing.py        # CRS, WGS-84, UTM, and geodesic metrics
 │       ├── visualization.py         # OpenCV artifact generation
 │       ├── evaluation.py            # Metrics aggregation
 │       └── pipeline.py              # End-to-end orchestrator
@@ -73,6 +74,12 @@ region_estimator.estimate_region()
         │ check bounds + polygon area + overlap fraction
         │ returns RegionResult
         │
+        ▼ (if reference raster has CRS / GeoTIFF metadata)
+georeferencing.compute_geographic_footprint()
+        │ pixel (col, row) → projected (X, Y) via Affine transform
+        │ projected → WGS-84 (lat, lon) via PyProj (always_xy=True)
+        │ sets status='localized' (or 'image_match_only' if unreferenced)
+        │
         ▼
 visualization.save_all_visualizations()
         │ writes PNG artifacts to results/{job_id}/
@@ -81,7 +88,7 @@ visualization.save_all_visualizations()
 MatchResult (JSON response to frontend)
         │
         ▼
-Frontend renders MetricsPanel + ResultVisualizations
+Frontend renders MetricsPanel + ResultVisualizations + GeographicFootprint
 ```
 
 ---

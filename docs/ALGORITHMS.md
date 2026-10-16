@@ -203,3 +203,27 @@ When evaluating unrelated image pairs (cross-scene pairs):
 - `inlier_ratio` is not a calibrated probability of geographic localization.
 - `mean_reproj_error_px` is not a physical position error in meters.
 - `corner_error_px` measures 2D raster plane alignment only, not geodetic navigation accuracy.
+
+---
+
+## 9. Georeferenced Visual Localization (WGS-84 & Metric Error)
+
+### 9.1 Affine Projection from Pixel to Map Coordinates
+For GeoTIFF rasters with an affine transformation matrix $A$:
+$$X_{\text{proj}} = A_{00} \cdot col + A_{01} \cdot row + A_{02}$$
+$$Y_{\text{proj}} = A_{10} \cdot col + A_{11} \cdot row + A_{12}$$
+Coordinates adhere to the continuous pixel convention with origin $(0, 0)$ at the top-left corner of the raster.
+
+### 9.2 Map Projection to WGS-84 Ellipsoid
+Projected coordinates $(X_{\text{proj}}, Y_{\text{proj}})$ are converted to WGS-84 geodetic coordinates $(\text{longitude}, \text{latitude})$ using `pyproj.Transformer` with `always_xy=True` to eliminate latitude/longitude axis ordering ambiguities across disparate coordinate reference systems (e.g. UTM Zone 16N EPSG:32616, UTM Zone 10N EPSG:32610).
+
+### 9.3 Geodesic Metric Error (WGS-84 Ellipsoid)
+When ground truth geodetic coordinates are available, true physical ground error is calculated using the ellipsoidal geodesic distance (Karney's method via `pyproj.Geod(ellps="WGS84")`):
+$$\text{center\_error\_m} = \text{geodesic\_distance}(\text{center}_{\text{est}}, \text{center}_{\text{true}})$$
+$$\text{corner\_error\_m} = \frac{1}{4} \sum_{i=1}^4 \text{geodesic\_distance}(\text{corner}_{\text{est}, i}, \text{corner}_{\text{true}, i})$$
+
+### 9.4 Three-State Localization Taxonomy
+Every match outcome is strictly classified into one of three states:
+1. `localized`: Geometry is verified and the reference raster contains valid CRS and affine metadata. WGS-84 footprint, center coordinates, and projected coordinates are provided.
+2. `image_match_only`: Geometry is verified on an unreferenced raster (PNG, JPEG, TIFF without CRS). Footprint remains strictly in 2D pixel coordinates. Geographic coordinates are **never** fabricated.
+3. `rejected`: Insufficient correspondences, degenerate homography, or negative image pair.

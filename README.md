@@ -23,14 +23,17 @@ SceneNav AI matches a query aerial or satellite image against a stored reference
 ## Features
 
 - **Dual Vision Engines:** Classical ORB baseline (Hamming BFMatcher) and SIFT alternative baseline ($L_2$ BFMatcher).
+- **Georeferenced Visual Localization MVP:** Ingests GeoTIFF reference rasters with embedded CRS (`EPSG:32616`, `EPSG:32610`, etc.) and affine transforms; maps query footprints to projected Easting/Northing and WGS-84 Latitude/Longitude with verified ellipsoidal geodesic error in physical metres.
+- **Three-State Localization Classification:** Explicit classification into `localized` (georeferenced match), `image_match_only` (unreferenced 2D pixel match), and `rejected`. Coordinates are NEVER fabricated on unreferenced imagery.
 - **Lowe's Ratio-Test & Mutual Consistency:** Dual-direction cross-check filtering for match ambiguity suppression.
 - **RANSAC Homography Estimation:** Robust planar projective transformation estimation with degenerate model rejection.
 - **Query Footprint Projection:** Projects sensor observation boundaries onto reference coordinate space with area validation.
 - **Real-World Aerial Benchmark:** 15 authentic USGS/USDA NAIP aerial orthophoto pairs with verified planar ground truth, uncalibrated observations, and cross-scene negatives.
+- **Georeferenced Benchmark Suite:** 6 GeoTIFF evaluation pairs with UTM/WGS-84 ground-truth coordinates measuring metric localization error.
 - **False Acceptance Evaluation:** Rigorous negative pair evaluation with explicit False Acceptance Rate and True Negative Rate tracking.
 - **Baseline Comparison Evaluator:** Side-by-side ORB vs SIFT evaluation with automated Markdown, CSV, and JSON report generation.
 - **FastAPI Backend:** Fully validated endpoints, streaming upload guards, strict resolved-path containment, and artifact serving.
-- **React + Vite Dashboard:** Interactive image matching, parameter controls, zoom & pan viewer, and report exporter.
+- **React + Vite Dashboard:** Interactive image matching, parameter controls, zoom & pan viewer, suite tabs, and report exporter.
 - **Synthetic Test Pair Generator:** 100% offline procedural test generator for controlled transform benchmarking.
 
 ---
@@ -210,14 +213,15 @@ cd frontend && npm test
 ```
 
 **Observed Test Suite Outcomes:**
-- **Backend (pytest):** 88 passed in 18.57s (100% pass)
+- **Backend (pytest):** 105 passed in 13.56s (100% pass)
   - Unit, Service & Geometry: 35 tests
+  - Georeferencing & Spatial Projections: 16 tests
   - Evaluation & Audit Regressions: 19 tests
   - Security & Endpoints: 28 tests
-  - Browser End-to-End (Playwright Chrome): 6 tests
-- **Frontend (vitest):** 7 passed in 1.01s (100% pass)
-- **Production Build:** Vite production build succeeded in 138ms
-- **All-in-One Runner (`run_tests.bat`):** 95 tests passed with exit code 0
+  - Browser End-to-End (Playwright Chrome): 7 tests
+- **Frontend (vitest):** 8 passed in 1.04s (100% pass)
+- **Production Build:** Vite production build succeeded in 120ms
+- **All-in-One Runner (`run_tests.bat`):** 113 automated tests passed with exit code 0
 
 ---
 
@@ -259,6 +263,33 @@ Runs both ORB and SIFT over the same 15 image pairs, outputting:
 > 2. **Simulated Perspective Distortions:** The 3 warped query pairs (`real_greenwood_04_uncalibrated_obs`, `real_chico_04_uncalibrated_obs`, `real_harrishill_03_uncalibrated_obs`) are simulated perspective-distortion observations derived from source orthophotos, not independent physical oblique flight captures. Ground truth homography is intentionally unavailable and excluded from corner error calculation.
 > 3. **Negative Sample-Size Limitation:** Four negative pairs ($N=4$) verify that cross-scene pairs fail RANSAC and ratio testing, but do not characterize an operational false-alarm rate across arbitrary global terrain or seasonal variations.
 > 4. **Academic Integrity Notice:** These metrics reflect **2D image registration accuracy in pixel space**. They do **not** measure geographic latitude/longitude navigation accuracy without georeferencing metadata and camera calibration models.
+
+---
+
+## Georeferenced Visual Localization MVP Benchmark
+
+### 1. Ingesting GeoTIFF Rasters with Coordinate Systems
+The MVP includes authentic USGS NAIP georeferenced aerial rasters (`data/references/georef_usgs_greenwood.tif` in UTM Zone 16N EPSG:32616, and `data/references/georef_usgs_chico.tif` in UTM Zone 10N EPSG:32610, both 1.0 m/px GSD).
+
+### 2. Comparative Benchmark Results (`georeferenced_pairs.json`)
+```bash
+python scripts/compare_baselines.py --manifest georeferenced_pairs.json --output results/georef_comparison
+```
+
+| Metric | ORB Baseline | SIFT Alternative | Analysis / Observation |
+| :--- | :---: | :---: | :--- |
+| **Total Evaluated Pairs** | 6 | 6 | 5 Positive Georeferenced + 1 Cross-Scene Negative |
+| **Positive-Pair Success Rate** | **4/5 (80.0%)** | **5/5 (100.0%)** | SIFT successfully matches perspective-warped flight query |
+| **Overall Success Rate** | **4/6 (66.7%)** | **5/6 (83.3%)** | Positive matches across full suite including negative |
+| **False Acceptance Rate** | **0/1 (0.0%)** | **0/1 (0.0%)** | Chico query rejected against Greenwood raster (different CRS/terrain) |
+| **True Negative Rate** | **100.0%** | **100.0%** | Cross-scene distractors reliably rejected without false localization |
+| **Mean Inliers (Positives)** | 557.0 | 569.2 | SIFT yields denser correspondence |
+| **Mean Inlier Ratio** | 98.7% | 99.8% | High geometric purity under RANSAC |
+| **Mean Center Error** | **1.69 m** | **0.04 m** | Ellipsoidal geodesic error on 1.0 m/px ground sampling distance |
+| **Mean Corner Error** | **2.67 m** | **0.04 m** | Mean 4-corner boundary error in physical ground metres |
+| **Mean Runtime** | **114.6 ms/pair** | **151.8 ms/pair** | Fast offline execution on standard CPU |
+
+> **Georeferencing Policy:** Coordinates and metric errors are computed exclusively when GeoTIFF raster metadata (CRS + Affine transform) is present. Standard PNG/JPEG reference imagery yields status `image_match_only` with 2D pixel coordinates; geographic coordinates are never fabricated.
 
 ---
 
