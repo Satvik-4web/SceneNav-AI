@@ -24,6 +24,14 @@ class MatchStatus(str, Enum):
     PROCESSING_ERROR = "processing_error"
 
 
+class LocalizationStatus(str, Enum):
+    """Outcome category for visual localization."""
+    LOCALIZED = "localized"                 # Successful match + verified georeferencing
+    IMAGE_MATCH_ONLY = "image_match_only"   # Successful match + unreferenced raster or missing CRS
+    REJECTED = "rejected"                   # Match or geometry failed (no coordinates)
+
+
+
 # ---------------------------------------------------------------------------
 # Request models
 # ---------------------------------------------------------------------------
@@ -125,6 +133,67 @@ class RegionCoordinates(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Georeferencing and Visual Localization schemas
+# ---------------------------------------------------------------------------
+
+class LatLonPoint(BaseModel):
+    """Geographic coordinate in WGS-84 (EPSG:4326)."""
+    lat: float = Field(..., description="Latitude in decimal degrees [-90, 90]")
+    lon: float = Field(..., description="Longitude in decimal degrees [-180, 180]")
+
+
+class ProjectedPoint(BaseModel):
+    """Map coordinate in the reference raster's native CRS."""
+    x: float = Field(..., description="Easting or projected X coordinate")
+    y: float = Field(..., description="Northing or projected Y coordinate")
+
+
+class GeoreferenceInfo(BaseModel):
+    """Metadata describing reference raster geospatial positioning."""
+    is_georeferenced: bool = Field(default=False)
+    crs: Optional[str] = Field(default=None, description="CRS identifier string, e.g. EPSG:32632")
+    crs_epsg: Optional[int] = Field(default=None, description="EPSG code if defined")
+    crs_name: Optional[str] = Field(default=None, description="Human-readable CRS name")
+    units: Optional[str] = Field(default=None, description="Linear units, e.g. metre, degree")
+    gsd_x: Optional[float] = Field(default=None, description="Ground Sample Distance X (units/px)")
+    gsd_y: Optional[float] = Field(default=None, description="Ground Sample Distance Y (units/px)")
+    bounds_projected: Optional[dict[str, float]] = Field(default=None, description="Projected raster extent [left, bottom, right, top]")
+    affine_transform: Optional[list[float]] = Field(default=None, description="6-parameter Affine transform [a, b, c, d, e, f]")
+
+
+class GeographicFootprint(BaseModel):
+    """Query image bounding polygon in WGS-84 coordinates."""
+    top_left: LatLonPoint
+    top_right: LatLonPoint
+    bottom_right: LatLonPoint
+    bottom_left: LatLonPoint
+    center: LatLonPoint
+
+
+class ProjectedFootprint(BaseModel):
+    """Query image bounding polygon in reference projected coordinates."""
+    top_left: ProjectedPoint
+    top_right: ProjectedPoint
+    bottom_right: ProjectedPoint
+    bottom_left: ProjectedPoint
+    center: ProjectedPoint
+    crs_name: str
+    units: str = "metre"
+
+
+class LocalizationResult(BaseModel):
+    """Structured visual localization outcome."""
+    status: LocalizationStatus
+    georeference: Optional[GeoreferenceInfo] = None
+    projected_footprint: Optional[ProjectedFootprint] = None
+    geographic_footprint: Optional[GeographicFootprint] = None
+    estimated_center_geographic: Optional[LatLonPoint] = None
+    estimated_center_projected: Optional[ProjectedPoint] = None
+    is_within_bounds: Optional[bool] = None
+    warnings: list[str] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
 # Main result schema
 # ---------------------------------------------------------------------------
 
@@ -153,9 +222,31 @@ class MatchResult(BaseModel):
     # Transformation (3×3 homography matrix as nested list)
     homography_matrix: Optional[list[list[float]]] = None
 
-    # Region estimation
+    # Region estimation (image-plane pixel coordinates)
     estimated_region: Optional[RegionCoordinates] = None
     region_warnings: list[str] = Field(default_factory=list)
+
+    # Visual Localization (geospatial coordinates when georeferenced)
+    localization_status: LocalizationStatus = Field(
+        default=LocalizationStatus.REJECTED,
+        description="Categorisation: 'localized', 'image_match_only', or 'rejected'."
+    )
+    georeference: Optional[GeoreferenceInfo] = Field(
+        default=None,
+        description="Geospatial metadata for the reference raster if available."
+    )
+    projected_footprint: Optional[ProjectedFootprint] = Field(
+        default=None,
+        description="Query image footprint in projected map coordinates."
+    )
+    geographic_footprint: Optional[GeographicFootprint] = Field(
+        default=None,
+        description="Query image footprint in WGS-84 (lat/lon) coordinates."
+    )
+    localization: Optional[LocalizationResult] = Field(
+        default=None,
+        description="Consolidated visual localization result."
+    )
 
     # Diagnostics
     warnings: list[str] = Field(default_factory=list)
@@ -171,6 +262,7 @@ class MatchResult(BaseModel):
 
     # Artifact paths (relative to results/)
     artifacts: dict[str, str] = Field(default_factory=dict)
+
 
 
 class JobStatusResponse(BaseModel):

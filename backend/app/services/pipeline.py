@@ -20,8 +20,10 @@ from app.config import settings
 from app.schemas import (
     ImageInfo, MatchParams, MatchResult, MatchStatus,
     RegionCoordinates, ReprojectionStats,
+    LocalizationResult, LocalizationStatus,
 )
 from app.services.image_loader import LoadedImage, ImageLoadError
+from app.services.georeferencing import compute_geographic_footprint
 from app.services.feature_matcher import detect_and_match
 from app.services.geometric_verification import verify_geometry
 from app.services.region_estimator import estimate_region
@@ -85,6 +87,13 @@ def run_matching_pipeline(
         return MatchResult(
             job_id=job_id,
             status=status,
+            localization_status=LocalizationStatus.REJECTED,
+            georeference=reference.georeference,
+            localization=LocalizationResult(
+                status=LocalizationStatus.REJECTED,
+                georeference=reference.georeference,
+                warnings=[match_result.failure_reason or "Feature matching failed."],
+            ),
             reference_image=ref_info,
             query_image=qry_info,
             reference_keypoints=match_result.reference_keypoints,
@@ -100,19 +109,27 @@ def run_matching_pipeline(
         )
 
     if match_result.filtered_matches < settings.min_matches_before_geometry:
+        fail_msg = (
+            f"Only {match_result.filtered_matches} matches remain after "
+            f"filtering (minimum for geometry: {settings.min_matches_before_geometry})."
+        )
         return MatchResult(
             job_id=job_id,
             status=MatchStatus.INSUFFICIENT_MATCHES,
+            localization_status=LocalizationStatus.REJECTED,
+            georeference=reference.georeference,
+            localization=LocalizationResult(
+                status=LocalizationStatus.REJECTED,
+                georeference=reference.georeference,
+                warnings=[fail_msg],
+            ),
             reference_image=ref_info,
             query_image=qry_info,
             reference_keypoints=match_result.reference_keypoints,
             query_keypoints=match_result.query_keypoints,
             tentative_matches=match_result.tentative_matches,
             filtered_matches=match_result.filtered_matches,
-            failure_reason=(
-                f"Only {match_result.filtered_matches} matches remain after "
-                f"filtering (minimum for geometry: {settings.min_matches_before_geometry})."
-            ),
+            failure_reason=fail_msg,
             warnings=warnings,
             processing_time_s=time.perf_counter() - t_start,
             algorithm_params=params,
@@ -133,6 +150,13 @@ def run_matching_pipeline(
         return MatchResult(
             job_id=job_id,
             status=MatchStatus.GEOMETRY_FAILED,
+            localization_status=LocalizationStatus.REJECTED,
+            georeference=reference.georeference,
+            localization=LocalizationResult(
+                status=LocalizationStatus.REJECTED,
+                georeference=reference.georeference,
+                warnings=[geo_result.failure_reason or "Geometric verification failed."],
+            ),
             reference_image=ref_info,
             query_image=qry_info,
             reference_keypoints=match_result.reference_keypoints,
@@ -156,6 +180,58 @@ def run_matching_pipeline(
         geo_result.homography,
     )
     region_warnings = list(region_result.warnings)
+
+    # --- Georeferenced Visual Localization ---
+    proj_footprint = None
+    geo_footprint = None
+    if region_result.success and reference.georeference and reference.georeference.is_georeferenced:
+        # Project query center to reference pixel coordinates
+        cq_x = (query.width - 1.0) / 2.0
+        cq_y = (query.height - 1.0) / 2.0
+        c_proj_arr = cv2.perspectiveTransform(np.float32([[[cq_x, cq_y]]]), geo_result.homography)
+        center_px = (float(c_proj_arr[0, 0, 0]), float(c_proj_arr[0, 0, 1]))
+
+        corners_map = {
+            "top_left": region_result.top_left,
+            "top_right": region_result.top_right,
+            "bottom_right": region_result.bottom_right,
+            "bottom_left": region_result.bottom_left,
+        }
+        proj_footprint, geo_footprint, geo_warnings = compute_geographic_footprint(
+            corners_pixel=corners_map,
+            center_pixel=center_px,
+            georef=reference.georeference,
+            ref_width=reference.width,
+            ref_height=reference.height,
+        )
+        if geo_warnings:
+            region_warnings.extend(geo_warnings)
+
+        loc_status = LocalizationStatus.LOCALIZED
+        loc_result = LocalizationResult(
+            status=loc_status,
+            georeference=reference.georeference,
+            projected_footprint=proj_footprint,
+            geographic_footprint=geo_footprint,
+            estimated_center_geographic=geo_footprint.center if geo_footprint else None,
+            estimated_center_projected=proj_footprint.center if proj_footprint else None,
+            is_within_bounds=(len(geo_warnings) == 0),
+            warnings=geo_warnings,
+        )
+    elif region_result.success:
+        loc_status = LocalizationStatus.IMAGE_MATCH_ONLY
+        loc_result = LocalizationResult(
+            status=loc_status,
+            georeference=reference.georeference,
+            warnings=["Reference raster is not georeferenced; coordinates remain in pixel space."],
+        )
+    else:
+        loc_status = LocalizationStatus.REJECTED
+        loc_result = LocalizationResult(
+            status=loc_status,
+            georeference=reference.georeference,
+            warnings=["Region estimation failed; footprint cannot be established."],
+        )
 
     # --- Visualizations ---
     job_dir = settings.results_dir / job_id
@@ -189,6 +265,11 @@ def run_matching_pipeline(
     result = MatchResult(
         job_id=job_id,
         status=MatchStatus.SUCCESS,
+        localization_status=loc_status,
+        georeference=reference.georeference,
+        projected_footprint=proj_footprint,
+        geographic_footprint=geo_footprint,
+        localization=loc_result,
         reference_image=ref_info,
         query_image=qry_info,
         reference_keypoints=match_result.reference_keypoints,
