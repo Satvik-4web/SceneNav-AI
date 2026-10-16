@@ -17,7 +17,7 @@ import logging
 import re
 import uuid
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
@@ -398,11 +398,16 @@ async def run_evaluation(request: EvaluateRequest) -> dict:
     response_model=SampleListResponse,
     tags=["Samples"],
 )
-async def list_samples() -> SampleListResponse:
-    """Return available sample pairs from the synthetic manifest for easy UI demo."""
-    manifest_path = settings.data_dir / "manifests" / "synthetic_pairs.json"
+async def list_samples(manifest: Optional[str] = None) -> SampleListResponse:
+    """Return available sample pairs from a manifest for UI demo."""
+    manifest_name = manifest or "synthetic_pairs.json"
+    safe_name = Path(manifest_name).name
+    if safe_name != manifest_name or "/" in manifest_name or "\\" in manifest_name or not manifest_name.endswith(".json"):
+        raise HTTPException(status_code=400, detail="Invalid manifest filename.")
+
+    manifest_path = settings.data_dir / "manifests" / safe_name
     if not manifest_path.exists():
-        raise HTTPException(status_code=404, detail="Synthetic samples manifest not found.")
+        raise HTTPException(status_code=404, detail=f"Manifest '{safe_name}' not found.")
 
     try:
         with open(manifest_path, "r", encoding="utf-8") as f:
@@ -412,8 +417,8 @@ async def list_samples() -> SampleListResponse:
 
     pairs_out: list[SamplePairInfo] = []
     for p in data.get("pairs", []):
-        tx = p.get("transform", {})
-        tx_type = tx.get("type", "unknown")
+        tx = p.get("transform") or {}
+        tx_type = tx.get("type", "uncalibrated" if not p.get("is_negative") else "negative")
         pair_id = p.get("id", "pair")
         label = f"{pair_id.replace('_', ' ').title()} ({tx_type})"
         pairs_out.append(SamplePairInfo(
@@ -422,13 +427,13 @@ async def list_samples() -> SampleListResponse:
             reference_path=p.get("reference", ""),
             query_path=p.get("query", ""),
             transform_type=tx_type,
-            description=p.get("note", "Synthetic evaluation pair."),
+            description=p.get("description", p.get("note", "Evaluation pair.")),
             ground_truth_type=p.get("ground_truth_type", "synthetic_homography"),
         ))
 
     return SampleListResponse(
-        manifest_name=data.get("name", "synthetic_pairs"),
-        description=data.get("description", "Synthetic benchmark pairs"),
+        manifest_name=data.get("name", safe_name),
+        description=data.get("description", "Benchmark pairs"),
         pairs=pairs_out,
     )
 
@@ -463,9 +468,10 @@ async def get_sample_image(category: str, filename: str) -> FileResponse:
     except (ValueError, OSError):
         raise HTTPException(status_code=404, detail="Sample image not found.")
 
-    if img_path.suffix.lower() not in {".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".webp"}:
+    if img_path.suffix.lower() not in {".png", ".jpg", ".jpeg", ".tiff", ".tif", ".bmp", ".webp"}:
         raise HTTPException(status_code=400, detail="Unsupported sample image type.")
 
     return FileResponse(str(img_path))
+
 
 

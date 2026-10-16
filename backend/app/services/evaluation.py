@@ -54,11 +54,15 @@ class SinglePairMetrics:
     mean_reproj_error_px: Optional[float] = None
     processing_time_s: float = 0.0
     corner_error_px: Optional[float] = None  # Only when valid ground-truth homography exists
+    center_error_m: Optional[float] = None   # Center localization error in metres against ground truth
+    corner_error_m: Optional[float] = None   # Corner localization error in metres against ground truth
+    localization_status: str = "rejected"    # "localized", "image_match_only", "rejected"
     ground_truth_type: str = "unknown"
     is_negative: bool = False
     false_acceptance: bool = False
     failure_reason: Optional[str] = None
     warnings: list[str] = field(default_factory=list)
+
 
 
 @dataclass
@@ -90,8 +94,14 @@ class EvaluationSummary:
     mean_corner_error_px: Optional[float] = None
     mean_processing_time_s: float = 0.0
 
+    # Georeferenced metric error statistics
+    localized_pairs: int = 0
+    mean_center_error_m: Optional[float] = None
+    mean_corner_error_m: Optional[float] = None
+
     success_rate: float = 0.0  # Alias for overall_success_rate (successful_pairs / total_pairs)
     per_pair: list[SinglePairMetrics] = field(default_factory=list)
+
 
 
 def compute_corner_error(
@@ -200,6 +210,16 @@ def aggregate_metrics(pair_metrics: list[SinglePairMetrics]) -> EvaluationSummar
     else:
         summary.mean_corner_error_px = None
 
+    # Georeferenced metric errors (metres)
+    loc_pairs = [p for p in pair_metrics if p.localization_status == "localized"]
+    summary.localized_pairs = len(loc_pairs)
+    center_errs = [p.center_error_m for p in pair_metrics if p.center_error_m is not None]
+    if center_errs:
+        summary.mean_center_error_m = float(np.mean(center_errs))
+    corner_errs_m = [p.corner_error_m for p in pair_metrics if p.corner_error_m is not None]
+    if corner_errs_m:
+        summary.mean_corner_error_m = float(np.mean(corner_errs_m))
+
     return summary
 
 
@@ -208,9 +228,10 @@ def save_results_csv(pairs: list[SinglePairMetrics], output_path: Path) -> None:
     if not pairs:
         return
     fieldnames = [
-        "pair_id", "status", "ground_truth_type", "is_negative", "false_acceptance",
+        "pair_id", "status", "localization_status", "ground_truth_type", "is_negative", "false_acceptance",
         "reference_keypoints", "query_keypoints", "tentative_matches", "filtered_matches",
         "geometric_inliers", "inlier_ratio", "mean_reproj_error_px", "corner_error_px",
+        "center_error_m", "corner_error_m",
         "processing_time_s", "failure_reason",
     ]
     with open(output_path, "w", newline="", encoding="utf-8") as f:
@@ -220,6 +241,7 @@ def save_results_csv(pairs: list[SinglePairMetrics], output_path: Path) -> None:
             writer.writerow({
                 "pair_id": p.pair_id,
                 "status": p.status,
+                "localization_status": p.localization_status,
                 "ground_truth_type": p.ground_truth_type,
                 "is_negative": p.is_negative,
                 "false_acceptance": p.false_acceptance,
@@ -231,10 +253,13 @@ def save_results_csv(pairs: list[SinglePairMetrics], output_path: Path) -> None:
                 "inlier_ratio": f"{p.inlier_ratio:.4f}",
                 "mean_reproj_error_px": f"{p.mean_reproj_error_px:.3f}" if p.mean_reproj_error_px is not None else "",
                 "corner_error_px": f"{p.corner_error_px:.3f}" if p.corner_error_px is not None else "",
+                "center_error_m": f"{p.center_error_m:.3f}" if p.center_error_m is not None else "",
+                "corner_error_m": f"{p.corner_error_m:.3f}" if p.corner_error_m is not None else "",
                 "processing_time_s": f"{p.processing_time_s:.4f}",
                 "failure_reason": p.failure_reason or "",
             })
     logger.info("Saved CSV to %s", output_path)
+
 
 
 def save_results_json(summary: EvaluationSummary, output_path: Path) -> None:

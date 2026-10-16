@@ -23,6 +23,7 @@ import numpy as np
 from PIL import Image, UnidentifiedImageError
 
 from app.config import settings
+from app.schemas import GeoreferenceInfo
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,8 @@ class LoadedImage:
     filename: str
     file_size_bytes: int
     original_format: str
+    georeference: Optional[GeoreferenceInfo] = None
+
 
 
 class ImageLoadError(Exception):
@@ -137,6 +140,10 @@ def load_image_from_bytes(
         filename, bgr.shape[1], bgr.shape[0], channels, len(data) / 1024, pil_format
     )
 
+    # Extract georeference metadata if present (GeoTIFF, etc.)
+    from app.services.georeferencing import extract_georeference_metadata
+    georef = extract_georeference_metadata(data)
+
     return LoadedImage(
         array=bgr,
         width=bgr.shape[1],
@@ -145,7 +152,9 @@ def load_image_from_bytes(
         filename=filename,
         file_size_bytes=len(data),
         original_format=pil_format,
+        georeference=georef,
     )
+
 
 
 def load_image_from_path(

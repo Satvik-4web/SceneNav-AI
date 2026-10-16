@@ -1,0 +1,549 @@
+{
+  "name": "georeferenced_aerial_benchmark",
+  "version": "1.0",
+  "description": "SceneNav AI Georeferenced Visual Localization Benchmark with verified UTM/WGS-84 ground-truth coordinates.",
+  "license": "Public Domain (USGS / USDA NAIP)",
+  "attribution": "United States Geological Survey (USGS)",
+  "geographic_content": true,
+  "total_pairs": 6,
+  "positive_pairs": 5,
+  "negative_pairs": 1,
+  "pairs": [
+    {
+      "id": "georef_greenwood_01_crop",
+      "description": "Greenwood Airport runway center crop (pure translation in UTM 16N)",
+      "reference": "references/georef_usgs_greenwood.tif",
+      "query": "queries/georef_greenwood_crop_center.tif",
+      "is_negative": false,
+      "ground_truth_type": "georeferenced_gt",
+      "crs": "EPSG:32616",
+      "gsd_m": 1.0,
+      "transform": {
+        "type": "planar_crop",
+        "homography_3x3": [
+          [
+            1.0,
+            0.0,
+            200.0
+          ],
+          [
+            0.0,
+            1.0,
+            180.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "ground_truth_footprint_pixel": {
+        "top_left": [
+          200.0,
+          180.0
+        ],
+        "top_right": [
+          459.0,
+          180.0
+        ],
+        "bottom_right": [
+          459.0,
+          439.0
+        ],
+        "bottom_left": [
+          200.0,
+          439.0
+        ],
+        "center": [
+          329.5,
+          309.5
+        ]
+      },
+      "ground_truth_footprint_projected": {
+        "top_left": [
+          770700.0,
+          3709320.0
+        ],
+        "top_right": [
+          770959.0,
+          3709320.0
+        ],
+        "bottom_right": [
+          770959.0,
+          3709061.0
+        ],
+        "bottom_left": [
+          770700.0,
+          3709061.0
+        ],
+        "center": [
+          770829.5,
+          3709190.5
+        ]
+      },
+      "ground_truth_footprint_geographic": {
+        "top_left": {
+          "lat": 33.489186846998486,
+          "lon": -84.08651244964216
+        },
+        "top_right": {
+          "lat": 33.489121297696045,
+          "lon": -84.08372803324433
+        },
+        "bottom_right": {
+          "lat": 33.486788238422186,
+          "lon": -84.08380629646157
+        },
+        "bottom_left": {
+          "lat": 33.4868537819575,
+          "lon": -84.08659063839266
+        },
+        "center": {
+          "lat": 33.48798754920456,
+          "lon": -84.08515935443518
+        }
+      },
+      "ground_truth_center_projected": [
+        770829.5,
+        3709190.5
+      ],
+      "ground_truth_center_wgs84": [
+        33.48798754920456,
+        -84.08515935443518
+      ]
+    },
+    {
+      "id": "georef_greenwood_02_rot_scale",
+      "description": "Greenwood Airport 15\u00b0 rotation + 0.95x scale (simulated UAV heading change)",
+      "reference": "references/georef_usgs_greenwood.tif",
+      "query": "queries/georef_greenwood_rot15_scale.tif",
+      "is_negative": false,
+      "ground_truth_type": "georeferenced_gt",
+      "crs": "EPSG:32616",
+      "gsd_m": 1.0,
+      "transform": {
+        "type": "affine_rotation_scale",
+        "homography_3x3": [
+          [
+            0.9176295349746149,
+            -0.2458780928473947,
+            262.6723125234614
+          ],
+          [
+            0.2458780928473947,
+            0.9176295349746149,
+            168.74400838313875
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "ground_truth_footprint_pixel": {
+        "top_left": [
+          262.67230224609375,
+          168.74400329589844
+        ],
+        "top_right": [
+          500.3383483886719,
+          232.4264373779297
+        ],
+        "bottom_right": [
+          436.65594482421875,
+          470.0924987792969
+        ],
+        "bottom_left": [
+          198.98988342285156,
+          406.4100646972656
+        ],
+        "center": [
+          349.66412353515625,
+          319.4182434082031
+        ]
+      },
+      "ground_truth_footprint_projected": {
+        "top_left": [
+          770762.6723022461,
+          3709331.255996704
+        ],
+        "top_right": [
+          771000.3383483887,
+          3709267.573562622
+        ],
+        "bottom_right": [
+          770936.6559448242,
+          3709029.9075012207
+        ],
+        "bottom_left": [
+          770698.9898834229,
+          3709093.5899353027
+        ],
+        "center": [
+          770849.6641235352,
+          3709180.581756592
+        ]
+      },
+      "ground_truth_footprint_geographic": {
+        "top_left": {
+          "lat": 33.48927238486832,
+          "lon": -84.08583528227491
+        },
+        "top_right": {
+          "lat": 33.48863857525377,
+          "lon": -84.08329946534528
+        },
+        "bottom_right": {
+          "lat": 33.48651381552478,
+          "lon": -84.08405589661622
+        },
+        "bottom_left": {
+          "lat": 33.4871476067809,
+          "lon": -84.08659165957387
+        },
+        "center": {
+          "lat": 33.48789310283692,
+          "lon": -84.08494557590926
+        }
+      },
+      "ground_truth_center_projected": [
+        770849.6641235352,
+        3709180.581756592
+      ],
+      "ground_truth_center_wgs84": [
+        33.48789310283692,
+        -84.08494557590926
+      ]
+    },
+    {
+      "id": "georef_greenwood_03_perspective",
+      "description": "Greenwood Airport perspective warp (simulated oblique sensor pitch in UTM 16N)",
+      "reference": "references/georef_usgs_greenwood.tif",
+      "query": "queries/georef_greenwood_perspective.tif",
+      "is_negative": false,
+      "ground_truth_type": "georeferenced_gt",
+      "crs": "EPSG:32616",
+      "gsd_m": 1.0,
+      "transform": {
+        "type": "projective_warp",
+        "homography_3x3": [
+          [
+            1.032982456140351,
+            0.12070175438596491,
+            220.0
+          ],
+          [
+            0.07368421052631578,
+            1.1073684210526318,
+            180.0
+          ],
+          [
+            7.017543859649122e-05,
+            0.0003508771929824561,
+            1.0
+          ]
+        ]
+      },
+      "ground_truth_footprint_pixel": {
+        "top_left": [
+          220.0,
+          180.0
+        ],
+        "top_right": [
+          469.0171813964844,
+          194.94102478027344
+        ],
+        "bottom_right": [
+          459.131103515625,
+          429.0948791503906
+        ],
+        "bottom_left": [
+          229.9632110595703,
+          419.11712646484375
+        ],
+        "center": [
+          345.5211181640625,
+          310.75115966796875
+        ]
+      },
+      "ground_truth_footprint_projected": {
+        "top_left": [
+          770720.0,
+          3709320.0
+        ],
+        "top_right": [
+          770969.0171813965,
+          3709305.0589752197
+        ],
+        "bottom_right": [
+          770959.1311035156,
+          3709070.9051208496
+        ],
+        "bottom_left": [
+          770729.9632110596,
+          3709080.882873535
+        ],
+        "center": [
+          770845.5211181641,
+          3709189.248840332
+        ]
+      },
+      "ground_truth_footprint_geographic": {
+        "top_left": {
+          "lat": 33.48918178750127,
+          "lon": -84.08629743647192
+        },
+        "top_right": {
+          "lat": 33.488984173256306,
+          "lon": -84.08362485749876
+        },
+        "bottom_right": {
+          "lat": 33.48687743008978,
+          "lon": -84.08380189414308
+        },
+        "bottom_left": {
+          "lat": 33.48702530692259,
+          "lon": -84.08626252005307
+        },
+        "center": {
+          "lat": 33.487972224143945,
+          "lon": -84.08498749735334
+        }
+      },
+      "ground_truth_center_projected": [
+        770845.5211181641,
+        3709189.248840332
+      ],
+      "ground_truth_center_wgs84": [
+        33.487972224143945,
+        -84.08498749735334
+      ]
+    },
+    {
+      "id": "georef_chico_01_crop",
+      "description": "Chico Municipal Airport runway crop (pure translation in UTM 10N)",
+      "reference": "references/georef_usgs_chico.tif",
+      "query": "queries/georef_chico_crop_runway.tif",
+      "is_negative": false,
+      "ground_truth_type": "georeferenced_gt",
+      "crs": "EPSG:32610",
+      "gsd_m": 1.0,
+      "transform": {
+        "type": "planar_crop",
+        "homography_3x3": [
+          [
+            1.0,
+            0.0,
+            250.0
+          ],
+          [
+            0.0,
+            1.0,
+            240.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "ground_truth_footprint_pixel": {
+        "top_left": [
+          250.0,
+          240.0
+        ],
+        "top_right": [
+          529.0,
+          240.0
+        ],
+        "bottom_right": [
+          529.0,
+          519.0
+        ],
+        "bottom_left": [
+          250.0,
+          519.0
+        ],
+        "center": [
+          389.5,
+          379.5
+        ]
+      },
+      "ground_truth_footprint_projected": {
+        "top_left": [
+          597750.0,
+          4405260.0
+        ],
+        "top_right": [
+          598029.0,
+          4405260.0
+        ],
+        "bottom_right": [
+          598029.0,
+          4404981.0
+        ],
+        "bottom_left": [
+          597750.0,
+          4404981.0
+        ],
+        "center": [
+          597889.5,
+          4405120.5
+        ]
+      },
+      "ground_truth_footprint_geographic": {
+        "top_left": {
+          "lat": 39.79168465540122,
+          "lon": -121.85832160278656
+        },
+        "top_right": {
+          "lat": 39.791652553887815,
+          "lon": -121.85506361307046
+        },
+        "bottom_right": {
+          "lat": 39.78913923078332,
+          "lon": -121.85510528249681
+        },
+        "bottom_left": {
+          "lat": 39.78917132945191,
+          "lon": -121.85836315370274
+        },
+        "center": {
+          "lat": 39.79041195395203,
+          "lon": -121.85671341301415
+        }
+      },
+      "ground_truth_center_projected": [
+        597889.5,
+        4405120.5
+      ],
+      "ground_truth_center_wgs84": [
+        39.79041195395203,
+        -121.85671341301415
+      ]
+    },
+    {
+      "id": "georef_chico_02_rot_scale",
+      "description": "Chico Municipal Airport -12\u00b0 rotation + 0.90x scale (UTM 10N)",
+      "reference": "references/georef_usgs_chico.tif",
+      "query": "queries/georef_chico_rot12_scale.tif",
+      "is_negative": false,
+      "ground_truth_type": "georeferenced_gt",
+      "crs": "EPSG:32610",
+      "gsd_m": 1.0,
+      "transform": {
+        "type": "affine_rotation_scale",
+        "homography_3x3": [
+          [
+            0.8803328406604252,
+            0.18712052173598342,
+            261.2310628884669
+          ],
+          [
+            -0.18712052173598342,
+            0.8803328406604252,
+            289.8823985398226
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "ground_truth_footprint_pixel": {
+        "top_left": [
+          261.2310485839844,
+          289.88238525390625
+        ],
+        "top_right": [
+          489.2372741699219,
+          241.41818237304688
+        ],
+        "bottom_right": [
+          537.7014770507812,
+          469.42437744140625
+        ],
+        "bottom_left": [
+          309.6952819824219,
+          517.8886108398438
+        ],
+        "center": [
+          399.4662780761719,
+          379.65338134765625
+        ]
+      },
+      "ground_truth_footprint_projected": {
+        "top_left": [
+          597761.231048584,
+          4405210.117614746
+        ],
+        "top_right": [
+          597989.2372741699,
+          4405258.581817627
+        ],
+        "bottom_right": [
+          598037.7014770508,
+          4405030.575622559
+        ],
+        "bottom_left": [
+          597809.6952819824,
+          4404982.11138916
+        ],
+        "center": [
+          597899.4662780762,
+          4405120.346618652
+        ]
+      },
+      "ground_truth_footprint_geographic": {
+        "top_left": {
+          "lat": 39.79123400771203,
+          "lon": -121.85819788355587
+        },
+        "top_right": {
+          "lat": 39.79164435909316,
+          "lon": -121.85552814904678
+        },
+        "bottom_right": {
+          "lat": 39.78958482167988,
+          "lon": -121.85499627126906
+        },
+        "bottom_left": {
+          "lat": 39.78917448102646,
+          "lon": -121.85766592837206
+        },
+        "center": {
+          "lat": 39.79040942552265,
+          "lon": -121.85659705797073
+        }
+      },
+      "ground_truth_center_projected": [
+        597899.4662780762,
+        4405120.346618652
+      ],
+      "ground_truth_center_wgs84": [
+        39.79040942552265,
+        -121.85659705797073
+      ]
+    },
+    {
+      "id": "georef_negative_cross_scene",
+      "description": "Cross-scene negative: Chico runway query against Greenwood reference (different state, CRS, terrain)",
+      "reference": "references/georef_usgs_greenwood.tif",
+      "query": "queries/georef_chico_crop_runway.tif",
+      "is_negative": true,
+      "ground_truth_type": "negative_pair",
+      "crs": "EPSG:32616",
+      "gsd_m": 1.0,
+      "transform": null,
+      "ground_truth_footprint_pixel": null,
+      "ground_truth_footprint_projected": null,
+      "ground_truth_footprint_geographic": null,
+      "ground_truth_center_projected": null,
+      "ground_truth_center_wgs84": null
+    }
+  ]
+}
