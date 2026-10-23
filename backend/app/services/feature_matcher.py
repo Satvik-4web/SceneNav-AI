@@ -71,6 +71,7 @@ def detect_and_match(
     orb_max_features: int = 5000,
     ratio_threshold: float = 0.75,
     mutual_consistency: bool = False,
+    max_processing_dim: Optional[int] = None,
 ) -> MatchingResult:
     """
     Detect keypoints (ORB or SIFT) in both images and return filtered matches.
@@ -82,6 +83,7 @@ def detect_and_match(
         orb_max_features:   Maximum keypoints per image.
         ratio_threshold:    Lowe's ratio-test threshold.
         mutual_consistency: If True, keep only matches that agree in both directions.
+        max_processing_dim: Optional maximum dimension for feature extraction on large images.
 
     Returns:
         MatchingResult with statistics and matched point arrays.
@@ -97,12 +99,25 @@ def detect_and_match(
             "orb_max_features": orb_max_features,
             "ratio_threshold": ratio_threshold,
             "mutual_consistency": mutual_consistency,
+            "max_processing_dim": max_processing_dim,
         }
     )
 
     # Convert to grayscale for detection
     gray_ref = to_grayscale(reference)
     gray_qry = to_grayscale(query)
+
+    scale_ref = 1.0
+    scale_qry = 1.0
+    if max_processing_dim is not None and max_processing_dim > 0:
+        dim_ref = max(reference.width, reference.height)
+        dim_qry = max(query.width, query.height)
+        if dim_ref > max_processing_dim:
+            scale_ref = max_processing_dim / dim_ref
+            gray_ref = cv2.resize(gray_ref, (int(reference.width * scale_ref), int(reference.height * scale_ref)), interpolation=cv2.INTER_AREA)
+        if dim_qry > max_processing_dim:
+            scale_qry = max_processing_dim / dim_qry
+            gray_qry = cv2.resize(gray_qry, (int(query.width * scale_qry), int(query.height * scale_qry)), interpolation=cv2.INTER_AREA)
 
     # Detector + distance metric
     if algo_clean == "SIFT":
@@ -114,6 +129,19 @@ def detect_and_match(
 
     kp_ref, des_ref = detector.detectAndCompute(gray_ref, None)
     kp_qry, des_qry = detector.detectAndCompute(gray_qry, None)
+
+    # Rescale keypoint coordinates back to full image pixel space
+    if scale_ref != 1.0 and kp_ref:
+        kp_ref = [
+            cv2.KeyPoint(kp.pt[0] / scale_ref, kp.pt[1] / scale_ref, kp.size / scale_ref, kp.angle, kp.response, kp.octave, kp.class_id)
+            for kp in kp_ref
+        ]
+
+    if scale_qry != 1.0 and kp_qry:
+        kp_qry = [
+            cv2.KeyPoint(kp.pt[0] / scale_qry, kp.pt[1] / scale_qry, kp.size / scale_qry, kp.angle, kp.response, kp.octave, kp.class_id)
+            for kp in kp_qry
+        ]
 
     result.reference_keypoints = len(kp_ref) if kp_ref else 0
     result.query_keypoints = len(kp_qry) if kp_qry else 0
