@@ -27,8 +27,27 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 SCREENSHOT_DIR = PROJECT_ROOT / "results" / "e2e_screenshots"
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
-BACKEND_URL = "http://127.0.0.1:8000"
-FRONTEND_URL = "http://localhost:5173"
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+
+
+def _detect_frontend_url() -> str:
+    env_url = os.getenv("FRONTEND_URL")
+    if env_url:
+        return env_url
+    for port in (5173, 5174, 5175):
+        url = f"http://localhost:{port}"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "HealthCheck"})
+            with urllib.request.urlopen(req, timeout=0.8) as resp:
+                content = resp.read().decode("utf-8", errors="ignore")
+                if "SceneNav" in content:
+                    return url
+        except Exception:
+            continue
+    return "http://localhost:5173"
+
+
+FRONTEND_URL = _detect_frontend_url()
 
 
 def _is_url_reachable(url: str, timeout: float = 1.0) -> bool:
@@ -191,9 +210,9 @@ class TestBrowserEndToEnd:
         expect(page.locator("text=Geometric Verification")).to_be_visible()
         expect(page.locator("text=Algorithm: ORB")).to_be_visible()
 
-        # Verify visualizations
+        # Verify visualizations (5 cards: matches, footprint, warped, difference, warped_blend)
         expect(page.locator("text=Visualizations & Corresponding Footprint")).to_be_visible()
-        expect(page.locator(".result-image-card")).to_have_count(4)
+        expect(page.locator(".result-image-card")).to_have_count(5)
 
         # Capture screenshot
         page.screenshot(path=str(SCREENSHOT_DIR / "02_orb_match_success.png"))
@@ -377,3 +396,101 @@ class TestBrowserEndToEnd:
 
         # Capture screenshot
         page.screenshot(path=str(SCREENSHOT_DIR / "07_georeferenced_localization_success.png"))
+
+    def test_08_munich_cadastral_research_demo(self, page: Page, live_servers: dict):
+        page.goto(live_servers["frontend"], wait_until="networkidle")
+
+        # Click the Munich Research Demonstration view mode button
+        demo_btn = page.locator("#mode-research-demo-btn")
+        demo_btn.wait_for(state="visible", timeout=10000)
+        demo_btn.click()
+
+        # Verify Research Demo title and badges
+        expect(page.locator("text=Munich Cadastral Visual Localization Demonstration")).to_be_visible()
+        expect(page.locator("text=LOCALIZED (WGS-84)").first).to_be_visible()
+        expect(page.locator("text=EPSG:25832").first).to_be_visible()
+
+        # Verify key metric values
+        expect(page.locator("text=E=687,789.1 m").first).to_be_visible()
+        expect(page.locator("text=0.42 m (42.0 cm)").first).to_be_visible()
+        expect(page.locator("text=338,934 m²").first).to_be_visible()
+
+        # Switch to Cadastral Footprint view tab
+        page.locator("button:has-text('Cadastral Footprint')").click()
+        page.wait_for_timeout(300)
+
+        # Switch to Temporal Transformation view tab
+        page.locator("button:has-text('Temporal Transformation')").click()
+        page.wait_for_timeout(300)
+
+        # Click deep-dive technical tabs
+        page.locator("button:has-text('Temporal Urban Transformation')").click()
+        expect(page.locator("text=Heckenstaller-Tunnel").first).to_be_visible()
+
+        page.locator("button:has-text('Scientific Integrity Disclosures')").click()
+        expect(page.locator("text=Repeatability vs. Absolute Geographic Accuracy").first).to_be_visible()
+
+        # Switch back to Executive 16:9 Overview tab
+        page.locator("button:has-text('Executive 16:9 Overview')").click()
+        page.wait_for_timeout(300)
+
+        # Capture evidence screenshot
+        page.screenshot(path=str(SCREENSHOT_DIR / "08_munich_research_demo.png"))
+
+    def test_09_forensic_qa_deep_dive(self, page: Page, live_servers: dict):
+        console_errors = []
+        page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
+
+        page.goto(live_servers["frontend"], wait_until="networkidle")
+        page.set_viewport_size({"width": 1440, "height": 900})
+
+        # Switch to Research Demo mode
+        page.locator("#mode-research-demo-btn").click()
+        expect(page.locator("text=Munich Cadastral Visual Localization Demonstration")).to_be_visible()
+
+        # Check all 7 artifact tabs load valid images
+        tabs = [
+            "Cadastral Footprint",
+            "SIFT Correspondences",
+            "ORB Correspondences",
+            "Warped Projective Registration",
+            "ORB vs. SIFT Benchmark Scorecard",
+            "Temporal Transformation",
+            "Executive 16:9 Overview",
+        ]
+        for tab_name in tabs:
+            tab_btn = page.locator(f"button:has-text('{tab_name}')")
+            expect(tab_btn).to_be_visible()
+            tab_btn.click()
+            page.wait_for_timeout(200)
+
+            # Check that the rendered preview image loaded with positive dimensions
+            preview_img = page.locator("div[style*='zoom-in'] img")
+            expect(preview_img).to_be_visible()
+            nat_w = preview_img.evaluate("img => img.naturalWidth")
+            assert nat_w > 0, f"Image for tab '{tab_name}' failed to load"
+
+        # Open Interactive Lightbox modal
+        page.locator("button:has-text('Interactive Zoom & Pan')").click()
+        expect(page.locator("text=Mouse Wheel to Zoom")).to_be_visible()
+
+        # Test zoom controls inside lightbox
+        page.locator("button[title='Zoom In']").click()
+        page.wait_for_timeout(100)
+        page.locator("button[title='Reset']").click()
+        page.wait_for_timeout(100)
+        page.locator("button[title*='Close']").click()
+
+        # Test responsive resize to laptop
+        page.set_viewport_size({"width": 1024, "height": 768})
+        page.wait_for_timeout(200)
+        expect(page.locator("h1")).to_be_visible()
+        page.screenshot(path=str(SCREENSHOT_DIR / "09_forensic_qa_responsive.png"))
+
+        # Switch back to Interactive mode
+        page.set_viewport_size({"width": 1440, "height": 900})
+        page.locator("#mode-interactive-btn").click()
+        expect(page.locator("button:has-text('Run Matching')")).to_be_visible()
+
+        critical_errors = [e for e in console_errors if "favicon" not in e.lower()]
+        assert len(critical_errors) == 0, f"Console errors encountered: {critical_errors}"
