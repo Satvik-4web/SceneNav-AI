@@ -230,12 +230,18 @@ async def get_artifact(job_id: str, filename: str) -> FileResponse:
         raise HTTPException(status_code=400, detail="Invalid filename.")
 
     async with _JOB_STORE_LOCK:
-        if job_id not in _JOB_STORE:
-            raise HTTPException(status_code=404, detail=f"Job '{job_id}' not found.")
+        in_store = job_id in _JOB_STORE
 
     results_root = settings.results_dir.resolve()
     job_dir = (settings.results_dir / job_id).resolve()
     artifact_path = (job_dir / filename).resolve()
+
+    if not in_store:
+        try:
+            if not job_dir.is_relative_to(results_root) or not job_dir.is_dir():
+                raise HTTPException(status_code=404, detail=f"Job '{job_id}' not found.")
+        except (ValueError, OSError):
+            raise HTTPException(status_code=404, detail=f"Job '{job_id}' not found.")
 
     try:
         if (
@@ -472,6 +478,71 @@ async def get_sample_image(category: str, filename: str) -> FileResponse:
         raise HTTPException(status_code=400, detail="Unsupported sample image type.")
 
     return FileResponse(str(img_path))
+
+
+# ---------------------------------------------------------------------------
+# Research Demonstration Endpoints
+# ---------------------------------------------------------------------------
+
+def _get_research_dir() -> Path:
+    """Return the latest available research demonstration directory."""
+    for candidate in [
+        settings.results_dir / "demo_readiness_release_20261022",
+        settings.results_dir / "forensic_qa_pass_20261022",
+        settings.results_dir / "visual_refinement_pass2_20261022",
+        settings.results_dir / "refined_demonstration_20261022",
+        settings.results_dir / "research_demo_20261022",
+    ]:
+        if (candidate / "experiment_record.json").exists():
+            return candidate.resolve()
+    return (settings.results_dir / "demo_readiness_release_20261022").resolve()
+
+
+@router.get(
+    "/api/v1/research/demonstration",
+    tags=["Research Demonstration"],
+)
+async def get_research_demonstration() -> dict:
+    """Return the audited single source of truth experiment record."""
+    res_dir = _get_research_dir()
+    record_path = res_dir / "experiment_record.json"
+    if not record_path.exists():
+        raise HTTPException(status_code=404, detail="Research demonstration record not found.")
+
+    try:
+        with open(record_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to read experiment record: {exc}")
+
+
+@router.get(
+    "/api/v1/research/artifacts/{filename}",
+    tags=["Research Demonstration"],
+)
+async def get_research_artifact(filename: str) -> FileResponse:
+    """Safely serve publication-grade research figures."""
+    if not re.match(r"^[a-zA-Z0-9_.-]+$", filename) or Path(filename).name != filename:
+        raise HTTPException(status_code=400, detail="Invalid filename format.")
+
+    res_dir = _get_research_dir()
+    file_path = (res_dir / filename).resolve()
+    results_root = settings.results_dir.resolve()
+
+    try:
+        if (
+            not file_path.is_relative_to(res_dir)
+            or not file_path.is_relative_to(results_root)
+            or not file_path.is_file()
+        ):
+            raise HTTPException(status_code=404, detail=f"Research artifact '{filename}' not found.")
+    except (ValueError, OSError):
+        raise HTTPException(status_code=404, detail="Invalid artifact path.")
+
+    if file_path.suffix.lower() not in {".png", ".jpg", ".jpeg", ".json"}:
+        raise HTTPException(status_code=400, detail="Unsupported artifact format.")
+
+    return FileResponse(str(file_path))
 
 
 
