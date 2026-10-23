@@ -5,10 +5,12 @@ import MatchControls, { DEFAULTS } from '../components/MatchControls';
 import MetricsPanel from '../components/MetricsPanel';
 import ResultVisualizations from '../components/ResultVisualizations';
 import ExperimentHistory from '../components/ExperimentHistory';
+import MunichResearchDemo from '../components/MunichResearchDemo';
 import { submitMatch } from '../api/client';
 import { useMatchHistory } from '../hooks/useMatchHistory';
 
 export default function DashboardPage() {
+  const [viewMode, setViewMode] = useState('interactive'); // 'interactive' | 'research_demo'
   const [referenceFile, setReferenceFile] = useState(null);
   const [queryFile, setQueryFile] = useState(null);
   const [params, setParams] = useState({ ...DEFAULTS });
@@ -103,116 +105,162 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="main-content">
-      {/* ===== LEFT SIDEBAR ===== */}
-      <div className="left-sidebar">
-        {/* Image Inputs */}
-        <div className="panel">
-          <div className="panel-title">Image Inputs</div>
-          <SampleDataSelector onSelectSample={handleSelectSample} disabled={loading} />
-          <ImageDropZone
-            label="Reference Image (map/database)"
-            file={referenceFile}
-            onChange={setReferenceFile}
-          />
-          <div style={{ height: 12 }} />
-          <ImageDropZone
-            label="Query Image (scene to locate)"
-            file={queryFile}
-            onChange={setQueryFile}
-          />
-          <div style={{ marginTop: 14, display: 'flex', gap: 8 }}>
-            <button
-              className="btn-primary"
-              style={{ flex: 2 }}
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-            >
-              {loading ? (
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
-                  <span className="loading-spinner" />
-                  Matching…
-                </span>
-              ) : 'Run Matching'}
-            </button>
-            {loading ? (
-              <button className="btn-danger" style={{ flex: 1 }} onClick={handleCancel}>
-                Cancel
-              </button>
-            ) : (
-              <button className="btn-secondary" style={{ flex: 1 }} onClick={handleReset}>
-                Reset
-              </button>
-            )}
-          </div>
-          {error && (
-            <div style={{
-              marginTop: 10, padding: 10,
-              background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.3)',
-              borderRadius: 'var(--radius)', color: 'var(--accent-red)', fontSize: 12,
-            }}>
-              <strong>Error:</strong> {error}
-            </div>
-          )}
+    <div style={{ maxWidth: 1440, margin: '0 auto', padding: '16px 20px' }}>
+      {/* Top Mode Switcher Bar */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 16,
+          background: 'var(--bg-secondary)',
+          padding: '8px 12px',
+          borderRadius: 'var(--radius)',
+          border: '1px solid var(--border)',
+          flexWrap: 'wrap',
+          gap: 10,
+        }}
+      >
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button
+            id="mode-interactive-btn"
+            className={viewMode === 'interactive' ? 'btn-primary small' : 'btn-secondary small'}
+            style={{ padding: '6px 14px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
+            onClick={() => setViewMode('interactive')}
+          >
+            <span>⚡</span> Live Matching Studio
+          </button>
+          <button
+            id="mode-research-demo-btn"
+            className={viewMode === 'research_demo' ? 'btn-primary small' : 'btn-secondary small'}
+            style={{ padding: '6px 14px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
+            onClick={() => setViewMode('research_demo')}
+          >
+            <span>🏛️</span> Munich Cadastral Research Demo (2026)
+          </button>
         </div>
 
-        {/* Matching Controls */}
-        <MatchControls params={params} onChange={setParams} />
-
-        {/* History */}
-        <ExperimentHistory
-          history={history}
-          onSelect={handleSelectHistory}
-          onClear={clearHistory}
-          onExport={exportJSON}
-        />
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span>Offline Visual Localization</span>
+          <span className="badge badge-info mono" style={{ fontSize: 10 }}>v0.1.0</span>
+        </div>
       </div>
 
-      {/* ===== MAIN RESULTS AREA ===== */}
-      <div className="results-area">
-        {!result && !loading && (
-          <div className="panel">
-            <div className="empty-state">
-              <div className="icon">🛰</div>
-              <h3 style={{ fontSize: 16, color: 'var(--text-secondary)' }}>SceneNav AI</h3>
-              <p>
-                Load a reference image and a query image, then click
-                <strong> Run Matching</strong> to start the ORB feature matching pipeline.
-              </p>
-              <p style={{ marginTop: 4 }}>
-                Results include feature correspondences, geometric verification,
-                and an estimated query region.
-              </p>
-              <div className="disclaimer" style={{ maxWidth: 360 }}>
-                This tool performs image-level feature matching only.
-                It does not compute geographic latitude/longitude without
-                valid georeferencing data.
+      {viewMode === 'research_demo' ? (
+        <MunichResearchDemo onSwitchToPipeline={() => setViewMode('interactive')} />
+      ) : (
+        <div className="main-content" style={{ margin: 0, padding: 0 }}>
+          {/* ===== LEFT SIDEBAR ===== */}
+          <div className="left-sidebar">
+            {/* Image Inputs */}
+            <div className="panel">
+              <div className="panel-title">Image Inputs</div>
+              <SampleDataSelector onSelectSample={handleSelectSample} disabled={loading} />
+              <ImageDropZone
+                label="Reference Image (map/database)"
+                file={referenceFile}
+                onChange={setReferenceFile}
+              />
+              <div style={{ height: 12 }} />
+              <ImageDropZone
+                label="Query Image (scene to locate)"
+                file={queryFile}
+                onChange={setQueryFile}
+              />
+              <div style={{ marginTop: 14, display: 'flex', gap: 8 }}>
+                <button
+                  className="btn-primary"
+                  style={{ flex: 2 }}
+                  onClick={handleSubmit}
+                  disabled={!canSubmit}
+                >
+                  {loading ? (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+                      <span className="loading-spinner" />
+                      Matching…
+                    </span>
+                  ) : 'Run Matching'}
+                </button>
+                {loading ? (
+                  <button className="btn-danger" style={{ flex: 1 }} onClick={handleCancel}>
+                    Cancel
+                  </button>
+                ) : (
+                  <button className="btn-secondary" style={{ flex: 1 }} onClick={handleReset}>
+                    Reset
+                  </button>
+                )}
               </div>
+              {error && (
+                <div style={{
+                  marginTop: 10, padding: 10,
+                  background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.3)',
+                  borderRadius: 'var(--radius)', color: 'var(--accent-red)', fontSize: 12,
+                }}>
+                  <strong>Error:</strong> {error}
+                </div>
+              )}
             </div>
-          </div>
-        )}
 
-        {loading && (
-          <div className="panel">
-            <div className="empty-state">
-              <div className="loading-spinner" style={{ width: 32, height: 32, borderWidth: 3 }} />
-              <p>Running ORB detection + RANSAC verification…</p>
-            </div>
-          </div>
-        )}
+            {/* Matching Controls */}
+            <MatchControls params={params} onChange={setParams} />
 
-        {result && !loading && (
-          <>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'flex-end' }}>
-              <button className="btn-secondary small" style={{ fontSize: 12 }} onClick={generateReport}>
-                Export Report JSON
-              </button>
-            </div>
-            <MetricsPanel result={result} />
-            <ResultVisualizations result={result} />
-          </>
-        )}
-      </div>
+            {/* History */}
+            <ExperimentHistory
+              history={history}
+              onSelect={handleSelectHistory}
+              onClear={clearHistory}
+              onExport={exportJSON}
+            />
+          </div>
+
+          {/* ===== MAIN RESULTS AREA ===== */}
+          <div className="results-area">
+            {!result && !loading && (
+              <div className="panel">
+                <div className="empty-state">
+                  <div className="icon">🛰</div>
+                  <h3 style={{ fontSize: 16, color: 'var(--text-secondary)' }}>SceneNav AI</h3>
+                  <p>
+                    Load a reference image and a query image, then click
+                    <strong> Run Matching</strong> to start the ORB feature matching pipeline.
+                  </p>
+                  <p style={{ marginTop: 4 }}>
+                    Results include feature correspondences, geometric verification,
+                    and an estimated query region.
+                  </p>
+                  <div className="disclaimer" style={{ maxWidth: 360 }}>
+                    This tool performs image-level feature matching only.
+                    It does not compute geographic latitude/longitude without
+                    valid georeferencing data.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {loading && (
+              <div className="panel">
+                <div className="empty-state">
+                  <div className="loading-spinner" style={{ width: 32, height: 32, borderWidth: 3 }} />
+                  <p>Running ORB detection + RANSAC verification…</p>
+                </div>
+              </div>
+            )}
+
+            {result && !loading && (
+              <>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <button className="btn-secondary small" style={{ fontSize: 12 }} onClick={generateReport}>
+                    Export Report JSON
+                  </button>
+                </div>
+                <MetricsPanel result={result} />
+                <ResultVisualizations result={result} />
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
