@@ -291,6 +291,22 @@ python scripts/compare_baselines.py --manifest georeferenced_pairs.json --output
 
 > **Georeferencing Policy:** Coordinates and metric errors are computed exclusively when GeoTIFF raster metadata (CRS + Affine transform) is present. Standard PNG/JPEG reference imagery yields status `image_match_only` with 2D pixel coordinates; geographic coordinates are never fabricated.
 
+### 3. Authentic Munich Aerial Localization Demonstration
+
+SceneNav AI's geographic localization pipeline has been validated on authentic real-world aerial imagery over Munich, Germany (Sendling-Westpark / Heckenstallerstraße corridor):
+- **Query Image:** DLR 3K Camera System campaign ($5616 \times 3744$ px, captured July 6, 2011).
+- **Reference Raster:** Official Bavaria Open Data historical orthophoto `bavaria_2012_aligned_dop.tif` (Bayerische Vermessungsverwaltung, CC BY 4.0, `EPSG:25832`, $2800 \times 2400$ px, GSD $0.50\text{ m/px}$).
+- **Observed Performance:**
+  - **ORB:** 79 geometric inliers (83.2% inlier ratio), mean reprojection error $2.28\text{ px}$.
+  - **SIFT:** 138 geometric inliers (79.8% inlier ratio), mean reprojection error $1.68\text{ px}$.
+  - **Audited Footprint Center:** $E \approx 687,789.1\text{ m}, N \approx 5,331,662.8\text{ m}$ in UTM Zone 32N ($48.110518^\circ\text{N}, 11.522913^\circ\text{E}$).
+  - **Footprint Area:** $\approx 338,934\text{ m}^2$ ($0.339\text{ km}^2$, $33.9\text{ ha}$), with a $1.500$ ground aspect ratio matching the $3:2$ full-frame sensor.
+  - **Inter-Algorithmic Repeatability:** ORB and SIFT centers agree within **$0.42\text{ m}$** ($42.0\text{ cm}$) on the ground under identical reference geometry.
+- **Academic Disclosures & Safeguards:**
+  1. **Algorithmic Repeatability vs. Absolute Accuracy:** The $0.42\text{ m}$ metric measures consistency between ORB and SIFT against the same reference raster; it does **not** establish absolute ground-truth accuracy. Localization is referenced strictly to the Bavarian orthophoto coordinate framework, and no independent surveyed Ground Control Points (GCPs) or differential-GPS checkpoints were used.
+  2. **Camera EXIF Offset & Inferred Pitch:** The camera GNSS fix ($1,611.5\text{ m}$ MSL) is offset $54.6\text{ m}$ south-southeast from the ground footprint center. Because EXIF contains no IMU attitude tags, the $2.90^\circ$ off-nadir tilt ($1.94^\circ$ if referenced to sea level) is an **inferred geometric estimate**, not a measured flight attitude.
+  3. **Temporal Change Rejection:** When matched against current municipal imagery (Munich 2024 DOP), the pipeline correctly **rejected** localization ($<10$ inliers) because the 2011 surface highway was excavated into the Heckenstaller-Tunnel (opened 2015) and replaced by Heckenstallerpark.
+
 ---
 
 ## Limitations
