@@ -62,6 +62,10 @@ class MatchParams(BaseModel):
         default=False,
         description="Enforce bidirectional cross-check filtering for matches."
     )
+    max_processing_dim: Optional[int] = Field(
+        default=None, ge=512, le=8192,
+        description="Optional maximum working dimension in pixels for feature extraction on high-resolution images."
+    )
 
 
 class SamplePairInfo(BaseModel):
