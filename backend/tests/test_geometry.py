@@ -157,3 +157,40 @@ class TestReprojectionError:
         stats = _compute_reprojection_error(q_pts, r_pts, H)
         assert stats["mean"] < 0.01
         assert stats["max"] < 0.01
+
+    def test_perspective_homography_valid(self):
+        """A valid perspective camera view with non-zero H[2,0] and H[2,1] must validate."""
+        H = np.array([
+            [0.8, 0.05, 450.0],
+            [-0.04, 0.78, 850.0],
+            [1.2e-5, 6.5e-6, 1.0]
+        ], dtype=np.float64)
+        msg = _validate_homography(H)
+        assert msg is None, f"Expected valid perspective homography, got: {msg}"
+
+    def test_reflected_homography_rejected(self):
+        """Reflection across an axis reverses polygon winding order and must be rejected."""
+        H = np.array([
+            [-0.8, 0.05, 450.0],
+            [-0.04, 0.78, 850.0],
+            [1.2e-5, 6.5e-6, 1.0]
+        ], dtype=np.float64)
+        msg = _validate_homography(H)
+        assert msg is not None
+        assert "reverses polygon orientation" in msg or "reflection" in msg
+
+    def test_insufficient_inliers_reports_inlier_count_not_determinant(self):
+        """
+        When RANSAC fails to find sufficient inliers, the failure reason must report
+        the exact inlier count and threshold, rather than diagnosing an unconverged sample.
+        """
+        rng = np.random.default_rng(999)
+        # Create 30 random noisy points where only 4-5 align accidentally
+        q_pts = rng.uniform(0, 1000, (30, 2)).astype(np.float32)
+        r_pts = rng.uniform(0, 1000, (30, 2)).astype(np.float32)
+
+        result = verify_geometry(q_pts, r_pts, ransac_reproj_threshold=4.0, min_inliers=15)
+        assert not result.success
+        assert result.inlier_count < 15
+        assert "Geometric verification produced only" in result.failure_reason
+        assert "inliers (threshold: 15)" in result.failure_reason
