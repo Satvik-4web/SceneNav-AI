@@ -79,6 +79,7 @@ def run_matching_pipeline(
         orb_max_features=params.orb_max_features,
         ratio_threshold=params.ratio_threshold,
         mutual_consistency=params.mutual_consistency,
+        max_processing_dim=getattr(params, "max_processing_dim", None),
     )
     warnings.extend(match_result.warnings)
 
