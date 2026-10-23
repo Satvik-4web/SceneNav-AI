@@ -104,3 +104,19 @@ export async function fetchJob(jobId) {
   return resp.json();
 }
 
+/**
+ * Fetch the audited Munich Research Demonstration record.
+ */
+export async function fetchResearchDemonstration() {
+  const resp = await fetch(`${BASE_URL}/api/v1/research/demonstration`);
+  if (!resp.ok) throw new Error(`Research demonstration fetch failed: ${resp.status}`);
+  return resp.json();
+}
+
+/**
+ * Get research demonstration artifact URL.
+ */
+export function researchArtifactUrl(filename) {
+  return `${BASE_URL}/api/v1/research/artifacts/${filename}`;
+}
+
