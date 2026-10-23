@@ -196,8 +196,9 @@ function ArtifactImage({ jobId, filename, title }) {
 const ARTIFACT_LABELS = {
   side_by_side: 'Reference & Query (Side-by-Side)',
   tentative_matches: 'Tentative Feature Correspondences (Ratio-Filtered)',
-  inlier_matches: 'Geometric Inliers Only (RANSAC-Verified)',
+  inlier_matches: 'Geometric Inliers & Outliers (RANSAC-Verified)',
   footprint: 'Estimated Query Footprint on Reference',
+  warped_blend: '50/50 Warped Multi-Temporal Registration Blend',
 };
 
 export default function ResultVisualizations({ result }) {
