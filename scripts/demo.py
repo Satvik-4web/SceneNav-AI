@@ -154,6 +154,7 @@ def run_demo(dataset: str = "real-world", output_dir: Path = PROJECT_ROOT / "res
     inlier_diff = ((sift_res.geometric_inliers / orb_res.geometric_inliers) - 1.0) * 100
     diff_ms = (sift_time - orb_time) * 1000
     diff_inlier_str = f"+{inlier_diff:.1f}%" if inlier_diff >= 0 else f"{inlier_diff:.1f}%"
+    timing_str = f"{diff_ms:+.1f} ms"
     print(f"\n  Comparison     : SIFT inlier yield vs ORB: {diff_inlier_str} (runtime delta: {timing_str}).")
 
     # -------------------------------------------------------------------------
