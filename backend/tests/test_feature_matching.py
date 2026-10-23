@@ -130,4 +130,15 @@ class TestDetectAndMatch:
         with pytest.raises(ValueError, match="Unsupported algorithm"):
             detect_and_match(img, img, algorithm="UNSUPPORTED_ALGO")
 
+    def test_max_processing_dim_rescales_coordinates_to_full_image(self):
+        """When an image exceeds max_processing_dim, keypoint coords must be in original full-res space."""
+        img = _make_textured_image(width=600, height=600, seed=12)
+        # Set max_processing_dim to 300 (downscales by 2x for feature extraction)
+        result = detect_and_match(img, img, algorithm="ORB", max_processing_dim=300)
+        assert result.success
+        assert result.filtered_matches > 0
+        # The keypoints should span up to the 600px dimension, not the 300px dimension
+        max_coord = np.max(result.query_pts)
+        assert max_coord > 350.0, f"Expected keypoint coordinates in full 600px space, got max: {max_coord}"
+
 
