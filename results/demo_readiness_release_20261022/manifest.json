@@ -1,0 +1,101 @@
+{
+  "release_id": "REL-MUNICH-20261022-FINAL",
+  "timestamp": "2026-10-22T23:25:00+05:30",
+  "description": "SceneNav AI Final Research Demo & Release Readiness Deliverables Package (Defect Repaired)",
+  "artifacts": [
+    {
+      "filename": "01_feature_correspondences_orb.png",
+      "size_bytes": 4268443,
+      "sha256": "2f8293bfaf335067fba72ef56ab8535d981bd4930c48125e7dc940b8ee5eb850",
+      "dimensions": {
+        "width": 2400,
+        "height": 1350
+      },
+      "format": "PNG"
+    },
+    {
+      "filename": "01_feature_correspondences_sift.png",
+      "size_bytes": 4191000,
+      "sha256": "ba5bcd798038be8ef65301bee4d75b12cd6d604a48fe2ff2ce31c9c484c9056f",
+      "dimensions": {
+        "width": 2400,
+        "height": 1350
+      },
+      "format": "PNG"
+    },
+    {
+      "filename": "02_georeferenced_footprint_overlay.png",
+      "size_bytes": 13133216,
+      "sha256": "c7ea2db4b3fd2fe23aeb6b323330cf5d4ab82b9d5f0314b6102ace838b8984b4",
+      "dimensions": {
+        "width": 3360,
+        "height": 2580
+      },
+      "format": "PNG"
+    },
+    {
+      "filename": "03_warped_query_registration.png",
+      "size_bytes": 6293356,
+      "sha256": "3ed63eb169b84fa79292f1ac9e68c3e33841add57c3cfdea835ff2d62e69c5f6",
+      "dimensions": {
+        "width": 2400,
+        "height": 1580
+      },
+      "format": "PNG"
+    },
+    {
+      "filename": "04_orb_vs_sift_comparison.png",
+      "size_bytes": 142998,
+      "sha256": "266bef2e97968f17aa2fe912791e98b55e5d8e8da2d541c4b80fa090e3d8015d",
+      "dimensions": {
+        "width": 2400,
+        "height": 1400
+      },
+      "format": "PNG"
+    },
+    {
+      "filename": "05_temporal_urban_transformation.png",
+      "size_bytes": 6628514,
+      "sha256": "fc80596cf37868705a21daddbb69c0db4b2e15bf9b9630614b076a3597cc7d5c",
+      "dimensions": {
+        "width": 2600,
+        "height": 1450
+      },
+      "format": "PNG"
+    },
+    {
+      "filename": "06_executive_research_overview.png",
+      "size_bytes": 1996288,
+      "sha256": "29930e84662f896d4458d3e42f6b95657cf6ab44053cc143ca75ec80c1386a18",
+      "dimensions": {
+        "width": 2560,
+        "height": 1440
+      },
+      "format": "PNG"
+    },
+    {
+      "filename": "DEMO_SCRIPT.md",
+      "size_bytes": 6406,
+      "sha256": "93a63544dad6bd0b92a88db850702b6dc2c205019fa566c4d4f46427de66e2b1",
+      "format": "MARKDOWN"
+    },
+    {
+      "filename": "experiment_record.json",
+      "size_bytes": 12813,
+      "sha256": "b2268741b824a3666f1c4e22145c04b9675e528dbbba61109c04121733911490",
+      "format": "JSON"
+    },
+    {
+      "filename": "FINAL_DEMO_READINESS_REPORT.md",
+      "size_bytes": 10870,
+      "sha256": "d267856c1964047d6633a5953f26f5c08457f88c66c0f40c540a5a62b4fe5461",
+      "format": "MARKDOWN"
+    },
+    {
+      "filename": "REPRODUCIBILITY_GUIDE.md",
+      "size_bytes": 4792,
+      "sha256": "13f29808444bfe9e0f09d5d8c610401336c466126e5c113c7624b1432db9ce99",
+      "format": "MARKDOWN"
+    }
+  ]
+}
