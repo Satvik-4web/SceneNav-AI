@@ -66,21 +66,25 @@ def save_all_visualizations(
         )
         artifacts["tentative_matches"] = str(path)
 
-    # 3. Inlier-only correspondences
+    # 3. Inlier-only correspondences (with outliers distinguished)
     if geo_result and geo_result.success and geo_result.inlier_mask is not None:
         inlier_matches = [
             m for m, keep in zip(match_result.good_matches, geo_result.inlier_mask)
             if keep
         ]
+        outlier_matches = [
+            m for m, keep in zip(match_result.good_matches, geo_result.inlier_mask)
+            if not keep
+        ]
         if inlier_matches:
             path = job_dir / "03_inlier_matches.png"
-            _save_matches(
+            _save_matches_with_inlier_distinction(
                 reference.array, match_result.reference_keypoints_list,
                 query.array, match_result.query_keypoints_list,
                 inlier_matches,
+                outlier_matches,
                 path,
-                title=f"Geometric Inliers ({len(inlier_matches)})",
-                colour=_COLOUR_INLIER,
+                title=f"RANSAC Inliers: {len(inlier_matches)}/{len(match_result.good_matches)} ({len(inlier_matches)/len(match_result.good_matches):.1%}) | Outliers: {len(outlier_matches)}",
             )
             artifacts["inlier_matches"] = str(path)
 
@@ -89,6 +93,12 @@ def save_all_visualizations(
         path = job_dir / "04_footprint.png"
         _save_footprint(reference.array, region_result, path)
         artifacts["footprint"] = str(path)
+
+    # 5. Warped query projective registration blend
+    if geo_result and geo_result.success and geo_result.homography is not None:
+        path = job_dir / "05_warped_blend.png"
+        _save_warped_blend(reference.array, query.array, geo_result.homography, path)
+        artifacts["warped_blend"] = str(path)
 
     logger.info("Saved %d visualization artifacts to %s", len(artifacts), job_dir)
     return artifacts
@@ -146,26 +156,118 @@ def _save_matches(
     cv2.imwrite(str(path), out)
 
 
+def _save_matches_with_inlier_distinction(
+    ref_bgr: np.ndarray,
+    kp_ref: list,
+    qry_bgr: np.ndarray,
+    kp_qry: list,
+    inliers: list,
+    outliers: list,
+    path: Path,
+    title: str = "",
+    max_inliers: int = 120,
+    max_outliers: int = 40,
+) -> None:
+    """
+    Draw correspondences with clear visual distinction:
+    - Inliers: vibrant green (50, 220, 100)
+    - Outliers: muted red/coral (80, 80, 220)
+    """
+    # Create side-by-side canvas
+    target_h = max(ref_bgr.shape[0], qry_bgr.shape[0])
+    scale_q = target_h / qry_bgr.shape[0] if qry_bgr.shape[0] > 0 else 1.0
+    scale_r = target_h / ref_bgr.shape[0] if ref_bgr.shape[0] > 0 else 1.0
+
+    qw = int(qry_bgr.shape[1] * scale_q)
+    rw = int(ref_bgr.shape[1] * scale_r)
+
+    q_res = cv2.resize(qry_bgr, (qw, target_h), interpolation=cv2.INTER_AREA) if scale_q != 1.0 else qry_bgr
+    r_res = cv2.resize(ref_bgr, (rw, target_h), interpolation=cv2.INTER_AREA) if scale_r != 1.0 else ref_bgr
+
+    combined = np.hstack([q_res, r_res])
+
+    # Draw outliers first (subdued red)
+    for m in outliers[:max_outliers]:
+        pt_q = (int(kp_qry[m.queryIdx].pt[0] * scale_q), int(kp_qry[m.queryIdx].pt[1] * scale_q))
+        pt_r = (int(qw + kp_ref[m.trainIdx].pt[0] * scale_r), int(kp_ref[m.trainIdx].pt[1] * scale_r))
+        cv2.line(combined, pt_q, pt_r, (80, 80, 220), 1, cv2.LINE_AA)
+        cv2.circle(combined, pt_q, 3, (80, 80, 220), -1, cv2.LINE_AA)
+        cv2.circle(combined, pt_r, 3, (80, 80, 220), -1, cv2.LINE_AA)
+
+    # Draw inliers on top (bright green)
+    for m in inliers[:max_inliers]:
+        pt_q = (int(kp_qry[m.queryIdx].pt[0] * scale_q), int(kp_qry[m.queryIdx].pt[1] * scale_q))
+        pt_r = (int(qw + kp_ref[m.trainIdx].pt[0] * scale_r), int(kp_ref[m.trainIdx].pt[1] * scale_r))
+        cv2.line(combined, pt_q, pt_r, (50, 220, 100), 2, cv2.LINE_AA)
+        cv2.circle(combined, pt_q, 4, (212, 182, 6), -1, cv2.LINE_AA)
+        cv2.circle(combined, pt_r, 4, (50, 220, 100), -1, cv2.LINE_AA)
+
+    # Header banner with title
+    cv2.rectangle(combined, (0, 0), (combined.shape[1], 40), (15, 23, 42), -1)
+    if title:
+        cv2.putText(combined, title, (14, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (241, 245, 249), 2)
+
+    cv2.imwrite(str(path), combined)
+
+
 def _save_footprint(
     ref_bgr: np.ndarray,
     region: RegionResult,
     path: Path,
 ) -> None:
-    """Draw the estimated query footprint polygon on the reference image."""
+    """Draw the estimated query footprint polygon with semi-transparent fill and corner labels."""
     out = ref_bgr.copy()
+    overlay = out.copy()
     corners = np.int32([
         region.top_left,
         region.top_right,
         region.bottom_right,
         region.bottom_left,
     ])
+
+    # Semi-transparent cyan fill
+    cv2.fillPoly(overlay, [corners], (212, 182, 6))
+    cv2.addWeighted(overlay, 0.22, out, 0.78, 0, out)
+
+    # Outer polygon outline
     cv2.polylines(out, [corners.reshape(-1, 1, 2)], isClosed=True,
-                  color=_COLOUR_FOOTPRINT, thickness=3)
+                  color=(212, 182, 6), thickness=3, lineType=cv2.LINE_AA)
 
-    # Corner dots
-    for pt in corners:
-        cv2.circle(out, tuple(pt), 6, _COLOUR_CORNER, -1)
+    # Corner dots and text labels
+    labels = ["NW", "NE", "SE", "SW"]
+    for i, pt in enumerate(corners):
+        cv2.circle(out, tuple(pt), 7, (94, 63, 244), -1, cv2.LINE_AA)
+        cv2.circle(out, tuple(pt), 10, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(out, f"{labels[i]} ({pt[0]},{pt[1]})", (pt[0] + 12, pt[1] - 8),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 2)
 
-    cv2.putText(out, "Est. Query Footprint", (10, 28),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+    # Header banner
+    cv2.rectangle(out, (0, 0), (out.shape[1], 42), (15, 23, 42), -1)
+    cv2.putText(out, "SceneNav AI — Estimated Query Footprint on Reference Raster", (12, 28),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (241, 245, 249), 2)
+
     cv2.imwrite(str(path), out)
+
+
+def _save_warped_blend(
+    ref_bgr: np.ndarray,
+    qry_bgr: np.ndarray,
+    H: np.ndarray,
+    path: Path,
+) -> None:
+    """Warp query into reference space and generate a 50/50 multi-temporal blended overlay."""
+    h_ref, w_ref = ref_bgr.shape[:2]
+    warped_qry = cv2.warpPerspective(qry_bgr, H, (w_ref, h_ref), flags=cv2.INTER_LINEAR)
+    gray = cv2.cvtColor(warped_qry, cv2.COLOR_BGR2GRAY)
+    mask = (gray > 0).astype(np.uint8) * 255
+
+    blend = ref_bgr.copy()
+    overlap = cv2.addWeighted(ref_bgr, 0.5, warped_qry, 0.5, 0)
+    blend[mask > 0] = overlap[mask > 0]
+
+    # Header banner
+    cv2.rectangle(blend, (0, 0), (w_ref, 42), (15, 23, 42), -1)
+    cv2.putText(blend, "SceneNav AI — 50/50 Warped Multi-Temporal Registration Blend", (12, 28),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (241, 245, 249), 2)
+
+    cv2.imwrite(str(path), blend)
