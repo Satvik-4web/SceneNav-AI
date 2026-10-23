@@ -37,6 +37,8 @@ results/*
 !results/e2e_screenshots/**
 !results/audit_release_20261015/
 !results/audit_release_20261015/**
+!results/demo_readiness_release_20261022/
+!results/demo_readiness_release_20261022/**
 
 # Data (user-provided images)
 data/.raw_*
