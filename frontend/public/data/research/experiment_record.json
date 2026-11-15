@@ -1,0 +1,383 @@
+{
+  "experiment_id": "EXP-MUNICH-GEOREF-20261022-RELEASE",
+  "experiment_name": "Munich Real Aerial Georeferenced Visual Localization Demonstration (Final Release Package)",
+  "timestamp": "2026-10-22T22:15:00+05:30",
+  "audit_reference": "results/forensic_qa_pass_20261022/FINAL_FORENSIC_QA_REPORT.md",
+  "reproducibility_status": "DETERMINISTIC_REPRODUCED",
+  "input_imagery": {
+    "query": {
+      "filename": "original_aerial_image.jpg",
+      "width": 5616,
+      "height": 3744,
+      "capture_date": "2011-07-06 11:57:41 UTC",
+      "sensor": "Canon EOS-1Ds Mark III (DLR 3K research campaign)",
+      "exif_gps": {
+        "latitude_deg": 48.110297,
+        "longitude_deg": 11.523567,
+        "altitude_msl_m": 1611.51
+      }
+    },
+    "reference_historical": {
+      "filename": "bavaria_2012_aligned_dop.tif",
+      "width": 2800,
+      "height": 2400,
+      "crs": "EPSG:25832",
+      "gsd_m": 0.5,
+      "acquisition_year": 2012,
+      "source": "Bayerische Vermessungsverwaltung (CC BY 4.0)"
+    },
+    "reference_current": {
+      "filename": "munich_current_luftbild.tif",
+      "width": 2800,
+      "height": 2400,
+      "crs": "EPSG:25832",
+      "gsd_m": 0.5,
+      "acquisition_year": 2024,
+      "source": "GeodatenService M\u00fcnchen (dl-de/by-2-0)"
+    }
+  },
+  "audited_coordinates": {
+    "crs": "EPSG:25832",
+    "crs_name": "ETRS89 / UTM zone 32N",
+    "units": "metre",
+    "orb": {
+      "projected_center_utm32n": {
+        "easting": 687789.1108658633,
+        "northing": 5331662.787144104
+      },
+      "geographic_center_wgs84": {
+        "latitude": 48.11051836148145,
+        "longitude": 11.522912597490869
+      },
+      "corners_utm32n": {
+        "top_left": {
+          "easting": 687398.6413439512,
+          "northing": 5331860.196012315
+        },
+        "top_right": {
+          "easting": 688111.3430842402,
+          "northing": 5331939.486964409
+        },
+        "bottom_right": {
+          "easting": 688163.9073680809,
+          "northing": 5331473.302052028
+        },
+        "bottom_left": {
+          "easting": 687462.0599323979,
+          "northing": 5331381.949507891
+        }
+      },
+      "corners_wgs84": {
+        "top_left": {
+          "latitude": 48.1124077354487,
+          "longitude": 11.517758697472024
+        },
+        "top_right": {
+          "latitude": 48.112910324840264,
+          "longitude": 11.527359394746348
+        },
+        "bottom_right": {
+          "latitude": 48.1087046131069,
+          "longitude": 11.527859263876666
+        },
+        "bottom_left": {
+          "latitude": 48.108090443826114,
+          "longitude": 11.518399722000247
+        }
+      },
+      "polygon_geometry": {
+        "area_m2": 338934.1015625,
+        "area_km2": 0.3389341015625,
+        "area_hectares": 33.89341015625,
+        "edge_lengths_m": [
+          717.0988953379532,
+          469.1389735121288,
+          707.7676951479226,
+          482.43303820787287
+        ],
+        "mean_width_m": 712.4332952429379,
+        "mean_height_m": 475.78600586000084,
+        "aspect_ratio": 1.4973817776653358
+      }
+    },
+    "sift": {
+      "projected_center_utm32n": {
+        "easting": 687788.6984048492,
+        "northing": 5331662.709138029
+      },
+      "geographic_center_wgs84": {
+        "latitude": 48.11051778194466,
+        "longitude": 11.522907027381683
+      },
+      "corners_utm32n": {
+        "top_left": {
+          "easting": 687398.0503880358,
+          "northing": 5331860.7293703295
+        },
+        "top_right": {
+          "easting": 688111.9870067888,
+          "northing": 5331939.688785553
+        },
+        "bottom_right": {
+          "easting": 688162.7185070274,
+          "northing": 5331473.1176276915
+        },
+        "bottom_left": {
+          "easting": 687461.4714109307,
+          "northing": 5331382.355247135
+        }
+      },
+      "corners_wgs84": {
+        "top_left": {
+          "latitude": 48.112412703315535,
+          "longitude": 11.517751000082844
+        },
+        "top_right": {
+          "latitude": 48.11291194867212,
+          "longitude": 11.527368126416492
+        },
+        "bottom_right": {
+          "latitude": 48.10870330663683,
+          "longitude": 11.527843227079346
+        },
+        "bottom_left": {
+          "latitude": 48.10809426393259,
+          "longitude": 11.518392001898869
+        }
+      },
+      "polygon_geometry": {
+        "area_m2": 339161.3369140625,
+        "area_km2": 0.3391613369140625,
+        "area_hectares": 33.91613369140625,
+        "edge_lengths_m": [
+          718.2896942382721,
+          469.3211378839372,
+          707.0963862926941,
+          482.55986974354664
+        ],
+        "mean_width_m": 712.6930402654831,
+        "mean_height_m": 475.9405038137419,
+        "aspect_ratio": 1.4974414544562353
+      }
+    },
+    "cross_algorithm_agreement": {
+      "dx_m": 0.4124610141152516,
+      "dy_m": 0.07800607476383448,
+      "euclidean_distance_m": 0.4197726001837694,
+      "geodesic_distance_m": 0.4197586119914938,
+      "interpretation": "Inter-algorithmic descriptor repeatability under identical reference geometry; NOT absolute ground-truth accuracy."
+    },
+    "area_discrepancy_analysis": {
+      "orb_area_m2": 338934.1015625,
+      "sift_area_m2": 339161.3369140625,
+      "delta_m2": 227.2353515625,
+      "relative_difference_percent": 0.06704410990659712,
+      "audit_resolution": "The 227 m\u00b2 difference is the exact geometric variance between the ORB and SIFT estimated footprint polygons (0.067% cross-algorithm repeatability). Neither is an error: 338,934 m\u00b2 is the exact ORB area and 339,161 m\u00b2 is the exact SIFT area."
+    },
+    "raster_containment": {
+      "reference_raster_width_px": 2800,
+      "reference_raster_height_px": 2400,
+      "reference_easting_max_utm": 688100.0,
+      "sift": {
+        "total_area_m2": 339161.3369140625,
+        "inside_raster_area_m2": 321486.9992675921,
+        "inside_raster_area_hectares": 32.14869992675921,
+        "inside_raster_percentage": 94.78881118724073,
+        "outside_raster_area_m2": 17674.336830584332,
+        "outside_raster_area_hectares": 1.7674336830584332,
+        "outside_raster_percentage": 5.211188572199401,
+        "boundary_intersection_top": {
+          "pixel": [
+            2800.0,
+            883.2738884823245
+          ],
+          "utm": [
+            688100.0,
+            5331938.363055759
+          ]
+        },
+        "boundary_intersection_bottom": {
+          "pixel": [
+            2800.0,
+            1830.0000517847159
+          ],
+          "utm": [
+            688100.0,
+            5331464.999974107
+          ]
+        }
+      },
+      "orb": {
+        "total_area_m2": 338934.1015625,
+        "inside_raster_area_m2": 321135.1489991292,
+        "inside_raster_area_hectares": 32.11351489991292,
+        "inside_raster_percentage": 94.74855068247281,
+        "outside_raster_area_m2": 17798.952309555374,
+        "outside_raster_area_hectares": 1.7798952309555374,
+        "outside_raster_percentage": 5.25144924264082,
+        "boundary_intersection_top": {
+          "pixel": [
+            2800.0,
+            883.5499992101169
+          ],
+          "utm": [
+            688100.0,
+            5331938.2250003945
+          ]
+        },
+        "boundary_intersection_bottom": {
+          "pixel": [
+            2800.0,
+            1830.0322769201855
+          ],
+          "utm": [
+            688100.0,
+            5331464.9838615395
+          ]
+        }
+      },
+      "inside_raster_area_m2": 321486.9992675921,
+      "inside_raster_area_hectares": 32.14869992675921,
+      "inside_raster_percentage": 94.78881118724073,
+      "outside_raster_area_m2": 17674.336830584332,
+      "outside_raster_area_hectares": 1.7674336830584332,
+      "outside_raster_percentage": 5.211188572199401,
+      "poly_in_px": [
+        [
+          1396.1007760716254,
+          1038.5412593414087
+        ],
+        [
+          2800.0,
+          883.2738884823245
+        ],
+        [
+          2800.0,
+          1830.0000517847159
+        ],
+        [
+          1522.9428218613982,
+          1995.289505729899
+        ]
+      ],
+      "poly_out_px": [
+        [
+          2800.0,
+          883.2738884823245
+        ],
+        [
+          2823.974013577787,
+          880.6224288948287
+        ],
+        [
+          2925.4370140547376,
+          1813.7647446171525
+        ],
+        [
+          2800.0,
+          1830.0000517847159
+        ]
+      ],
+      "boundary_intersection_top": {
+        "pixel": [
+          2800.0,
+          883.2738884823245
+        ],
+        "utm": [
+          688100.0,
+          5331938.363055759
+        ]
+      },
+      "boundary_intersection_bottom": {
+        "pixel": [
+          2800.0,
+          1830.0000517847159
+        ],
+        "utm": [
+          688100.0,
+          5331464.999974107
+        ]
+      },
+      "interpretation": "SIFT: 321,487.00 m\u00b2 (94.79%) inside / 17,674.34 m\u00b2 (5.21%) extrapolated. ORB: 321,135.15 m\u00b2 (94.75%) inside / 17,798.95 m\u00b2 (5.25%) extrapolated beyond Easting 688,100 m."
+    },
+    "footprint_geometry": {
+      "area_m2": 339161.3369140625,
+      "area_km2": 0.3391613369140625,
+      "area_hectares": 33.91613369140625,
+      "edge_lengths_m": [
+        718.2896942382721,
+        469.3211378839372,
+        707.0963862926941,
+        482.55986974354664
+      ],
+      "mean_width_m": 712.6930402654831,
+      "mean_height_m": 475.9405038137419,
+      "aspect_ratio": 1.4974414544562353
+    }
+  },
+  "camera_telemetry_analysis": {
+    "exif_lat": 48.110297,
+    "exif_lon": 11.523567,
+    "exif_alt_msl": 1611.51,
+    "utm_x": 687838.6240752626,
+    "utm_y": 5331639.783643355,
+    "horizontal_offset_m": 54.59596094716856,
+    "inferred_pitch_msl_deg": 1.9403678395465436,
+    "inferred_pitch_agl_deg": 2.9033082331478477
+  },
+  "scenarios": {
+    "orb_on_2012_dop": {
+      "status": "success",
+      "localization_status": "localized",
+      "filtered_matches": 95,
+      "geometric_inliers": 79,
+      "inlier_ratio": 0.8315789473684211,
+      "mean_reprojection_residual_px": 2.278421401977539,
+      "runtime_seconds": 4.942964699992444
+    },
+    "sift_on_2012_dop": {
+      "status": "success",
+      "localization_status": "localized",
+      "filtered_matches": 173,
+      "geometric_inliers": 138,
+      "inlier_ratio": 0.7976878612716763,
+      "mean_reprojection_residual_px": 1.6759276390075684,
+      "runtime_seconds": 5.056541099998867
+    },
+    "orb_on_2024_dop": {
+      "status": "geometry_failed",
+      "localization_status": "rejected",
+      "filtered_matches": 32,
+      "geometric_inliers": 5,
+      "inlier_ratio": 0.15625,
+      "failure_reason": "Geometric verification produced only 5 inliers (threshold: 10). The scenes may be different, or the overlap is too small."
+    },
+    "sift_on_2024_dop": {
+      "status": "geometry_failed",
+      "localization_status": "rejected",
+      "filtered_matches": 28,
+      "geometric_inliers": 6,
+      "inlier_ratio": 0.21428571428571427,
+      "failure_reason": "Geometric verification produced only 6 inliers (threshold: 10). The scenes may be different, or the overlap is too small."
+    }
+  },
+  "scientific_disclosures": [
+    "Reference orthophoto raster has 0.50 m/pixel Ground Sampling Distance (GSD), not surveyed 0.5 m RMS horizontal accuracy.",
+    "No surveyed external Ground Control Points (GCPs) or differential GPS checkpoints were measured.",
+    "0.42 m delta measures inter-algorithmic repeatability under identical reference geometry, not absolute geographic accuracy.",
+    "Camera pitch (2.90\u00b0 AGL / 1.94\u00b0 MSL) is an inferred geometric estimate, as EXIF lacks attitude sensors.",
+    "Reprojection residuals are measured in reference raster pixels, not physical ground meters.",
+    "94.79% of the estimated footprint lies within reference raster bounds; 5.21% extends beyond eastern edge as extrapolation.",
+    "Temporal matching failure on 2024 imagery is corroborated by Heckenstaller-Tunnel urban transformation.",
+    "Research prototype: not certified for operational flight guidance."
+  ],
+  "generated_figures": [
+    "01_feature_correspondences_orb.png",
+    "01_feature_correspondences_sift.png",
+    "02_georeferenced_footprint_overlay.png",
+    "03_warped_query_registration.png",
+    "04_orb_vs_sift_comparison.png",
+    "05_temporal_urban_transformation.png",
+    "06_executive_research_overview.png"
+  ]
+}

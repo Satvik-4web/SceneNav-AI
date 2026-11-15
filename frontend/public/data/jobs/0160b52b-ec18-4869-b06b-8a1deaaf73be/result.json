@@ -1,0 +1,126 @@
+{
+  "job_id": "0160b52b-ec18-4869-b06b-8a1deaaf73be",
+  "status": "success",
+  "reference_image": {
+    "filename": "real_usgs_greenwood_ref.png",
+    "width": 701,
+    "height": 643,
+    "channels": 3,
+    "file_size_bytes": 1086212
+  },
+  "query_image": {
+    "filename": "real_greenwood_query_crop_runway.png",
+    "width": 350,
+    "height": 300,
+    "channels": 3,
+    "file_size_bytes": 253669
+  },
+  "reference_keypoints": 5000,
+  "query_keypoints": 3721,
+  "tentative_matches": 3721,
+  "filtered_matches": 855,
+  "geometric_inliers": 842,
+  "inlier_ratio": 0.9847953216374269,
+  "reprojection_error": {
+    "mean_px": 0.9847254753112793,
+    "median_px": 0.7563060522079468,
+    "max_px": 3.900998592376709
+  },
+  "homography_matrix": [
+    [
+      0.9807768977207175,
+      -0.009097437814039284,
+      122.15733046177307
+    ],
+    [
+      -0.006875616432996549,
+      0.984987290012172,
+      101.16698340862933
+    ],
+    [
+      -2.484086908509071e-05,
+      -2.8305923833319883e-05,
+      1.0
+    ]
+  ],
+  "estimated_region": {
+    "top_left": [
+      122.15733337402344,
+      101.16698455810547
+    ],
+    "top_right": [
+      468.51019287109375,
+      99.63114166259766
+    ],
+    "bottom_right": [
+      469.7769775390625,
+      400.1340637207031
+    ],
+    "bottom_left": [
+      120.45668029785156,
+      399.0555725097656
+    ]
+  },
+  "region_warnings": [],
+  "localization_status": "image_match_only",
+  "georeference": {
+    "is_georeferenced": false,
+    "crs": null,
+    "crs_epsg": null,
+    "crs_name": null,
+    "units": null,
+    "gsd_x": null,
+    "gsd_y": null,
+    "bounds_projected": null,
+    "affine_transform": null
+  },
+  "projected_footprint": null,
+  "geographic_footprint": null,
+  "localization": {
+    "status": "image_match_only",
+    "georeference": {
+      "is_georeferenced": false,
+      "crs": null,
+      "crs_epsg": null,
+      "crs_name": null,
+      "units": null,
+      "gsd_x": null,
+      "gsd_y": null,
+      "bounds_projected": null,
+      "affine_transform": null
+    },
+    "projected_footprint": null,
+    "geographic_footprint": null,
+    "estimated_center_geographic": null,
+    "estimated_center_projected": null,
+    "is_within_bounds": null,
+    "warnings": [
+      "Reference raster is not georeferenced; coordinates remain in pixel space."
+    ]
+  },
+  "warnings": [],
+  "failure_reason": null,
+  "processing_time_s": 0.18745379999745637,
+  "algorithm_params": {
+    "algorithm": "ORB",
+    "orb_max_features": 5000,
+    "ratio_threshold": 0.75,
+    "ransac_reproj_threshold": 4.0,
+    "min_inliers": 10,
+    "mutual_consistency": false,
+    "max_processing_dim": null
+  },
+  "algorithm_version": "ORB-v1",
+  "software_versions": {
+    "opencv": "5.0.0",
+    "numpy": "2.2.6",
+    "app": "0.1.0"
+  },
+  "artifacts": {
+    "side_by_side": "results/0160b52b-ec18-4869-b06b-8a1deaaf73be/01_side_by_side.png",
+    "tentative_matches": "results/0160b52b-ec18-4869-b06b-8a1deaaf73be/02_tentative_matches.png",
+    "inlier_matches": "results/0160b52b-ec18-4869-b06b-8a1deaaf73be/03_inlier_matches.png",
+    "footprint": "results/0160b52b-ec18-4869-b06b-8a1deaaf73be/04_footprint.png",
+    "warped_blend": "results/0160b52b-ec18-4869-b06b-8a1deaaf73be/05_warped_blend.png"
+  }
+}

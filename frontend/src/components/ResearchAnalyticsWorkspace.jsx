@@ -73,7 +73,9 @@ export default function ResearchAnalyticsWorkspace({ result, onSwitchToVisualize
     try {
       const url = jobReportPdfUrl(result.job_id);
       const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`PDF generation returned status ${resp.status}`);
+      if (!resp.ok || resp.headers.get('content-type')?.includes('text/html')) {
+        throw new Error('PDF report generation requires a live Python backend connection.');
+      }
       const blob = await resp.blob();
       const objUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');

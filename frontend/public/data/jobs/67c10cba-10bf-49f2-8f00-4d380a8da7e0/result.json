@@ -1,0 +1,224 @@
+{
+  "job_id": "67c10cba-10bf-49f2-8f00-4d380a8da7e0",
+  "status": "success",
+  "reference_image": {
+    "filename": "real_usgs_harrishill_ref.png",
+    "width": 1024,
+    "height": 1024,
+    "channels": 3,
+    "file_size_bytes": 1906354
+  },
+  "query_image": {
+    "filename": "manual_occluded.png",
+    "width": 540,
+    "height": 520,
+    "channels": 3,
+    "file_size_bytes": 438657
+  },
+  "reference_keypoints": 3752,
+  "query_keypoints": 1106,
+  "tentative_matches": 1106,
+  "filtered_matches": 994,
+  "geometric_inliers": 994,
+  "inlier_ratio": 1.0,
+  "reprojection_error": {
+    "mean_px": 0.0026427304837852716,
+    "median_px": 0.0012964577181264758,
+    "max_px": 0.7309190034866333
+  },
+  "homography_matrix": [
+    [
+      1.0000059484683155,
+      5.351778615654488e-06,
+      219.99849892169033
+    ],
+    [
+      2.188863735302313e-06,
+      1.0000031226363113,
+      179.99996604453753
+    ],
+    [
+      6.402789166098561e-09,
+      -1.0325304509782011e-09,
+      1.0
+    ]
+  ],
+  "estimated_region": {
+    "top_left": [
+      219.99850463867188,
+      179.99996948242188
+    ],
+    "top_right": [
+      758.9990844726562,
+      180.00051879882812
+    ],
+    "bottom_right": [
+      759.0022583007812,
+      699.000732421875
+    ],
+    "bottom_left": [
+      220.0013885498047,
+      699.001953125
+    ]
+  },
+  "region_warnings": [],
+  "localization_status": "image_match_only",
+  "georeference": {
+    "is_georeferenced": false,
+    "crs": null,
+    "crs_epsg": null,
+    "crs_name": null,
+    "units": null,
+    "gsd_x": null,
+    "gsd_y": null,
+    "bounds_projected": null,
+    "affine_transform": null
+  },
+  "projected_footprint": null,
+  "geographic_footprint": null,
+  "localization": {
+    "status": "image_match_only",
+    "georeference": {
+      "is_georeferenced": false,
+      "crs": null,
+      "crs_epsg": null,
+      "crs_name": null,
+      "units": null,
+      "gsd_x": null,
+      "gsd_y": null,
+      "bounds_projected": null,
+      "affine_transform": null
+    },
+    "projected_footprint": null,
+    "geographic_footprint": null,
+    "estimated_center_geographic": null,
+    "estimated_center_projected": null,
+    "is_within_bounds": null,
+    "quality_assessment": {
+      "status": "ACCEPTED",
+      "confidence_score": 0.9566,
+      "is_calibrated": false,
+      "confidence_components": {
+        "inlier_count_factor": 1.0,
+        "inlier_ratio_factor": 1.0,
+        "reprojection_factor": 0.9993,
+        "spatial_dispersion_factor": 0.9118,
+        "conditioning_factor": 0.829
+      },
+      "spatial_metrics": {
+        "bbox_area_ratio": 0.971357225718873,
+        "convex_hull_area_ratio": 0.9411538078053963,
+        "grid_coverage_ratio": 0.9375,
+        "spatial_entropy": 0.9422031353756607,
+        "spatial_spread_score": 0.9117789719867351
+      },
+      "conditioning_metrics": {
+        "raw_condition_number": 80800.73841258163,
+        "canonical_condition_number": 1.9524610722760016,
+        "singular_values": [
+          284.25574278891446,
+          1.0000005601122774,
+          0.003517984468625258
+        ],
+        "determinant": 1.0000078483653059,
+        "horizon_crossing": false,
+        "quad_angles_deg": [
+          89.99962323519142,
+          90.00040877170021,
+          89.99977938136489,
+          90.0001886117435
+        ],
+        "min_quad_angle_deg": 89.99962323519142,
+        "max_quad_angle_deg": 90.00040877170021,
+        "area_ratio": 0.9962320809551152,
+        "scale_factor": 0.9981142624745502
+      },
+      "reprojection_mean_px": 0.0026427304837852716,
+      "reprojection_median_px": 0.0012964577181264758,
+      "reprojection_max_px": 0.7309190034866333,
+      "inlier_count": 994,
+      "inlier_ratio": 1.0,
+      "failure_reasons": [],
+      "diagnostic_flags": [],
+      "disclaimer": "Heuristic multi-signal confidence metric; not an absolute calibrated Bayesian probability."
+    },
+    "warnings": [
+      "Reference raster is not georeferenced; coordinates remain in pixel space."
+    ]
+  },
+  "quality_assessment": {
+    "status": "ACCEPTED",
+    "confidence_score": 0.9566,
+    "is_calibrated": false,
+    "confidence_components": {
+      "inlier_count_factor": 1.0,
+      "inlier_ratio_factor": 1.0,
+      "reprojection_factor": 0.9993,
+      "spatial_dispersion_factor": 0.9118,
+      "conditioning_factor": 0.829
+    },
+    "spatial_metrics": {
+      "bbox_area_ratio": 0.971357225718873,
+      "convex_hull_area_ratio": 0.9411538078053963,
+      "grid_coverage_ratio": 0.9375,
+      "spatial_entropy": 0.9422031353756607,
+      "spatial_spread_score": 0.9117789719867351
+    },
+    "conditioning_metrics": {
+      "raw_condition_number": 80800.73841258163,
+      "canonical_condition_number": 1.9524610722760016,
+      "singular_values": [
+        284.25574278891446,
+        1.0000005601122774,
+        0.003517984468625258
+      ],
+      "determinant": 1.0000078483653059,
+      "horizon_crossing": false,
+      "quad_angles_deg": [
+        89.99962323519142,
+        90.00040877170021,
+        89.99977938136489,
+        90.0001886117435
+      ],
+      "min_quad_angle_deg": 89.99962323519142,
+      "max_quad_angle_deg": 90.00040877170021,
+      "area_ratio": 0.9962320809551152,
+      "scale_factor": 0.9981142624745502
+    },
+    "reprojection_mean_px": 0.0026427304837852716,
+    "reprojection_median_px": 0.0012964577181264758,
+    "reprojection_max_px": 0.7309190034866333,
+    "inlier_count": 994,
+    "inlier_ratio": 1.0,
+    "failure_reasons": [],
+    "diagnostic_flags": [],
+    "disclaimer": "Heuristic multi-signal confidence metric; not an absolute calibrated Bayesian probability."
+  },
+  "warnings": [],
+  "failure_reason": null,
+  "processing_time_s": 0.6149254000001747,
+  "algorithm_params": {
+    "algorithm": "SIFT",
+    "orb_max_features": 5000,
+    "ratio_threshold": 0.75,
+    "ransac_reproj_threshold": 4.0,
+    "min_inliers": 10,
+    "mutual_consistency": false,
+    "multi_scale": false,
+    "max_processing_dim": null
+  },
+  "algorithm_version": "SIFT-v1",
+  "software_versions": {
+    "opencv": "5.0.0",
+    "numpy": "2.2.6",
+    "app": "0.1.0"
+  },
+  "artifacts": {
+    "side_by_side": "results/67c10cba-10bf-49f2-8f00-4d380a8da7e0/01_side_by_side.png",
+    "tentative_matches": "results/67c10cba-10bf-49f2-8f00-4d380a8da7e0/02_tentative_matches.png",
+    "inlier_matches": "results/67c10cba-10bf-49f2-8f00-4d380a8da7e0/03_inlier_matches.png",
+    "footprint": "results/67c10cba-10bf-49f2-8f00-4d380a8da7e0/04_footprint.png",
+    "warped_blend": "results/67c10cba-10bf-49f2-8f00-4d380a8da7e0/05_warped_blend.png",
+    "research_report": "results/67c10cba-10bf-49f2-8f00-4d380a8da7e0/research_report.pdf"
+  }
+}

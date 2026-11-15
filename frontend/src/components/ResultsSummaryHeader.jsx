@@ -69,7 +69,9 @@ export default function ResultsSummaryHeader({ result, onExportJson, onOpenExplo
     try {
       const url = jobReportPdfUrl(result.job_id);
       const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`Report generation failed (${resp.status})`);
+      if (!resp.ok || resp.headers.get('content-type')?.includes('text/html')) {
+        throw new Error('PDF report generation requires a live Python backend connection.');
+      }
       const blob = await resp.blob();
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');

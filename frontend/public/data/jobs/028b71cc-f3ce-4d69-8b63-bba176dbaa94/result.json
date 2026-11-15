@@ -1,0 +1,355 @@
+{
+  "job_id": "028b71cc-f3ce-4d69-8b63-bba176dbaa94",
+  "status": "success",
+  "reference_image": {
+    "filename": "georef_usgs_chico.tif",
+    "width": 768,
+    "height": 768,
+    "channels": 3,
+    "file_size_bytes": 1771380
+  },
+  "query_image": {
+    "filename": "georef_chico_crop_runway.tif",
+    "width": 280,
+    "height": 280,
+    "channels": 3,
+    "file_size_bytes": 235764
+  },
+  "reference_keypoints": 5001,
+  "query_keypoints": 565,
+  "tentative_matches": 565,
+  "filtered_matches": 506,
+  "geometric_inliers": 506,
+  "inlier_ratio": 1.0,
+  "reprojection_error": {
+    "mean_px": 0.02006097324192524,
+    "median_px": 0.005830574780702591,
+    "max_px": 1.4453730583190918
+  },
+  "homography_matrix": [
+    [
+      1.0000057012139745,
+      1.8552572350793436e-05,
+      250.0066999512245
+    ],
+    [
+      2.9972956135155422e-05,
+      1.0000674372902953,
+      240.0018468681594
+    ],
+    [
+      1.0860475482489548e-07,
+      1.3039546976013177e-07,
+      1.0
+    ]
+  ],
+  "estimated_region": {
+    "top_left": [
+      250.00669860839844,
+      240.00184631347656
+    ],
+    "top_right": [
+      528.9922485351562,
+      240.0029296875
+    ],
+    "bottom_right": [
+      528.9782104492188,
+      518.9944458007812
+    ],
+    "bottom_left": [
+      250.00277709960938,
+      519.0017700195312
+    ]
+  },
+  "region_warnings": [],
+  "localization_status": "localized",
+  "georeference": {
+    "is_georeferenced": true,
+    "crs": "EPSG:32610",
+    "crs_epsg": 32610,
+    "crs_name": "WGS 84 / UTM zone 10N",
+    "units": "metre",
+    "gsd_x": 1.0,
+    "gsd_y": 1.0,
+    "bounds_projected": {
+      "left": 597500.0,
+      "bottom": 4404732.0,
+      "right": 598268.0,
+      "top": 4405500.0
+    },
+    "affine_transform": [
+      1.0,
+      0.0,
+      597500.0,
+      0.0,
+      -1.0,
+      4405500.0
+    ]
+  },
+  "projected_footprint": {
+    "top_left": {
+      "x": 597750.0066986084,
+      "y": 4405259.9981536865
+    },
+    "top_right": {
+      "x": 598028.9922485352,
+      "y": 4405259.9970703125
+    },
+    "bottom_right": {
+      "x": 598028.9782104492,
+      "y": 4404981.005554199
+    },
+    "bottom_left": {
+      "x": 597750.0027770996,
+      "y": 4404980.9982299805
+    },
+    "center": {
+      "x": 597889.4971008301,
+      "y": 4405120.4972229
+    },
+    "crs_name": "WGS 84 / UTM zone 10N",
+    "units": "metre",
+    "area_m2": 77834.3515625,
+    "in_raster_area_m2": 77834.3515625,
+    "extrapolated_area_m2": 0.0,
+    "overlap_percentage": 100.0
+  },
+  "geographic_footprint": {
+    "top_left": {
+      "lat": 39.79168463799938,
+      "lon": -121.85832152483925
+    },
+    "top_right": {
+      "lat": 39.79165252838939,
+      "lon": -121.85506370402479
+    },
+    "bottom_right": {
+      "lat": 39.789139283327806,
+      "lon": -121.85510553610276
+    },
+    "bottom_left": {
+      "lat": 39.78917131318792,
+      "lon": -121.85836312153822
+    },
+    "center": {
+      "lat": 39.79041192926855,
+      "lon": -121.8567134472824
+    },
+    "area_m2": 77834.3515625,
+    "in_raster_area_m2": 77834.3515625,
+    "extrapolated_area_m2": 0.0,
+    "overlap_percentage": 100.0
+  },
+  "localization": {
+    "status": "localized",
+    "georeference": {
+      "is_georeferenced": true,
+      "crs": "EPSG:32610",
+      "crs_epsg": 32610,
+      "crs_name": "WGS 84 / UTM zone 10N",
+      "units": "metre",
+      "gsd_x": 1.0,
+      "gsd_y": 1.0,
+      "bounds_projected": {
+        "left": 597500.0,
+        "bottom": 4404732.0,
+        "right": 598268.0,
+        "top": 4405500.0
+      },
+      "affine_transform": [
+        1.0,
+        0.0,
+        597500.0,
+        0.0,
+        -1.0,
+        4405500.0
+      ]
+    },
+    "projected_footprint": {
+      "top_left": {
+        "x": 597750.0066986084,
+        "y": 4405259.9981536865
+      },
+      "top_right": {
+        "x": 598028.9922485352,
+        "y": 4405259.9970703125
+      },
+      "bottom_right": {
+        "x": 598028.9782104492,
+        "y": 4404981.005554199
+      },
+      "bottom_left": {
+        "x": 597750.0027770996,
+        "y": 4404980.9982299805
+      },
+      "center": {
+        "x": 597889.4971008301,
+        "y": 4405120.4972229
+      },
+      "crs_name": "WGS 84 / UTM zone 10N",
+      "units": "metre",
+      "area_m2": 77834.3515625,
+      "in_raster_area_m2": 77834.3515625,
+      "extrapolated_area_m2": 0.0,
+      "overlap_percentage": 100.0
+    },
+    "geographic_footprint": {
+      "top_left": {
+        "lat": 39.79168463799938,
+        "lon": -121.85832152483925
+      },
+      "top_right": {
+        "lat": 39.79165252838939,
+        "lon": -121.85506370402479
+      },
+      "bottom_right": {
+        "lat": 39.789139283327806,
+        "lon": -121.85510553610276
+      },
+      "bottom_left": {
+        "lat": 39.78917131318792,
+        "lon": -121.85836312153822
+      },
+      "center": {
+        "lat": 39.79041192926855,
+        "lon": -121.8567134472824
+      },
+      "area_m2": 77834.3515625,
+      "in_raster_area_m2": 77834.3515625,
+      "extrapolated_area_m2": 0.0,
+      "overlap_percentage": 100.0
+    },
+    "estimated_center_geographic": {
+      "lat": 39.79041192926855,
+      "lon": -121.8567134472824
+    },
+    "estimated_center_projected": {
+      "x": 597889.4971008301,
+      "y": 4405120.4972229
+    },
+    "is_within_bounds": true,
+    "quality_assessment": {
+      "status": "ACCEPTED",
+      "confidence_score": 0.9455,
+      "is_calibrated": false,
+      "confidence_components": {
+        "inlier_count_factor": 1.0,
+        "inlier_ratio_factor": 1.0,
+        "reprojection_factor": 0.995,
+        "spatial_dispersion_factor": 0.9262,
+        "conditioning_factor": 0.742
+      },
+      "spatial_metrics": {
+        "bbox_area_ratio": 0.9353697314877749,
+        "convex_hull_area_ratio": 0.9110181846096101,
+        "grid_coverage_ratio": 1.0,
+        "spatial_entropy": 0.9406603250665881,
+        "spatial_spread_score": 0.9261536753184788
+      },
+      "conditioning_metrics": {
+        "raw_condition_number": 120106.10411819932,
+        "canonical_condition_number": 2.7440789946384307,
+        "singular_values": [
+          346.5634669601094,
+          1.0000135873977345,
+          0.002885477549243025
+        ],
+        "determinant": 1.000014690713968,
+        "horizon_crossing": false,
+        "quad_angles_deg": [
+          90.00058283150582,
+          89.99733952845699,
+          90.00438720900165,
+          89.99769043103555
+        ],
+        "min_quad_angle_deg": 89.99733952845699,
+        "max_quad_angle_deg": 90.00438720900165,
+        "area_ratio": 0.9927852433332574,
+        "scale_factor": 0.996386091499303
+      },
+      "reprojection_mean_px": 0.02006097324192524,
+      "reprojection_median_px": 0.005830574780702591,
+      "reprojection_max_px": 1.4453730583190918,
+      "inlier_count": 506,
+      "inlier_ratio": 1.0,
+      "failure_reasons": [],
+      "diagnostic_flags": [],
+      "disclaimer": "Heuristic multi-signal confidence metric; not an absolute calibrated Bayesian probability."
+    },
+    "warnings": []
+  },
+  "quality_assessment": {
+    "status": "ACCEPTED",
+    "confidence_score": 0.9455,
+    "is_calibrated": false,
+    "confidence_components": {
+      "inlier_count_factor": 1.0,
+      "inlier_ratio_factor": 1.0,
+      "reprojection_factor": 0.995,
+      "spatial_dispersion_factor": 0.9262,
+      "conditioning_factor": 0.742
+    },
+    "spatial_metrics": {
+      "bbox_area_ratio": 0.9353697314877749,
+      "convex_hull_area_ratio": 0.9110181846096101,
+      "grid_coverage_ratio": 1.0,
+      "spatial_entropy": 0.9406603250665881,
+      "spatial_spread_score": 0.9261536753184788
+    },
+    "conditioning_metrics": {
+      "raw_condition_number": 120106.10411819932,
+      "canonical_condition_number": 2.7440789946384307,
+      "singular_values": [
+        346.5634669601094,
+        1.0000135873977345,
+        0.002885477549243025
+      ],
+      "determinant": 1.000014690713968,
+      "horizon_crossing": false,
+      "quad_angles_deg": [
+        90.00058283150582,
+        89.99733952845699,
+        90.00438720900165,
+        89.99769043103555
+      ],
+      "min_quad_angle_deg": 89.99733952845699,
+      "max_quad_angle_deg": 90.00438720900165,
+      "area_ratio": 0.9927852433332574,
+      "scale_factor": 0.996386091499303
+    },
+    "reprojection_mean_px": 0.02006097324192524,
+    "reprojection_median_px": 0.005830574780702591,
+    "reprojection_max_px": 1.4453730583190918,
+    "inlier_count": 506,
+    "inlier_ratio": 1.0,
+    "failure_reasons": [],
+    "diagnostic_flags": [],
+    "disclaimer": "Heuristic multi-signal confidence metric; not an absolute calibrated Bayesian probability."
+  },
+  "warnings": [],
+  "failure_reason": null,
+  "processing_time_s": 0.2417779000243172,
+  "algorithm_params": {
+    "algorithm": "SIFT",
+    "orb_max_features": 5000,
+    "ratio_threshold": 0.75,
+    "ransac_reproj_threshold": 4.0,
+    "min_inliers": 10,
+    "mutual_consistency": false,
+    "multi_scale": false,
+    "max_processing_dim": null
+  },
+  "algorithm_version": "SIFT-v1",
+  "software_versions": {
+    "opencv": "5.0.0",
+    "numpy": "2.2.6",
+    "app": "0.1.0"
+  },
+  "artifacts": {
+    "side_by_side": "results/028b71cc-f3ce-4d69-8b63-bba176dbaa94/01_side_by_side.png",
+    "tentative_matches": "results/028b71cc-f3ce-4d69-8b63-bba176dbaa94/02_tentative_matches.png",
+    "inlier_matches": "results/028b71cc-f3ce-4d69-8b63-bba176dbaa94/03_inlier_matches.png",
+    "footprint": "results/028b71cc-f3ce-4d69-8b63-bba176dbaa94/04_footprint.png",
+    "warped_blend": "results/028b71cc-f3ce-4d69-8b63-bba176dbaa94/05_warped_blend.png"
+  }
+}
