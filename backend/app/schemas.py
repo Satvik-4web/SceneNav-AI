@@ -31,6 +31,13 @@ class LocalizationStatus(str, Enum):
     REJECTED = "rejected"                   # Match or geometry failed (no coordinates)
 
 
+class ReliabilityStatus(str, Enum):
+    """Categorical reliability assessment for visual localization."""
+    ACCEPTED = "ACCEPTED"              # High confidence, well-conditioned, well-distributed
+    LOW_CONFIDENCE = "LOW_CONFIDENCE"  # Feasible match, but marginal signals or warnings
+    REJECTED = "REJECTED"              # Failed geometry, ill-conditioned, clustered, or degenerate
+
+
 
 # ---------------------------------------------------------------------------
 # Request models
@@ -61,6 +68,10 @@ class MatchParams(BaseModel):
     mutual_consistency: bool = Field(
         default=False,
         description="Enforce bidirectional cross-check filtering for matches."
+    )
+    multi_scale: bool = Field(
+        default=False,
+        description="Enable multi-scale scale pyramid candidate feature extraction."
     )
     max_processing_dim: Optional[int] = Field(
         default=None, ge=512, le=8192,
@@ -172,6 +183,10 @@ class GeographicFootprint(BaseModel):
     bottom_right: LatLonPoint
     bottom_left: LatLonPoint
     center: LatLonPoint
+    area_m2: Optional[float] = Field(default=None, description="Total ground area in square metres")
+    in_raster_area_m2: Optional[float] = Field(default=None, description="Ground area within reference raster in m²")
+    extrapolated_area_m2: Optional[float] = Field(default=None, description="Ground area extrapolated beyond raster in m²")
+    overlap_percentage: Optional[float] = Field(default=None, description="Percentage of footprint inside reference raster")
 
 
 class ProjectedFootprint(BaseModel):
@@ -183,6 +198,65 @@ class ProjectedFootprint(BaseModel):
     center: ProjectedPoint
     crs_name: str
     units: str = "metre"
+    area_m2: Optional[float] = Field(default=None, description="Total projected area in square metres")
+    in_raster_area_m2: Optional[float] = Field(default=None, description="Projected area within reference raster in m²")
+    extrapolated_area_m2: Optional[float] = Field(default=None, description="Projected area extrapolated beyond raster in m²")
+    overlap_percentage: Optional[float] = Field(default=None, description="Percentage of footprint inside reference raster")
+
+
+class SpatialDistributionMetrics(BaseModel):
+    """Quantitative spatial dispersion metrics of inliers across the query image."""
+    bbox_area_ratio: float = Field(..., description="Inlier bounding box area relative to image area [0.0, 1.0]")
+    convex_hull_area_ratio: float = Field(..., description="Inlier convex hull area relative to image area [0.0, 1.0]")
+    grid_coverage_ratio: float = Field(..., description="Fraction of 4x4 grid cells occupied by inliers [0.0, 1.0]")
+    spatial_entropy: float = Field(..., description="Normalized Shannon entropy across 4x4 spatial cells [0.0, 1.0]")
+    spatial_spread_score: float = Field(..., description="Composite spatial dispersion score in [0.0, 1.0]")
+
+
+class ConditioningMetrics(BaseModel):
+    """Numerical stability and projective geometry diagnostics."""
+    raw_condition_number: float = Field(..., description="Raw SVD condition number kappa(H)")
+    canonical_condition_number: float = Field(..., description="Hartley-Zisserman isotropic coordinate-normalized kappa(H_canon)")
+    singular_values: list[float] = Field(default_factory=list, description="Singular values of H")
+    determinant: float = Field(..., description="Determinant of normalized homography")
+    horizon_crossing: bool = Field(default=False, description="True if query polygon crosses projective line at infinity")
+    quad_angles_deg: list[float] = Field(default_factory=list, description="Interior angles of projected quad in degrees")
+    min_quad_angle_deg: Optional[float] = None
+    max_quad_angle_deg: Optional[float] = None
+    area_ratio: Optional[float] = None
+    scale_factor: Optional[float] = None
+
+
+class QualityAssessment(BaseModel):
+    """Comprehensive multi-signal localization reliability assessment."""
+    status: ReliabilityStatus = Field(
+        default=ReliabilityStatus.REJECTED,
+        description="Categorical assessment: ACCEPTED, LOW_CONFIDENCE, REJECTED"
+    )
+    confidence_score: float = Field(
+        default=0.0, ge=0.0, le=1.0,
+        description="Heuristic multi-signal confidence index in [0.0, 1.0]"
+    )
+    is_calibrated: bool = Field(
+        default=False,
+        description="Always False: this score is an uncalibrated heuristic index, not an absolute probability."
+    )
+    confidence_components: dict[str, float] = Field(
+        default_factory=dict,
+        description="Weighted sub-score components contributing to the confidence index."
+    )
+    spatial_metrics: Optional[SpatialDistributionMetrics] = None
+    conditioning_metrics: Optional[ConditioningMetrics] = None
+    reprojection_mean_px: Optional[float] = None
+    reprojection_median_px: Optional[float] = None
+    reprojection_max_px: Optional[float] = None
+    inlier_count: int = 0
+    inlier_ratio: float = 0.0
+    failure_reasons: list[str] = Field(default_factory=list)
+    diagnostic_flags: list[str] = Field(default_factory=list)
+    disclaimer: str = (
+        "Heuristic multi-signal confidence metric; not an absolute calibrated Bayesian probability."
+    )
 
 
 class LocalizationResult(BaseModel):
@@ -194,6 +268,7 @@ class LocalizationResult(BaseModel):
     estimated_center_geographic: Optional[LatLonPoint] = None
     estimated_center_projected: Optional[ProjectedPoint] = None
     is_within_bounds: Optional[bool] = None
+    quality_assessment: Optional[QualityAssessment] = None
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -250,6 +325,12 @@ class MatchResult(BaseModel):
     localization: Optional[LocalizationResult] = Field(
         default=None,
         description="Consolidated visual localization result."
+    )
+
+    # Multi-Signal Reliability & Quality Assessment
+    quality_assessment: Optional[QualityAssessment] = Field(
+        default=None,
+        description="Multi-signal localization quality, inlier dispersion, and reliability assessment."
     )
 
     # Diagnostics

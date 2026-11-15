@@ -89,9 +89,16 @@ def _parse_dataset_georef(src: rasterio.DatasetReader) -> GeoreferenceInfo:
     if abs(det) < 1e-12:
         return GeoreferenceInfo(is_georeferenced=False)
 
-    crs_str = src.crs.to_string()
-    crs_epsg = src.crs.to_epsg()
-    crs_name = getattr(src.crs, "name", None) or crs_str
+    try:
+        parsed_crs = pyproj.CRS.from_user_input(src.crs.to_wkt())
+        # Validate transformer can be instantiated without error
+        _ = pyproj.Transformer.from_crs(parsed_crs, "EPSG:4326", always_xy=True)
+        crs_str = parsed_crs.to_string()
+        crs_epsg = parsed_crs.to_epsg() or src.crs.to_epsg()
+        crs_name = getattr(parsed_crs, "name", None) or getattr(src.crs, "name", None) or crs_str
+    except Exception as exc:
+        logger.warning("CRS in raster is invalid or unsupported by pyproj: %s", exc)
+        return GeoreferenceInfo(is_georeferenced=False)
 
     # Units
     linear_units = getattr(src.crs, "linear_units", None)
@@ -220,6 +227,10 @@ def compute_geographic_footprint(
     georef: GeoreferenceInfo,
     ref_width: int,
     ref_height: int,
+    in_raster_area_px: Optional[float] = None,
+    extrapolated_area_px: Optional[float] = None,
+    total_projected_area_px: Optional[float] = None,
+    overlap_fraction: Optional[float] = None,
 ) -> tuple[Optional[ProjectedFootprint], Optional[GeographicFootprint], list[str]]:
     """
     Convert estimated footprint pixel coordinates into projected and WGS84 footprints.
@@ -241,6 +252,21 @@ def compute_geographic_footprint(
             )
 
     try:
+        # Calculate metric areas if pixel areas are provided
+        area_m2 = None
+        in_raster_m2 = None
+        extra_m2 = None
+        overlap_pct = (overlap_fraction * 100.0) if overlap_fraction is not None else None
+
+        a, b, _, d, e, _ = aff
+        pixel_area_m2 = abs(a * e - b * d)
+        if total_projected_area_px is not None and pixel_area_m2 > 0:
+            area_m2 = float(total_projected_area_px * pixel_area_m2)
+            if in_raster_area_px is not None:
+                in_raster_m2 = float(in_raster_area_px * pixel_area_m2)
+            if extrapolated_area_px is not None:
+                extra_m2 = float(extrapolated_area_px * pixel_area_m2)
+
         # 1. Projected coordinates
         proj_pts: dict[str, ProjectedPoint] = {}
         geo_pts: dict[str, LatLonPoint] = {}
@@ -267,6 +293,10 @@ def compute_geographic_footprint(
             center=proj_pts["center"],
             crs_name=georef.crs_name or georef.crs,
             units=georef.units or "metre",
+            area_m2=area_m2,
+            in_raster_area_m2=in_raster_m2,
+            extrapolated_area_m2=extra_m2,
+            overlap_percentage=overlap_pct,
         )
 
         geographic_fp = GeographicFootprint(
@@ -275,6 +305,10 @@ def compute_geographic_footprint(
             bottom_right=geo_pts["bottom_right"],
             bottom_left=geo_pts["bottom_left"],
             center=geo_pts["center"],
+            area_m2=area_m2,
+            in_raster_area_m2=in_raster_m2,
+            extrapolated_area_m2=extra_m2,
+            overlap_percentage=overlap_pct,
         )
 
         return projected_fp, geographic_fp, warnings_list

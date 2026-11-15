@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "title": "SceneNav AI — Cinematic LinkedIn Launch Film",
+    "durationSec": 65,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "narrativeStructure": "problem-solution",
+    "publishingContext": "LinkedIn 16:9 feed; all essential claims are burned into the image for muted playback.",
+    "fonts": {
+      "display": {"family": "Space Grotesk", "weights": ["600", "700"]},
+      "body": {"family": "JetBrains Mono", "weights": ["400", "500"]}
+    },
+    "colors": {
+      "background": "#03070d — near-black aerospace field",
+      "surface": "#071321 — elevated glass and raster frames",
+      "primary": "#f5fbff — editorial type",
+      "muted": "#8ca5b8 — scientific annotation",
+      "accent": "#13d8ff — signal, geometry, and active path",
+      "highlight": "#42e7b3 — accepted geometric evidence"
+    }
+  },
+  "voice": {
+    "enabled": true,
+    "gender": "male",
+    "age": "mature",
+    "tone": ["confident", "natural", "documentary", "measured"],
+    "accent": "neutral",
+    "pace": "moderate"
+  },
+  "scenes": [
+    {
+      "id": "hook-orbit", "act": "hook", "startSec": 0, "durationSec": 8,
+      "purpose": "Create the signal-denied problem in a physical aerospace context while showing the SceneNav artifact within three seconds.",
+      "emotionalBeat": "Quiet tension.",
+      "voiceover": "When positioning signals disappear, the Earth does not. Every image retains structure — patterns, corners, geometry — waiting to be understood.",
+      "layout": "Three.js Earth occupies the right two-thirds; left third holds the question and a small SceneNav diagnostic badge.",
+      "elements": "Wireframe Earth, three satellites, cyan signal arcs that fragment, a thin orbital horizon, question typography.",
+      "animation": "Earth turns 15 degrees over eight seconds; satellite arcs flicker out from 2.8 to 5.4 seconds; title sharpens from 14px blur while moving 36px upward.",
+      "camera": "Slow 6% push-in on the planet.", "lighting": "Cold cyan rim and amber failure pinpoints.",
+      "transitionOut": "The Earth grid magnifies through its cyan longitude lines into terrain contours."
+    },
+    {
+      "id": "problem-pair", "act": "showcase", "startSec": 8, "durationSec": 9,
+      "purpose": "Show why aerial imagery may look different while preserving visual evidence.",
+      "emotionalBeat": "Curiosity becomes analytical clarity.",
+      "voiceover": "SceneNav AI begins with two aerial views of the same terrain. Different altitude. Different orientation. Different moment in time. Yet visual evidence remains.",
+      "layout": "Reference raster anchors lower-left; tilted query plane crosses from upper-right; scale/orientation rulers form leading lines between them.",
+      "elements": "Two independent procedural terrain planes, altitude/orientation labels, vector arrows, visual-clues statement.",
+      "animation": "Query plane rotates from minus 16 to minus 4 degrees while drifting down-left; reference plane resolves beneath it; labels travel along two diagonal rulers.",
+      "camera": "Parallax pan left-to-right.", "lighting": "White raster edges with a contained cyan key light.",
+      "transitionOut": "The two plane corners become a field of luminous detected points."
+    },
+    {
+      "id": "technology-matching", "act": "showcase", "startSec": 17, "durationSec": 12,
+      "purpose": "Explain feature detection, descriptor matching, and RANSAC without inventing measurements.",
+      "emotionalBeat": "Controlled computational energy.",
+      "voiceover": "ORB and SIFT locate distinctive keypoints. Candidate correspondences are tested, then RANSAC rejects outliers and retains a geometrically consistent set. This is image-space matching — not a claim of location.",
+      "layout": "Aerial planes face each other on left and right; correspondence lines traverse the center; the method labels orbit a central verification reticle.",
+      "elements": "Keypoint halos, cyan candidate lines, amber rejected paths, emerald retained paths, ORB/SIFT/RANSAC labels, methodology disclaimer.",
+      "animation": "Keypoints radiate from salient terrain intersections; candidate paths scan in left-to-right; RANSAC sends rejected paths downward in amber before emerald inliers lock in.",
+      "camera": "Subtle 3D tilt settles to a frontal scientific view.", "lighting": "Cyan laser lines against a navy vignette.",
+      "transitionOut": "The surviving line lattice converges to four corners and expands into the reference raster."
+    },
+    {
+      "id": "transformation-footprint", "act": "climax", "startSec": 29, "durationSec": 11,
+      "purpose": "Make the projective transformation and resulting image-space footprint legible.",
+      "emotionalBeat": "Geometric resolution.",
+      "voiceover": "A homography maps the query plane into the reference raster. The result is a projected footprint: four corners, an estimated region, and the geometry that connects them.",
+      "layout": "A tilted query quad starts center-right, morphs toward a large reference raster, then resolves as an illuminated polygon in the raster's upper third.",
+      "elements": "Query quadrilateral, matrix notation H, reference raster grid, projected footprint with four numbered corners, pixel-coordinate disclaimer.",
+      "animation": "Query corners travel on curved paths into the reference plane; the polygon draws clockwise; matrix rows collapse into a single H glyph then dissolve.",
+      "camera": "Macro pull-back during the final footprint reveal.", "lighting": "Emerald footprint edges with cool-white corner flares.",
+      "transitionOut": "Footprint corners scatter outward as five diagnostic instruments."
+    },
+    {
+      "id": "intelligence-reliability", "act": "showcase", "startSec": 40, "durationSec": 10,
+      "purpose": "Represent reliability assessment as multiple inspectable technical dimensions and state the limitation prominently.",
+      "emotionalBeat": "Disciplined judgment.",
+      "voiceover": "Across scale, spatial dispersion, inlier consistency, and conditioning, the system evaluates match quality. Its confidence index is an uncalibrated heuristic — not a probability of correct geographical localization.",
+      "layout": "Four radial instruments surround a central Reliability Assessment title; a full-width limitation strip is locked to the bottom safe area.",
+      "elements": "Multi-scale rings, spatial dispersion map, inlier consistency bars, conditioning matrix, central heuristic label, disclaimer strip.",
+      "animation": "The four instruments orbit in quarter turns then settle sequentially; their arcs fill with different rhythms; disclaimer draws in on a rigid baseline.",
+      "camera": "Static analytical framing after a brief opening rotation.", "lighting": "Cyan instruments, restrained emerald acceptance accents, zero red alarm language.",
+      "transitionOut": "Instrument arcs stretch horizontally and become pipeline rails."
+    },
+    {
+      "id": "pipeline", "act": "showcase", "startSec": 50, "durationSec": 8,
+      "purpose": "Assemble the actual research workflow as a motion system rather than a static flowchart.",
+      "emotionalBeat": "Momentum and traceability.",
+      "voiceover": "Input imagery. Feature detection. Matching. RANSAC. Homography. Footprint estimation. Reliability assessment. Each stage preserves evidence for review.",
+      "layout": "Seven modules travel along an elevated diagonal rail, with the active evidence pulse continuously advancing.",
+      "elements": "Input imagery, feature detection, matching, RANSAC, homography, footprint estimation, reliability assessment modules; cyan evidence pulse.",
+      "animation": "Modules rise from a lower-left vanishing point with 140ms staccato offsets; pulse transfers node-to-node, leaving a dim evidence trace.",
+      "camera": "Rail accelerates toward the viewer and breaks into logo geometry.", "lighting": "High-contrast cyan rail with white text.",
+      "transitionOut": "All modules fold into two converging diagonal vectors."
+    },
+    {
+      "id": "brand-reveal", "act": "close", "startSec": 58, "durationSec": 7,
+      "purpose": "End with a clean research-prototype identity and a clear intellectual stance.",
+      "emotionalBeat": "Calm authority.",
+      "voiceover": "SceneNav AI. A scene-aided navigation research prototype. Visual intelligence. Spatial understanding. Designed for careful investigation, not unsupported certainty.",
+      "layout": "A cyan geometric mark and SceneNav AI wordmark sit on the optical center, with prototype descriptor and two-part tagline on a lower baseline.",
+      "elements": "Geometric S mark, wordmark, descriptor, tagline, single expanding pulse, footer reading IMAGE-SPACE EVIDENCE.",
+      "animation": "The two diagonal vectors converge to form the mark; wordmark resolves from tracking 0.2em to 0.04em; the final pulse fades by 64.2 seconds for a clean hold.",
+      "camera": "Slow 3% pull-back.", "lighting": "Cyan volumetric beam, cool-white wordmark, near-black field.",
+      "transitionOut": "Hold to black after end frame."
+    }
+  ]
+}

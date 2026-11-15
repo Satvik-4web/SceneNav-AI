@@ -253,11 +253,63 @@ async def get_artifact(job_id: str, filename: str) -> FileResponse:
     except (ValueError, OSError):
         raise HTTPException(status_code=404, detail="Invalid artifact path.")
 
-    # Only serve image files and JSON
-    if artifact_path.suffix.lower() not in {".png", ".jpg", ".jpeg", ".json"}:
+    # Only serve image files, JSON, and PDF
+    if artifact_path.suffix.lower() not in {".png", ".jpg", ".jpeg", ".json", ".pdf"}:
         raise HTTPException(status_code=400, detail="Unsupported artifact type.")
 
-    return FileResponse(str(artifact_path))
+    media_type = "application/pdf" if artifact_path.suffix.lower() == ".pdf" else None
+    return FileResponse(str(artifact_path), media_type=media_type)
+
+
+# ---------------------------------------------------------------------------
+# GET /api/v1/jobs/{job_id}/report.pdf
+# ---------------------------------------------------------------------------
+
+@router.get(
+    "/api/v1/jobs/{job_id}/report.pdf",
+    tags=["Reports"],
+)
+async def get_job_report_pdf(job_id: str) -> FileResponse:
+    """Generate and return an authoritative, publication-grade research report PDF for a job."""
+    if not re.match(r"^[a-zA-Z0-9_-]+$", job_id):
+        raise HTTPException(status_code=400, detail="Invalid job ID format.")
+
+    job_dir = (settings.results_dir / job_id).resolve()
+    results_root = settings.results_dir.resolve()
+    try:
+        if not job_dir.is_relative_to(results_root) or not job_dir.is_dir():
+            raise HTTPException(status_code=404, detail=f"Job '{job_id}' not found.")
+    except (ValueError, OSError):
+        raise HTTPException(status_code=404, detail=f"Job '{job_id}' not found.")
+
+    pdf_path = job_dir / "research_report.pdf"
+    if not pdf_path.exists():
+        # Load result and generate
+        async with _JOB_STORE_LOCK:
+            result = _JOB_STORE.get(job_id)
+        if result is None:
+            json_path = job_dir / "result.json"
+            if not json_path.exists():
+                raise HTTPException(status_code=404, detail=f"Result data for job '{job_id}' not found.")
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                result = MatchResult.model_validate(data)
+            except Exception as exc:
+                raise HTTPException(status_code=500, detail=f"Failed to load job result: {exc}")
+
+        from app.services.report_generator import generate_research_report_pdf
+        try:
+            pdf_path = await run_in_threadpool(generate_research_report_pdf, result, job_dir)
+        except Exception as exc:
+            logger.exception("Failed to generate PDF report for job %s", job_id)
+            raise HTTPException(status_code=500, detail=f"Failed to generate PDF report: {exc}")
+
+    return FileResponse(
+        str(pdf_path),
+        media_type="application/pdf",
+        filename=f"scenenav_research_report_{job_id[:8]}.pdf",
+    )
 
 
 # ---------------------------------------------------------------------------

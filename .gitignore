@@ -56,3 +56,15 @@ data/queries/*
 # Logs
 *.log
 logs/
+
+# Video Render Scratch and Large Intermediates
+launch_20261115/
+launch_75/
+launch_final/
+launch_remotion/node_modules/
+launch_remotion/build/
+launch_remotion/out/
+scenenav_launch_film/node_modules/
+scenenav_launch_film/out/
+*.mp4
+

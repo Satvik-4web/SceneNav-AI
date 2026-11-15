@@ -1,11 +1,12 @@
 """
 SceneNav AI — Visualization Service
 
-Generates OpenCV-based visualization artifacts:
-  1. Side-by-side reference and query images.
-  2. All tentative feature correspondences.
-  3. Geometric inlier correspondences only.
-  4. Reference image with estimated query footprint overlaid.
+Generates OpenCV-based publication-grade visualization artifacts:
+  1. Side-by-side reference and query images (aspect ratio preserved, no black void padding).
+  2. All tentative feature correspondences (ratio-filtered).
+  3. Geometric inlier and outlier correspondences (RANSAC-verified with distinct visual styling).
+  4. Estimated query footprint polygon overlaid on reference raster (with two-tone in-raster/extrapolated partition).
+  5. 50/50 Warped query projective registration blend.
 
 All outputs are saved as PNG files in a job-specific results subdirectory.
 """
@@ -21,15 +22,22 @@ import numpy as np
 from app.services.image_loader import LoadedImage
 from app.services.feature_matcher import MatchingResult
 from app.services.geometric_verification import GeometryResult
-from app.services.region_estimator import RegionResult
+from app.services.region_estimator import RegionResult, _clip_polygon
+from app.schemas import GeographicFootprint, ProjectedFootprint
 
 logger = logging.getLogger(__name__)
 
-# Colour scheme (BGR)
-_COLOUR_TENTATIVE = (180, 180, 60)   # muted gold
-_COLOUR_INLIER    = (50, 220, 100)   # green
-_COLOUR_FOOTPRINT = (50, 120, 255)   # blue
-_COLOUR_CORNER    = (0, 0, 255)      # red dot
+# BGR Colour definitions
+_BG_DARK_SLATE    = (15, 23, 42)     # #0f172a slate-900
+_BG_DIVIDER       = (51, 65, 85)     # #334155 slate-700
+_TEXT_WHITE       = (248, 250, 252)  # #f8fafc slate-50
+_TEXT_MUTED       = (148, 163, 184)  # #94a3b8 slate-400
+_COLOUR_TENTATIVE = (180, 180, 60)   # Muted gold (tentative)
+_COLOUR_INLIER    = (50, 220, 100)   # Vibrant emerald green (inliers)
+_COLOUR_OUTLIER   = (80, 80, 220)    # Subdued coral red (outliers)
+_COLOUR_CYAN      = (212, 182, 6)    # Cyan / sky blue (in-raster footprint)
+_COLOUR_AMBER     = (11, 158, 245)   # Amber / orange (extrapolated footprint)
+_COLOUR_CORNER    = (94, 63, 244)    # Rose / magenta corner point
 
 
 def save_all_visualizations(
@@ -39,16 +47,18 @@ def save_all_visualizations(
     geo_result: Optional[GeometryResult],
     region_result: Optional[RegionResult],
     job_dir: Path,
+    proj_footprint: Optional[ProjectedFootprint] = None,
+    geo_footprint: Optional[GeographicFootprint] = None,
 ) -> dict[str, str]:
     """
-    Generate and save all visualization artifacts.
+    Generate and save all visualization artifacts with publication-grade rendering.
 
-    Returns a dict mapping artifact name → filename (relative to results/).
+    Returns a dict mapping artifact name -> filename.
     """
     job_dir.mkdir(parents=True, exist_ok=True)
     artifacts: dict[str, str] = {}
 
-    # 1. Side-by-side images
+    # 1. Side-by-side images (aspect-ratio preserved, clean layout)
     path = job_dir / "01_side_by_side.png"
     _save_side_by_side(reference.array, query.array, path)
     artifacts["side_by_side"] = str(path)
@@ -61,7 +71,7 @@ def save_all_visualizations(
             query.array, match_result.query_keypoints_list,
             match_result.good_matches,
             path,
-            title="Tentative Matches (post ratio-test)",
+            title="SceneNav AI — Tentative Feature Correspondences (Ratio-Filtered)",
             colour=_COLOUR_TENTATIVE,
         )
         artifacts["tentative_matches"] = str(path)
@@ -88,10 +98,13 @@ def save_all_visualizations(
             )
             artifacts["inlier_matches"] = str(path)
 
-    # 4. Footprint overlay on reference image
+    # 4. Footprint overlay on reference image (with two-tone boundary handling)
     if region_result and region_result.success:
         path = job_dir / "04_footprint.png"
-        _save_footprint(reference.array, region_result, path)
+        _save_footprint(
+            reference.array, region_result, path,
+            reference.georeference, proj_footprint, geo_footprint
+        )
         artifacts["footprint"] = str(path)
 
     # 5. Warped query projective registration blend
@@ -105,28 +118,57 @@ def save_all_visualizations(
 
 
 def _save_side_by_side(ref_bgr: np.ndarray, qry_bgr: np.ndarray, path: Path) -> None:
-    """Create a side-by-side image with labels."""
-    target_h = max(ref_bgr.shape[0], qry_bgr.shape[0])
+    """
+    Create a clean side-by-side comparison without black padding voids.
+    Both images are scaled to match vertical height while strictly preserving original aspect ratios.
+    """
+    h_ref, w_ref = ref_bgr.shape[:2]
+    h_qry, w_qry = qry_bgr.shape[:2]
 
-    def _pad_height(img: np.ndarray, h: int) -> np.ndarray:
-        if img.shape[0] == h:
-            return img
-        pad = np.zeros((h - img.shape[0], img.shape[1], 3), dtype=np.uint8)
-        return np.vstack([img, pad])
+    # Target display height: use the larger height, bounded to max 1200px to prevent gigantic canvases
+    target_h = max(h_ref, h_qry)
+    if target_h > 1200:
+        target_h = 1200
 
-    ref_pad = _pad_height(ref_bgr, target_h)
-    qry_pad = _pad_height(qry_bgr, target_h)
+    scale_r = target_h / h_ref
+    scale_q = target_h / h_qry
 
-    gap = np.zeros((target_h, 10, 3), dtype=np.uint8)
-    combined = np.hstack([ref_pad, gap, qry_pad])
+    target_w_ref = max(1, int(round(w_ref * scale_r)))
+    target_w_qry = max(1, int(round(w_qry * scale_q)))
 
-    # Labels
+    interp_r = cv2.INTER_AREA if scale_r < 1.0 else cv2.INTER_LINEAR
+    interp_q = cv2.INTER_AREA if scale_q < 1.0 else cv2.INTER_LINEAR
+
+    ref_res = cv2.resize(ref_bgr, (target_w_ref, target_h), interpolation=interp_r)
+    qry_res = cv2.resize(qry_bgr, (target_w_qry, target_h), interpolation=interp_q)
+
+    # Header height 46px, vertical divider 8px
+    header_h = 46
+    divider_w = 8
+    canvas_w = target_w_ref + divider_w + target_w_qry
+    canvas_h = target_h + header_h
+
+    canvas = np.full((canvas_h, canvas_w, 3), _BG_DARK_SLATE, dtype=np.uint8)
+
+    # Place images
+    canvas[header_h:canvas_h, 0:target_w_ref] = ref_res
+    canvas[header_h:canvas_h, target_w_ref + divider_w:canvas_w] = qry_res
+
+    # Divider bar
+    canvas[header_h:canvas_h, target_w_ref:target_w_ref + divider_w] = _BG_DIVIDER
+
+    # Header labels
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(combined, "Reference", (10, 28), font, 0.8, (255, 255, 255), 2)
-    qry_x = ref_pad.shape[1] + 20
-    cv2.putText(combined, "Query", (qry_x, 28), font, 0.8, (255, 255, 255), 2)
+    # Reference header
+    cv2.putText(canvas, "REFERENCE IMAGE", (14, 20), font, 0.55, _TEXT_WHITE, 1, cv2.LINE_AA)
+    cv2.putText(canvas, f"Map / Database | {w_ref}x{h_ref} px", (14, 38), font, 0.45, _TEXT_MUTED, 1, cv2.LINE_AA)
 
-    cv2.imwrite(str(path), combined)
+    # Query header
+    qry_x = target_w_ref + divider_w + 14
+    cv2.putText(canvas, "QUERY IMAGE", (qry_x, 20), font, 0.55, _TEXT_WHITE, 1, cv2.LINE_AA)
+    cv2.putText(canvas, f"Observation Scene | {w_qry}x{h_qry} px", (qry_x, 38), font, 0.45, _TEXT_MUTED, 1, cv2.LINE_AA)
+
+    cv2.imwrite(str(path), canvas)
 
 
 def _save_matches(
@@ -137,23 +179,68 @@ def _save_matches(
     matches: list,
     path: Path,
     title: str = "",
-    colour: tuple = _COLOUR_INLIER,
-    max_display: int = 100,
+    colour: tuple = _COLOUR_TENTATIVE,
+    max_display: int = 120,
 ) -> None:
-    """Draw feature correspondences using OpenCV drawMatches."""
+    """
+    Draw feature correspondences across side-by-side images without black padding.
+    Images are scaled to matching vertical heights with coordinates properly transformed.
+    """
+    h_ref, w_ref = ref_bgr.shape[:2]
+    h_qry, w_qry = qry_bgr.shape[:2]
+
+    target_h = max(h_ref, h_qry)
+    if target_h > 1200:
+        target_h = 1200
+
+    scale_q = target_h / h_qry if h_qry > 0 else 1.0
+    scale_r = target_h / h_ref if h_ref > 0 else 1.0
+
+    target_w_qry = max(1, int(round(w_qry * scale_q)))
+    target_w_ref = max(1, int(round(w_ref * scale_r)))
+
+    interp_q = cv2.INTER_AREA if scale_q < 1.0 else cv2.INTER_LINEAR
+    interp_r = cv2.INTER_AREA if scale_r < 1.0 else cv2.INTER_LINEAR
+
+    q_res = cv2.resize(qry_bgr, (target_w_qry, target_h), interpolation=interp_q)
+    r_res = cv2.resize(ref_bgr, (target_w_ref, target_h), interpolation=interp_r)
+
+    header_h = 46
+    footer_h = 28
+    canvas_w = target_w_qry + target_w_ref
+    canvas_h = target_h + header_h + footer_h
+
+    canvas = np.full((canvas_h, canvas_w, 3), _BG_DARK_SLATE, dtype=np.uint8)
+    canvas[header_h:header_h + target_h, 0:target_w_qry] = q_res
+    canvas[header_h:header_h + target_h, target_w_qry:canvas_w] = r_res
+
+    # Draw correspondence lines
     display_matches = matches[:max_display]
-    out = cv2.drawMatches(
-        qry_bgr, kp_qry,
-        ref_bgr, kp_ref,
-        display_matches, None,
-        matchColor=colour,
-        singlePointColor=(100, 100, 100),
-        flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS,
-    )
+    for m in display_matches:
+        pt_q = (
+            int(round(kp_qry[m.queryIdx].pt[0] * scale_q)),
+            int(round(kp_qry[m.queryIdx].pt[1] * scale_q)) + header_h,
+        )
+        pt_r = (
+            int(round(target_w_qry + kp_ref[m.trainIdx].pt[0] * scale_r)),
+            int(round(kp_ref[m.trainIdx].pt[1] * scale_r)) + header_h,
+        )
+        cv2.line(canvas, pt_q, pt_r, colour, 1, cv2.LINE_AA)
+        cv2.circle(canvas, pt_q, 3, colour, -1, cv2.LINE_AA)
+        cv2.circle(canvas, pt_r, 3, colour, -1, cv2.LINE_AA)
+
+    # Header banner
+    font = cv2.FONT_HERSHEY_SIMPLEX
     if title:
-        cv2.putText(out, title, (10, 28), cv2.FONT_HERSHEY_SIMPLEX,
-                    0.8, (255, 255, 255), 2)
-    cv2.imwrite(str(path), out)
+        cv2.putText(canvas, title, (14, 20), font, 0.55, _TEXT_WHITE, 1, cv2.LINE_AA)
+    subtitle = f"Tentative Matches: {len(matches)} displayed (max {max_display}) | Query ({w_qry}x{h_qry}) -> Reference ({w_ref}x{h_ref})"
+    cv2.putText(canvas, subtitle, (14, 38), font, 0.42, _TEXT_MUTED, 1, cv2.LINE_AA)
+
+    # Footer legend
+    legend_y = canvas_h - 10
+    cv2.putText(canvas, "Amber lines: tentative descriptor matches passing Lowe's ratio test (0.75)", (14, legend_y), font, 0.40, _TEXT_MUTED, 1, cv2.LINE_AA)
+
+    cv2.imwrite(str(path), canvas)
 
 
 def _save_matches_with_inlier_distinction(
@@ -165,88 +252,243 @@ def _save_matches_with_inlier_distinction(
     outliers: list,
     path: Path,
     title: str = "",
-    max_inliers: int = 120,
-    max_outliers: int = 40,
+    max_inliers: int = 150,
+    max_outliers: int = 50,
 ) -> None:
     """
-    Draw correspondences with clear visual distinction:
-    - Inliers: vibrant green (50, 220, 100)
-    - Outliers: muted red/coral (80, 80, 220)
+    Draw correspondences with distinct visual treatment for inliers (green) and outliers (coral red).
     """
-    # Create side-by-side canvas
-    target_h = max(ref_bgr.shape[0], qry_bgr.shape[0])
-    scale_q = target_h / qry_bgr.shape[0] if qry_bgr.shape[0] > 0 else 1.0
-    scale_r = target_h / ref_bgr.shape[0] if ref_bgr.shape[0] > 0 else 1.0
+    h_ref, w_ref = ref_bgr.shape[:2]
+    h_qry, w_qry = qry_bgr.shape[:2]
 
-    qw = int(qry_bgr.shape[1] * scale_q)
-    rw = int(ref_bgr.shape[1] * scale_r)
+    target_h = max(h_ref, h_qry)
+    if target_h > 1200:
+        target_h = 1200
 
-    q_res = cv2.resize(qry_bgr, (qw, target_h), interpolation=cv2.INTER_AREA) if scale_q != 1.0 else qry_bgr
-    r_res = cv2.resize(ref_bgr, (rw, target_h), interpolation=cv2.INTER_AREA) if scale_r != 1.0 else ref_bgr
+    scale_q = target_h / h_qry if h_qry > 0 else 1.0
+    scale_r = target_h / h_ref if h_ref > 0 else 1.0
 
-    combined = np.hstack([q_res, r_res])
+    target_w_qry = max(1, int(round(w_qry * scale_q)))
+    target_w_ref = max(1, int(round(w_ref * scale_r)))
 
-    # Draw outliers first (subdued red)
+    interp_q = cv2.INTER_AREA if scale_q < 1.0 else cv2.INTER_LINEAR
+    interp_r = cv2.INTER_AREA if scale_r < 1.0 else cv2.INTER_LINEAR
+
+    q_res = cv2.resize(qry_bgr, (target_w_qry, target_h), interpolation=interp_q)
+    r_res = cv2.resize(ref_bgr, (target_w_ref, target_h), interpolation=interp_r)
+
+    header_h = 46
+    footer_h = 28
+    canvas_w = target_w_qry + target_w_ref
+    canvas_h = target_h + header_h + footer_h
+
+    canvas = np.full((canvas_h, canvas_w, 3), _BG_DARK_SLATE, dtype=np.uint8)
+    canvas[header_h:header_h + target_h, 0:target_w_qry] = q_res
+    canvas[header_h:header_h + target_h, target_w_qry:canvas_w] = r_res
+
+    # 1. Draw outliers first (subdued red)
     for m in outliers[:max_outliers]:
-        pt_q = (int(kp_qry[m.queryIdx].pt[0] * scale_q), int(kp_qry[m.queryIdx].pt[1] * scale_q))
-        pt_r = (int(qw + kp_ref[m.trainIdx].pt[0] * scale_r), int(kp_ref[m.trainIdx].pt[1] * scale_r))
-        cv2.line(combined, pt_q, pt_r, (80, 80, 220), 1, cv2.LINE_AA)
-        cv2.circle(combined, pt_q, 3, (80, 80, 220), -1, cv2.LINE_AA)
-        cv2.circle(combined, pt_r, 3, (80, 80, 220), -1, cv2.LINE_AA)
+        pt_q = (
+            int(round(kp_qry[m.queryIdx].pt[0] * scale_q)),
+            int(round(kp_qry[m.queryIdx].pt[1] * scale_q)) + header_h,
+        )
+        pt_r = (
+            int(round(target_w_qry + kp_ref[m.trainIdx].pt[0] * scale_r)),
+            int(round(kp_ref[m.trainIdx].pt[1] * scale_r)) + header_h,
+        )
+        cv2.line(canvas, pt_q, pt_r, _COLOUR_OUTLIER, 1, cv2.LINE_AA)
+        cv2.circle(canvas, pt_q, 3, _COLOUR_OUTLIER, -1, cv2.LINE_AA)
+        cv2.circle(canvas, pt_r, 3, _COLOUR_OUTLIER, -1, cv2.LINE_AA)
 
-    # Draw inliers on top (bright green)
+    # 2. Draw inliers on top (vibrant green)
     for m in inliers[:max_inliers]:
-        pt_q = (int(kp_qry[m.queryIdx].pt[0] * scale_q), int(kp_qry[m.queryIdx].pt[1] * scale_q))
-        pt_r = (int(qw + kp_ref[m.trainIdx].pt[0] * scale_r), int(kp_ref[m.trainIdx].pt[1] * scale_r))
-        cv2.line(combined, pt_q, pt_r, (50, 220, 100), 2, cv2.LINE_AA)
-        cv2.circle(combined, pt_q, 4, (212, 182, 6), -1, cv2.LINE_AA)
-        cv2.circle(combined, pt_r, 4, (50, 220, 100), -1, cv2.LINE_AA)
+        pt_q = (
+            int(round(kp_qry[m.queryIdx].pt[0] * scale_q)),
+            int(round(kp_qry[m.queryIdx].pt[1] * scale_q)) + header_h,
+        )
+        pt_r = (
+            int(round(target_w_qry + kp_ref[m.trainIdx].pt[0] * scale_r)),
+            int(round(kp_ref[m.trainIdx].pt[1] * scale_r)) + header_h,
+        )
+        cv2.line(canvas, pt_q, pt_r, _COLOUR_INLIER, 2, cv2.LINE_AA)
+        cv2.circle(canvas, pt_q, 4, _COLOUR_CYAN, -1, cv2.LINE_AA)
+        cv2.circle(canvas, pt_r, 4, _COLOUR_INLIER, -1, cv2.LINE_AA)
 
-    # Header banner with title
-    cv2.rectangle(combined, (0, 0), (combined.shape[1], 40), (15, 23, 42), -1)
-    if title:
-        cv2.putText(combined, title, (14, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (241, 245, 249), 2)
+    # Header banner
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(canvas, "SceneNav AI — Geometric Verification (RANSAC Inliers & Outliers)", (14, 20), font, 0.55, _TEXT_WHITE, 1, cv2.LINE_AA)
+    total = len(inliers) + len(outliers)
+    ratio_str = f"{len(inliers)/total:.1%}" if total > 0 else "0.0%"
+    cv2.putText(canvas, f"RANSAC Inliers: {len(inliers)}/{total} ({ratio_str}) | Outliers: {len(outliers)} | Verification confirms 2D planar consistency", (14, 38), font, 0.42, _TEXT_MUTED, 1, cv2.LINE_AA)
 
-    cv2.imwrite(str(path), combined)
+    # Footer legend
+    legend_y = canvas_h - 10
+    cv2.putText(canvas, "Green: RANSAC Inlier Correspondence | Red: Rejected Outlier | Notice: Inliers establish 2D geometric agreement, not absolute GNSS ground truth.", (14, legend_y), font, 0.38, _TEXT_MUTED, 1, cv2.LINE_AA)
+
+    cv2.imwrite(str(path), canvas)
 
 
 def _save_footprint(
     ref_bgr: np.ndarray,
     region: RegionResult,
     path: Path,
+    georef=None,
+    proj_footprint: Optional[ProjectedFootprint] = None,
+    geo_footprint: Optional[GeographicFootprint] = None,
 ) -> None:
-    """Draw the estimated query footprint polygon with semi-transparent fill and corner labels."""
-    out = ref_bgr.copy()
-    overlay = out.copy()
-    corners = np.int32([
+    """
+    Draw estimated query footprint polygon on reference raster with two-tone partition:
+    - In-raster polygon (observed): semi-transparent cyan
+    - Extrapolated polygon (beyond bounds): semi-transparent amber
+    - Corner markers with coordinates, centroid crosshair, and HUD banner.
+    """
+    h_ref, w_ref = ref_bgr.shape[:2]
+    corners_raw = np.array([
         region.top_left,
         region.top_right,
         region.bottom_right,
         region.bottom_left,
-    ])
+    ], dtype=np.float64)
 
-    # Semi-transparent cyan fill
-    cv2.fillPoly(overlay, [corners], (212, 182, 6))
-    cv2.addWeighted(overlay, 0.22, out, 0.78, 0, out)
+    min_x = np.min(corners_raw[:, 0])
+    max_x = np.max(corners_raw[:, 0])
+    min_y = np.min(corners_raw[:, 1])
+    max_y = np.max(corners_raw[:, 1])
 
-    # Outer polygon outline
-    cv2.polylines(out, [corners.reshape(-1, 1, 2)], isClosed=True,
-                  color=(212, 182, 6), thickness=3, lineType=cv2.LINE_AA)
+    is_extrapolated = (min_x < 0) or (max_x > w_ref) or (min_y < 0) or (max_y > h_ref)
 
-    # Corner dots and text labels
+    # Compute canvas margins to fit complete footprint without clipping
+    margin_l = max(50, int(-min_x) + 40) if min_x < 0 else 50
+    margin_r = max(50, int(max_x - w_ref) + 40) if max_x > w_ref else 50
+    margin_t = max(60, int(-min_y) + 50) if min_y < 0 else 60
+    margin_b = max(50, int(max_y - h_ref) + 40) if max_y > h_ref else 50
+
+    canvas_w = w_ref + margin_l + margin_r
+    canvas_h = h_ref + margin_t + margin_b
+
+    canvas = np.full((canvas_h, canvas_w, 3), _BG_DARK_SLATE, dtype=np.uint8)
+
+    # Insert reference raster at offset
+    canvas[margin_t:margin_t + h_ref, margin_l:margin_l + w_ref] = ref_bgr
+
+    # Draw raster boundary dashed/solid frame
+    cv2.rectangle(
+        canvas,
+        (margin_l, margin_t),
+        (margin_l + w_ref, margin_t + h_ref),
+        _BG_DIVIDER,
+        2,
+        cv2.LINE_AA,
+    )
+
+    if is_extrapolated:
+        # Draw dashed border on expanded sides
+        bound_x = margin_l + w_ref
+        for y_step in range(margin_t - 10, margin_t + h_ref + 10, 16):
+            cv2.line(canvas, (bound_x, y_step), (bound_x, min(y_step + 8, margin_t + h_ref + 10)), _COLOUR_AMBER, 2, cv2.LINE_AA)
+
+    # Shift corners to canvas coordinates
+    offset = np.array([margin_l, margin_t], dtype=np.float64)
+    corners_canvas = corners_raw + offset
+    corners_int = np.int32(np.round(corners_canvas))
+
+    overlay = canvas.copy()
+
+    # Two-tone partition:
+    # 1. Fill full polygon with Amber (extrapolated color if outside)
+    if is_extrapolated:
+        cv2.fillPoly(overlay, [corners_int], _COLOUR_AMBER)
+
+    # 2. Clip against reference raster boundary and fill in-raster region with Cyan
+    ref_poly = np.float32([[0, 0], [w_ref, 0], [w_ref, h_ref], [0, h_ref]])
+    poly_in_raw = _clip_polygon(corners_raw.astype(np.float32), ref_poly)
+
+    if poly_in_raw and len(poly_in_raw) >= 3:
+        poly_in_canvas = np.int32(np.round(np.array(poly_in_raw) + offset))
+        cv2.fillPoly(overlay, [poly_in_canvas], _COLOUR_CYAN)
+    else:
+        cv2.fillPoly(overlay, [corners_int], _COLOUR_CYAN)
+
+    # Alpha blend overlay (24% polygon fill)
+    cv2.addWeighted(overlay, 0.24, canvas, 0.76, 0, canvas)
+
+    # Draw polygon outlines
+    if is_extrapolated:
+        cv2.polylines(canvas, [corners_int], isClosed=True, color=_COLOUR_AMBER, thickness=2, lineType=cv2.LINE_AA)
+
+    if poly_in_raw and len(poly_in_raw) >= 3:
+        poly_in_canvas = np.int32(np.round(np.array(poly_in_raw) + offset))
+        cv2.polylines(canvas, [poly_in_canvas], isClosed=True, color=_COLOUR_CYAN, thickness=3, lineType=cv2.LINE_AA)
+    else:
+        cv2.polylines(canvas, [corners_int], isClosed=True, color=_COLOUR_CYAN, thickness=3, lineType=cv2.LINE_AA)
+
+    # Corner nodes and labels
     labels = ["NW", "NE", "SE", "SW"]
-    for i, pt in enumerate(corners):
-        cv2.circle(out, tuple(pt), 7, (94, 63, 244), -1, cv2.LINE_AA)
-        cv2.circle(out, tuple(pt), 10, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(out, f"{labels[i]} ({pt[0]},{pt[1]})", (pt[0] + 12, pt[1] - 8),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 2)
+    font = cv2.FONT_HERSHEY_SIMPLEX
 
-    # Header banner
-    cv2.rectangle(out, (0, 0), (out.shape[1], 42), (15, 23, 42), -1)
-    cv2.putText(out, "SceneNav AI — Estimated Query Footprint on Reference Raster", (12, 28),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (241, 245, 249), 2)
+    geo_corners = [
+        getattr(geo_footprint, k, None)
+        for k in ['top_left', 'top_right', 'bottom_right', 'bottom_left']
+    ] if geo_footprint else [None] * 4
 
-    cv2.imwrite(str(path), out)
+    for i, pt in enumerate(corners_int):
+        cv2.circle(canvas, tuple(pt), 7, _COLOUR_CORNER, -1, cv2.LINE_AA)
+        cv2.circle(canvas, tuple(pt), 10, (255, 255, 255), 2, cv2.LINE_AA)
+
+        # Label text: pixel or Lat/Lon
+        orig_pt = corners_raw[i]
+        if geo_corners[i]:
+            lbl = f"{labels[i]} ({geo_corners[i].lat:.5f}N, {geo_corners[i].lon:.5f}E)"
+        else:
+            lbl = f"{labels[i]} ({orig_pt[0]:.0f},{orig_pt[1]:.0f} px)"
+
+        # Offset label to avoid overlapping edge
+        tx = pt[0] + 12 if i in [0, 3] else pt[0] - 140
+        ty = pt[1] - 10 if i in [0, 1] else pt[1] + 20
+        # Keep inside canvas
+        tx = max(10, min(canvas_w - 200, tx))
+        ty = max(20, min(canvas_h - 10, ty))
+
+        # Label badge background
+        (w_t, h_t), _ = cv2.getTextSize(lbl, font, 0.42, 1)
+        cv2.rectangle(canvas, (tx - 4, ty - h_t - 4), (tx + w_t + 4, ty + 4), _BG_DARK_SLATE, -1)
+        cv2.rectangle(canvas, (tx - 4, ty - h_t - 4), (tx + w_t + 4, ty + 4), _BG_DIVIDER, 1)
+        cv2.putText(canvas, lbl, (tx, ty), font, 0.42, _TEXT_WHITE, 1, cv2.LINE_AA)
+
+    # Estimated Centroid crosshair
+    center_raw = np.mean(corners_raw, axis=0)
+    center_canvas = (int(round(center_raw[0] + margin_l)), int(round(center_raw[1] + margin_t)))
+    cv2.drawMarker(canvas, center_canvas, _COLOUR_INLIER, cv2.MARKER_CROSS, 24, 2, cv2.LINE_AA)
+    cv2.circle(canvas, center_canvas, 10, _COLOUR_INLIER, 2, cv2.LINE_AA)
+
+    # Centroid label
+    if geo_footprint:
+        c_lbl = f"Center: {geo_footprint.center.lat:.5f}N, {geo_footprint.center.lon:.5f}E"
+    else:
+        c_lbl = f"Center: ({center_raw[0]:.1f}, {center_raw[1]:.1f} px)"
+    cv2.putText(canvas, c_lbl, (center_canvas[0] + 14, center_canvas[1] + 5), font, 0.42, _COLOUR_INLIER, 1, cv2.LINE_AA)
+
+    # Header HUD banner
+    cv2.rectangle(canvas, (0, 0), (canvas_w, 48), _BG_DARK_SLATE, -1)
+    cv2.line(canvas, (0, 48), (canvas_w, 48), _BG_DIVIDER, 1)
+    cv2.putText(canvas, "SceneNav AI — Estimated Query Footprint on Reference Raster", (14, 20), font, 0.55, _TEXT_WHITE, 1, cv2.LINE_AA)
+
+    if geo_footprint and georef:
+        in_ha = (geo_footprint.in_raster_area_m2 or 0) / 10000.0
+        out_ha = (geo_footprint.extrapolated_area_m2 or 0) / 10000.0
+        pct = geo_footprint.overlap_percentage or 100.0
+        hud_sub = f"Raster: {w_ref}x{h_ref} px | CRS: {georef.crs or 'EPSG:4326'} | In-Raster: {in_ha:.2f} ha ({pct:.1f}%) | Extrapolated: {out_ha:.2f} ha"
+    else:
+        hud_sub = f"Raster: {w_ref}x{h_ref} px | Unreferenced Raster (Image Pixel Space Only; No GPS fabricated)"
+    cv2.putText(canvas, hud_sub, (14, 38), font, 0.42, _TEXT_MUTED, 1, cv2.LINE_AA)
+
+    # Footer legend
+    cv2.rectangle(canvas, (0, canvas_h - 26), (canvas_w, canvas_h), _BG_DARK_SLATE, -1)
+    cv2.line(canvas, (0, canvas_h - 26), (canvas_w, canvas_h - 26), _BG_DIVIDER, 1)
+    legend_txt = "Cyan = Observed In-Raster Footprint | Amber = Extrapolated Area | Purple/White = Corner Nodes | Green = Estimated Centroid"
+    cv2.putText(canvas, legend_txt, (14, canvas_h - 9), font, 0.38, _TEXT_MUTED, 1, cv2.LINE_AA)
+
+    cv2.imwrite(str(path), canvas)
 
 
 def _save_warped_blend(
@@ -265,9 +507,16 @@ def _save_warped_blend(
     overlap = cv2.addWeighted(ref_bgr, 0.5, warped_qry, 0.5, 0)
     blend[mask > 0] = overlap[mask > 0]
 
-    # Header banner
-    cv2.rectangle(blend, (0, 0), (w_ref, 42), (15, 23, 42), -1)
-    cv2.putText(blend, "SceneNav AI — 50/50 Warped Multi-Temporal Registration Blend", (12, 28),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (241, 245, 249), 2)
+    header_h = 46
+    canvas_w = w_ref
+    canvas_h = h_ref + header_h
 
-    cv2.imwrite(str(path), blend)
+    canvas = np.full((canvas_h, canvas_w, 3), _BG_DARK_SLATE, dtype=np.uint8)
+    canvas[header_h:canvas_h, 0:canvas_w] = blend
+
+    # Header banner
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(canvas, "SceneNav AI — 50/50 Warped Multi-Temporal Registration Blend", (14, 20), font, 0.55, _TEXT_WHITE, 1, cv2.LINE_AA)
+    cv2.putText(canvas, f"Query perspective-warped via H into reference frame ({w_ref}x{h_ref} px)", (14, 38), font, 0.42, _TEXT_MUTED, 1, cv2.LINE_AA)
+
+    cv2.imwrite(str(path), canvas)

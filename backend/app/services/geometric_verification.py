@@ -188,11 +188,14 @@ def _validate_homography(
     if not np.all(np.isfinite(H)):
         return "Homography contains non-finite values (NaN or Inf)."
 
-    # Normalise so H[2,2] = 1
-    if abs(H[2, 2]) < 1e-10:
-        return "Homography is degenerate: H[2,2] ≈ 0."
-
-    H_norm = H / H[2, 2]
+    # Normalise H scale (prefer H[2,2]=1, fallback to Frobenius norm if H[2,2]≈0)
+    if abs(H[2, 2]) > 1e-10:
+        H_norm = H / H[2, 2]
+    else:
+        fnorm = float(np.linalg.norm(H))
+        if fnorm < 1e-12:
+            return "Homography matrix is degenerate (near zero)."
+        H_norm = H / fnorm
 
     # Check full 3x3 determinant non-singularity
     det3 = np.linalg.det(H_norm)
@@ -266,6 +269,63 @@ def _validate_homography(
             f"Homography implies an implausible scale change ({scale:.1f}×). "
             "The estimated transformation is likely incorrect."
         )
+
+    # Check angular distortion of projected polygon
+    if len(proj_2d) == 4:
+        angles: list[float] = []
+        for i in range(4):
+            p_prev = proj_2d[(i - 1) % 4]
+            p_curr = proj_2d[i]
+            p_next = proj_2d[(i + 1) % 4]
+            v1 = p_prev - p_curr
+            v2 = p_next - p_curr
+            n1 = float(np.linalg.norm(v1))
+            n2 = float(np.linalg.norm(v2))
+            if n1 < 1e-6 or n2 < 1e-6:
+                angles.append(0.0)
+                continue
+            cos_a = float(np.dot(v1, v2) / (n1 * n2))
+            cos_a = max(-1.0, min(1.0, cos_a))
+            angles.append(float(np.degrees(np.arccos(cos_a))))
+
+        if angles:
+            min_ang = min(angles)
+            max_ang = max(angles)
+            if min_ang < 15.0 or max_ang > 165.0:
+                return (
+                    f"Homography produces extreme angular distortion "
+                    f"(interior angles [{min_ang:.1f}°, {max_ang:.1f}°] outside [15°, 165°])."
+                )
+
+    # Check collinearity and extreme clustering of inliers
+    if query_pts is not None and len(query_pts) >= 4:
+        # Collinearity check via 2D principal component ratio
+        centered = query_pts - np.mean(query_pts, axis=0)
+        _, s_pts, _ = np.linalg.svd(centered)
+        if len(s_pts) >= 2:
+            s_ratio = float(s_pts[1] / max(s_pts[0], 1e-6))
+            if s_pts[1] < 0.5 or s_ratio < 1e-4:
+                return (
+                    "Geometric inliers are collinear (points lie on a 1-D line); "
+                    "homography is unconstrained."
+                )
+
+        # Spatial cluster check: convex hull must not be degenerate
+        if len(query_pts) >= 3:
+            hull = cv2.convexHull(query_pts.astype(np.float32))
+            hull_area = float(cv2.contourArea(hull))
+            if hull_area < 50.0:
+                return (
+                    f"Geometric inliers are clustered in an excessively small region "
+                    f"({hull_area:.1f} px² < 50 px²); scene-level homography cannot be established."
+                )
+
+    # Homography singular value conditioning
+    _, s_h, _ = np.linalg.svd(H)
+    if len(s_h) == 3 and s_h[2] > 0:
+        cond_raw = float(s_h[0] / s_h[2])
+        if cond_raw > 1e8:
+            return f"Homography is ill-conditioned (condition number {cond_raw:.1e} exceeds 1e8)."
 
     return None  # Valid
 

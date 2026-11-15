@@ -81,7 +81,7 @@ function Lightbox({ url, title, onClose }) {
           justifyContent: 'space-between',
           alignItems: 'center',
           width: '100%',
-          background: 'rgba(15, 23, 42, 0.95)',
+          background: 'rgba(10, 10, 12, 0.95)',
           padding: '10px 18px',
           borderRadius: 8,
           border: '1px solid var(--border)',
@@ -141,7 +141,7 @@ function Lightbox({ url, title, onClose }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           alignSelf: 'center',
-          background: 'rgba(15, 23, 42, 0.9)',
+          background: 'rgba(10, 10, 12, 0.95)',
           padding: '6px 16px',
           borderRadius: 20,
           border: '1px solid var(--border)',
@@ -149,7 +149,7 @@ function Lightbox({ url, title, onClose }) {
           color: 'var(--text-muted)',
         }}
       >
-        🖱️ Mouse Wheel to Zoom • Click & Drag to Pan • Press Esc to Close
+        Mouse Wheel to Zoom • Click & Drag to Pan • Press Esc to Close
       </div>
     </div>
   );
@@ -158,37 +158,37 @@ function Lightbox({ url, title, onClose }) {
 const ARTIFACT_TABS = [
   {
     id: '06_executive_research_overview.png',
-    label: '📑 Executive 16:9 Overview',
+    label: 'Executive 16:9 Overview',
     desc: 'Comprehensive summary layout featuring input images, footprint overlay, metrics scorecard, and integrity disclosures.',
   },
   {
     id: '02_georeferenced_footprint_overlay.png',
-    label: '🗺️ Cadastral Footprint (94.8% / 5.2% Split)',
+    label: 'Cadastral Footprint (94.8% / 5.2% Split)',
     desc: 'Authoritative two-tone georeferenced footprint overlay showing verified in-raster extent (solid cyan, 94.79%) and eastern extrapolated extent beyond E=688,100m (amber dashed, 5.21%).',
   },
   {
     id: '01_feature_correspondences_sift.png',
-    label: '🔗 SIFT Correspondences (138 Inliers)',
+    label: 'SIFT Correspondences (138 Inliers)',
     desc: 'Difference-of-Gaussians scale-space pyramid matching showing 138 verified inliers (79.8% inlier ratio).',
   },
   {
     id: '01_feature_correspondences_orb.png',
-    label: '⚡ ORB Correspondences (79 Inliers)',
+    label: 'ORB Correspondences (79 Inliers)',
     desc: 'High-speed oriented FAST + steered BRIEF binary descriptor matching showing 79 verified inliers (83.2% inlier ratio).',
   },
   {
     id: '03_warped_query_registration.png',
-    label: '📐 Warped Projective Registration',
+    label: 'Warped Projective Registration',
     desc: '4-panel alignment verification: original query, reference orthophoto, warped query plane, and 50/50 blended seam overlay.',
   },
   {
     id: '04_orb_vs_sift_comparison.png',
-    label: '📊 ORB vs. SIFT Benchmark Scorecard',
+    label: 'ORB vs. SIFT Benchmark Scorecard',
     desc: 'Complete quantitative evaluation matrix comparing detector density, inlier ratios, residuals, runtime, and 0.42m repeatability delta.',
   },
   {
     id: '05_temporal_urban_transformation.png',
-    label: '⏳ Temporal Transformation (2012 vs 2024)',
+    label: 'Temporal Transformation (2012 vs 2024)',
     desc: 'Heckenstaller-Tunnel urban transformation analysis documenting why the 2024 reference image was safely rejected.',
   },
 ];
@@ -200,6 +200,7 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
   const [activeArtifact, setActiveArtifact] = useState(ARTIFACT_TABS[0].id);
   const [activeDataTab, setActiveDataTab] = useState('coordinates');
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [blendOpacity, setBlendOpacity] = useState(50);
 
   useEffect(() => {
     let mounted = true;
@@ -236,17 +237,17 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Top Banner Card */}
-      <div className="panel" style={{ background: 'linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.8))', border: '1px solid rgba(6,182,212,0.3)' }}>
+      <div className="panel" style={{ background: 'linear-gradient(180deg, #131318 0%, #0a0a0e 100%)', border: '1px solid rgba(255, 255, 255, 0.09)', boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 32px rgba(0, 0, 0, 0.6)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
           <div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
               <span className="badge badge-success" style={{ fontSize: 11, padding: '4px 10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                🌐 LOCALIZED (WGS-84)
+                LOCALIZED (WGS-84)
               </span>
               <span className="badge badge-info mono" style={{ fontSize: 11 }}>
                 EPSG:25832 (ETRS89 / UTM zone 32N)
               </span>
-              <span className="badge mono" style={{ fontSize: 11, background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}>
+              <span className="badge mono" style={{ fontSize: 11, background: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                 AUDITED OCT 2026
               </span>
             </div>
@@ -260,11 +261,11 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
 
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button className="btn-secondary small" onClick={handleDownloadRecord} title="Download Machine-Readable JSON Record">
-              💾 Export experiment_record.json
+              Export experiment_record.json
             </button>
             {onSwitchToPipeline && (
               <button className="btn-primary small" onClick={onSwitchToPipeline}>
-                ⚡ Open in Live Pipeline
+                Open in Live Pipeline
               </button>
             )}
           </div>
@@ -272,49 +273,49 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
 
         {/* High-Level Metric Cards Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginTop: 16 }}>
-          <div className="metric-card" style={{ borderLeft: '3px solid var(--accent-cyan)' }}>
+          <div className="metric-card" style={{ borderLeft: '2px solid var(--border-light)' }}>
             <div className="metric-label">Audited UTM Centroid</div>
-            <div className="metric-value mono" style={{ fontSize: 13, color: 'var(--accent-cyan)' }}>
+            <div className="metric-value mono" style={{ fontSize: 13, color: 'var(--text-primary)' }}>
               E=687,789.1 m<br />N=5,331,662.8 m
             </div>
           </div>
-          <div className="metric-card" style={{ borderLeft: '3px solid var(--accent-green)' }}>
+          <div className="metric-card" style={{ borderLeft: '2px solid var(--border-light)' }}>
             <div className="metric-label">Audited WGS-84 Centroid</div>
-            <div className="metric-value mono" style={{ fontSize: 13, color: 'var(--accent-green)' }}>
+            <div className="metric-value mono" style={{ fontSize: 13, color: 'var(--text-primary)' }}>
               48.110518° N<br />11.522913° E
             </div>
           </div>
-          <div className="metric-card" style={{ borderLeft: '3px solid #f59e0b' }}>
+          <div className="metric-card" style={{ borderLeft: '2px solid var(--border-light)' }}>
             <div className="metric-label">Inter-Algorithm Repeatability</div>
-            <div className="metric-value mono" style={{ fontSize: 15, color: '#f59e0b' }}>
+            <div className="metric-value mono" style={{ fontSize: 15, color: 'var(--text-primary)' }}>
               0.42 m (42.0 cm)
             </div>
             <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>ORB vs. SIFT Delta</div>
           </div>
-          <div className="metric-card" style={{ borderLeft: '3px solid #8b5cf6' }}>
+          <div className="metric-card" style={{ borderLeft: '2px solid var(--border-light)' }}>
             <div className="metric-label">Ground Footprint Area</div>
-            <div className="metric-value mono" style={{ fontSize: 15, color: '#8b5cf6' }}>
+            <div className="metric-value mono" style={{ fontSize: 15, color: 'var(--text-primary)' }}>
               339,161 m² / 338,934 m²
             </div>
             <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>SIFT / ORB (Δ = 227 m² · 0.07%)</div>
           </div>
-          <div className="metric-card" style={{ borderLeft: '3px solid #06b6d4', background: 'rgba(6,182,212,0.06)' }}>
+          <div className="metric-card" style={{ borderLeft: '2px solid var(--border-light)' }}>
             <div className="metric-label">Raster Boundary Overlap</div>
             <div className="metric-value mono" style={{ fontSize: 14 }}>
-              <span style={{ color: '#06b6d4', fontWeight: 700 }}>94.8%</span> / <span style={{ color: '#f59e0b', fontWeight: 700 }}>5.2%</span>
+              <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>94.8%</span> / <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>5.2%</span>
             </div>
             <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>321,487 m² verified · 17,674 m² extrapolated</div>
           </div>
-          <div className="metric-card" style={{ borderLeft: '3px solid var(--accent-green)' }}>
+          <div className="metric-card" style={{ borderLeft: '2px solid var(--border-light)' }}>
             <div className="metric-label">Inlier Support (2012 DOP)</div>
-            <div className="metric-value mono" style={{ fontSize: 14 }}>
+            <div className="metric-value mono" style={{ fontSize: 14, color: 'var(--text-primary)' }}>
               SIFT: 138 / ORB: 79
             </div>
-            <div style={{ fontSize: 10, color: 'var(--accent-green)' }}>79.8% / 83.2% ratio</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>79.8% / 83.2% ratio</div>
           </div>
-          <div className="metric-card" style={{ borderLeft: '3px solid #ef4444' }}>
+          <div className="metric-card" style={{ borderLeft: '2px solid var(--accent-red)' }}>
             <div className="metric-label">2024 Current DOP</div>
-            <div className="metric-value mono" style={{ fontSize: 14, color: '#ef4444' }}>
+            <div className="metric-value mono" style={{ fontSize: 14, color: 'var(--accent-red)' }}>
               REJECTED (5 & 6 inliers)
             </div>
             <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Tunnel transformation</div>
@@ -342,9 +343,9 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
               style={{
                 padding: '6px 12px',
                 borderRadius: 6,
-                border: activeArtifact === tab.id ? '1px solid var(--accent-cyan)' : '1px solid var(--border)',
-                background: activeArtifact === tab.id ? 'rgba(6, 182, 212, 0.15)' : 'var(--bg-secondary)',
-                color: activeArtifact === tab.id ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                border: activeArtifact === tab.id ? '1px solid var(--border-light)' : '1px solid var(--border)',
+                background: activeArtifact === tab.id ? 'var(--bg-elevated)' : 'var(--bg-secondary)',
+                color: activeArtifact === tab.id ? 'var(--text-primary)' : 'var(--text-muted)',
                 fontWeight: activeArtifact === tab.id ? 600 : 400,
                 fontSize: 12,
                 cursor: 'pointer',
@@ -365,19 +366,58 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
             onClick={() => setLightboxOpen(true)}
             style={{ fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}
           >
-            🔍 Interactive Zoom & Pan
+            Interactive Zoom & Pan
           </button>
         </div>
 
+        {/* Interactive Cross-Fade Opacity Blend Slider for Temporal Transformation */}
+        {activeArtifact === '05_temporal_urban_transformation.png' && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 10,
+              padding: '8px 14px',
+              background: 'var(--bg-secondary)',
+              borderRadius: 'var(--radius)',
+              border: '1px solid var(--border)',
+              flexWrap: 'wrap',
+              gap: 10,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)' }}>
+                Multi-Temporal Opacity Blend:
+              </span>
+              <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>2012 DOP Base (0%)</span>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={blendOpacity}
+                onChange={(e) => setBlendOpacity(parseInt(e.target.value, 10))}
+                style={{ width: 140, accentColor: '#ffffff' }}
+              />
+              <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>2024 Transformed State ({blendOpacity}%)</span>
+            </div>
+            <span className="mono muted small" style={{ fontSize: 10.5 }}>
+              Heckenstaller-Tunnel Construction Seam
+            </span>
+          </div>
+        )}
+
         {/* Image Preview Canvas */}
         <div
+          className="hud-viewfinder"
           onClick={() => setLightboxOpen(true)}
           style={{
             position: 'relative',
-            background: '#0b0f17',
+            background: '#000000',
             borderRadius: 8,
             overflow: 'hidden',
-            border: '1px solid var(--border)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.8)',
             cursor: 'zoom-in',
             display: 'flex',
             alignItems: 'center',
@@ -385,6 +425,12 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
             minHeight: 480,
           }}
         >
+          {/* Tactical Viewfinder Corners */}
+          <div className="hud-corner hud-tl" />
+          <div className="hud-corner hud-tr" />
+          <div className="hud-corner hud-bl" />
+          <div className="hud-corner hud-br" />
+
           <img
             src={artifactImageUrl}
             alt={activeTabMeta.label}
@@ -395,7 +441,7 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
               position: 'absolute',
               bottom: 12,
               right: 12,
-              background: 'rgba(15, 23, 42, 0.85)',
+              background: 'rgba(10, 10, 12, 0.95)',
               padding: '4px 10px',
               borderRadius: 4,
               fontSize: 11,
@@ -404,7 +450,7 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
               pointerEvents: 'none',
             }}
           >
-            🔍 Click to open interactive pan/zoom lightbox
+            Click to open interactive pan/zoom lightbox
           </div>
         </div>
       </div>
@@ -422,11 +468,11 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
       <div className="panel" style={{ padding: 16 }}>
         <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--border)', paddingBottom: 8, marginBottom: 16, overflowX: 'auto' }}>
           {[
-            { id: 'coordinates', label: '📍 Audited Geodetic Coordinates' },
-            { id: 'algorithm', label: '📊 ORB vs. SIFT Comparison' },
-            { id: 'temporal', label: '⏳ Temporal Urban Transformation' },
-            { id: 'camera', label: '✈️ Camera Station Telemetry' },
-            { id: 'disclosures', label: '🛡️ Scientific Integrity Disclosures' },
+            { id: 'coordinates', label: 'Audited Geodetic Coordinates' },
+            { id: 'algorithm', label: 'ORB vs. SIFT Comparison' },
+            { id: 'temporal', label: 'Temporal Urban Transformation' },
+            { id: 'camera', label: 'Camera Station Telemetry' },
+            { id: 'disclosures', label: 'Scientific Integrity Disclosures' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -437,8 +483,8 @@ export default function MunichResearchDemo({ onSwitchToPipeline }) {
                 padding: '6px 14px',
                 fontSize: 13,
                 fontWeight: activeDataTab === tab.id ? 600 : 400,
-                color: activeDataTab === tab.id ? 'var(--accent-cyan)' : 'var(--text-secondary)',
-                borderBottom: activeDataTab === tab.id ? '2px solid var(--accent-cyan)' : '2px solid transparent',
+                color: activeDataTab === tab.id ? 'var(--text-primary)' : 'var(--text-muted)',
+                borderBottom: activeDataTab === tab.id ? '2px solid var(--text-primary)' : '2px solid transparent',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
               }}

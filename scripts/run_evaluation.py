@@ -63,6 +63,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--ratio-threshold", type=float, default=0.75)
     p.add_argument("--ransac-reproj-threshold", type=float, default=4.0)
     p.add_argument("--min-inliers", type=int, default=10)
+    p.add_argument("--multi-scale", action="store_true", default=False, help="Enable multi-scale pyramid matching.")
     p.add_argument("--max-pairs", type=int, default=None, help="Cap number of pairs.")
     return p.parse_args()
 
@@ -167,6 +168,7 @@ def main() -> None:
         ratio_threshold=args.ratio_threshold,
         ransac_reproj_threshold=args.ransac_reproj_threshold,
         min_inliers=args.min_inliers,
+        multi_scale=args.multi_scale,
     )
 
     # Output directory

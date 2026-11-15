@@ -37,6 +37,11 @@ class RegionResult:
     bottom_right: Optional[tuple[float, float]] = None
     bottom_left: Optional[tuple[float, float]] = None
 
+    # Area partitioning (pixel space)
+    in_raster_area_px: Optional[float] = None
+    extrapolated_area_px: Optional[float] = None
+    total_projected_area_px: Optional[float] = None
+
     # Fraction of the projected polygon that lies within the reference image
     overlap_fraction: Optional[float] = None
 
@@ -120,10 +125,13 @@ def estimate_region(
         )
 
     # Check how much of the projected polygon lies within the reference image
-    overlap = _compute_overlap_fraction(
+    overlap, in_area, extra_area, tot_area = _compute_overlap_partition(
         corners_ref, reference_width, reference_height
     )
     result.overlap_fraction = overlap
+    result.in_raster_area_px = in_area
+    result.extrapolated_area_px = extra_area
+    result.total_projected_area_px = tot_area
 
     if overlap < 0.01:
         warnings.append(
@@ -165,17 +173,21 @@ def _polygon_area(pts: np.ndarray) -> float:
     return abs(area) / 2.0
 
 
-def _compute_overlap_fraction(
+def _compute_overlap_partition(
     corners: np.ndarray,
     ref_w: int,
     ref_h: int,
-) -> float:
+) -> tuple[float, float, float, float]:
     """
-    Estimate what fraction of the projected polygon lies within
-    the reference image rectangle [0, ref_w) × [0, ref_h).
+    Compute overlap fraction, in-raster area, extrapolated area, and total area (px²).
 
-    Uses OpenCV's polygon clipping approach via contour intersection.
+    Returns:
+        (overlap_fraction, in_raster_area_px, extrapolated_area_px, total_projected_area_px)
     """
+    total_area = _polygon_area(corners)
+    if total_area < 1e-6:
+        return 0.0, 0.0, 0.0, 0.0
+
     # Reference image bounding polygon
     ref_poly = np.float32([
         [0,     0    ],
@@ -184,18 +196,26 @@ def _compute_overlap_fraction(
         [0,     ref_h],
     ])
 
-    # Clip the projected polygon to the reference bounds
-    # (Sutherland-Hodgman via intersection)
     clipped = _clip_polygon(corners.astype(np.float32), ref_poly)
     if clipped is None or len(clipped) < 3:
-        return 0.0
+        return 0.0, 0.0, total_area, total_area
 
-    projected_area = _polygon_area(corners)
-    if projected_area < 1e-6:
-        return 0.0
+    in_raster_area = _polygon_area(np.array(clipped))
+    in_raster_area = min(total_area, in_raster_area)
+    extrapolated_area = max(0.0, total_area - in_raster_area)
+    overlap_fraction = min(1.0, max(0.0, in_raster_area / total_area))
 
-    clipped_area = _polygon_area(np.array(clipped))
-    return min(1.0, clipped_area / projected_area)
+    return float(overlap_fraction), float(in_raster_area), float(extrapolated_area), float(total_area)
+
+
+def _compute_overlap_fraction(
+    corners: np.ndarray,
+    ref_w: int,
+    ref_h: int,
+) -> float:
+    """Backward compatibility helper."""
+    frac, _, _, _ = _compute_overlap_partition(corners, ref_w, ref_h)
+    return frac
 
 
 def _clip_polygon(

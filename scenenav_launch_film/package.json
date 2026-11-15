@@ -1,0 +1,26 @@
+{
+  "name": "scenenav-ai-launch-film",
+  "version": "1.0.0",
+  "private": true,
+  "description": "65-second SceneNav AI cinematic LinkedIn launch film",
+  "scripts": {
+    "dev": "remotion studio src/index.tsx",
+    "lint": "tsc --noEmit",
+    "render": "remotion render src/index.tsx SceneNavLaunch65 out/scenenav-ai-launch-65s.mp4 --codec h264 --crf 18",
+    "still": "remotion still src/index.tsx SceneNavLaunch65"
+  },
+  "dependencies": {
+    "@react-three/fiber": "^9.8.2",
+    "@remotion/cli": "4.0.543",
+    "@remotion/three": "^4.0.543",
+    "@types/three": "^0.187.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.543",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "5.9.3"
+  }
+}

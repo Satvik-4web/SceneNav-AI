@@ -1,0 +1,134 @@
+{
+  "meta": {
+    "title": "SceneNav AI — Autonomous Geospatial Localization Launch",
+    "durationSec": 58,
+    "fps": 60,
+    "width": 1920,
+    "height": 1080,
+    "narrativeStructure": "problem-solution",
+    "fonts": {
+      "display": {
+        "family": "Space Grotesk",
+        "weights": ["700"]
+      },
+      "body": {
+        "family": "JetBrains Mono",
+        "weights": ["400", "500"]
+      }
+    },
+    "colors": {
+      "background": "#05080d",
+      "surface": "#0b111a",
+      "primary": "#ffffff",
+      "muted": "#94a3b8",
+      "accent": "#00f0ff",
+      "highlight": "#10b981"
+    }
+  },
+  "voice": {
+    "enabled": true,
+    "gender": "male",
+    "age": "middle-aged",
+    "tone": ["authoritative", "confident", "calm", "precision"],
+    "accent": "American",
+    "pace": "moderate"
+  },
+  "scenes": [
+    {
+      "id": "hook-threat",
+      "act": "hook",
+      "startSec": 0,
+      "durationSec": 10.8,
+      "audioFile": "public/vo/vo-hook-threat.mp3",
+      "purpose": "Establish high tension: GNSS spoofing, satellite denial in electronic warfare, and the core vulnerability of autonomous aerospace systems.",
+      "emotionalBeat": "Tension and urgency: satellites fail, optical sensors must adapt.",
+      "voiceover": "In contested airspace, GPS is vulnerable to jamming and electronic spoofing. When satellites go dark, autonomous aerial systems need to see.",
+      "layout": "Centered HUD tactical horizon, scanning reticles, threat status pills at top, dark micro-grid matrix backdrop.",
+      "elements": "Tactical grid background, threat assessment badge [THREAT ASSESSMENT: GNSS-DENIED / EW JAMMED], pulse warning indicator, scanning crosshairs.",
+      "animation": "Grid scales 1.05->1.0 over 10.8s; threat badge springs in with translateY(-20->0) and opacity 0->1; red-to-amber pulse on threat beacon.",
+      "camera": "Slow cinematic push-in (scale 1.0 -> 1.04).",
+      "lighting": "Deep dark obsidian background with subtle radial cyan glow behind center focal point.",
+      "transitionOut": "Compound directional wipe to the right with blur(0->6px) and scale(1.0->0.96)."
+    },
+    {
+      "id": "reveal-platform",
+      "act": "reveal",
+      "startSec": 10.8,
+      "durationSec": 8.5,
+      "audioFile": "public/vo/vo-reveal-platform.mp3",
+      "purpose": "Hero reveal of SceneNav AI: the autonomous visual localization workstation loading high-resolution georeferenced satellite base maps.",
+      "emotionalBeat": "Clarity and technological superiority: mathematical certainty replaces GPS dependency.",
+      "voiceover": "Introducing SceneNav AI: real-time visual localization and geospatial intelligence for autonomous navigation.",
+      "layout": "Hero workstation interface view, top telemetry ribbon, side-by-side aerial reference and query inspection viewports.",
+      "elements": "Header navigation bar, status beacon [RECON ONLINE], dataset selection card with Greenwood 0.15m GSD orthophoto.",
+      "animation": "Hero workspace springs in from scale 0.94->1.0 with blur 8->0px; dataset card cascades from right with 150ms stagger; HUD corner brackets expand on hover.",
+      "camera": "Smooth horizontal drift left-to-right (translateX 20->0).",
+      "lighting": "Specular top rim highlight with 0.08 opacity gradient sweep across interface cards.",
+      "transitionOut": "Scale dissolve into matching execution with expanding concentric pulse."
+    },
+    {
+      "id": "showcase-matching",
+      "act": "showcase",
+      "startSec": 19.3,
+      "durationSec": 9.0,
+      "audioFile": "public/vo/vo-showcase-matching.mp3",
+      "purpose": "Demonstrate the real-time computer vision matching engine: invariant SIFT/ORB feature extraction and RANSAC filtering.",
+      "emotionalBeat": "Kinetic power and computational speed: thousands of descriptors resolved in milliseconds.",
+      "voiceover": "Ingesting raw reconnaissance feeds, our pipeline extracts invariant features and executes robust RANSAC geometric filtering.",
+      "layout": "Dual image comparison canvas, concentric radar sweep rings, real-time keypoint correspondence overlay.",
+      "elements": "Radar sweep emitter, glowing cyan correspondence vectors connecting query points to satellite reference, live telemetry counters.",
+      "animation": "Dual radar sweep rotates 360 deg; keypoint lines spring in with radial burst stagger; match metrics counter ticks rapidly up to 224.",
+      "camera": "Dynamic parallax tilt (perspective 1000px, rotateY -2deg -> 0deg).",
+      "lighting": "Electric cyan laser glow along correspondence vectors, dark vignette around perimeter.",
+      "transitionOut": "Zoom through center into Lightbox modal inspection."
+    },
+    {
+      "id": "showcase-inliers",
+      "act": "showcase",
+      "startSec": 28.3,
+      "durationSec": 9.0,
+      "audioFile": "public/vo/vo-showcase-inliers.mp3",
+      "purpose": "Inspect the 224 verified geometric inliers and sub-pixel ground footprint re-projection onto the satellite orthophoto.",
+      "emotionalBeat": "Awe and precision: verifiable mathematical proof of ground coordinates.",
+      "voiceover": "Over two hundred geometric inliers lock the sensor footprint directly onto georeferenced satellite imagery with sub-pixel precision.",
+      "layout": "High-magnification Lightbox modal, panning across keypoint clusters, followed by satellite footprint bounding polygon view.",
+      "elements": "Lightbox inspection overlay, zoom pan controls, emerald green bounding polygon with WGS-84 UTM Zone 32N coordinates.",
+      "animation": "Lightbox scales up with spring(damping: 18, stiffness: 220); crosshair sweeps across inliers; footprint polygon draws with strokeDashoffset animation.",
+      "camera": "Slow macro pan across inlier cluster, pulling back to full orthophoto view.",
+      "lighting": "Emerald green specular glow (#10b981) highlighting the accepted ground footprint boundary.",
+      "transitionOut": "Horizontal slide transition with momentum transfer to cadastral viewer."
+    },
+    {
+      "id": "showcase-cadastral",
+      "act": "showcase",
+      "startSec": 37.3,
+      "durationSec": 8.5,
+      "audioFile": "public/vo/vo-showcase-cadastral.mp3",
+      "purpose": "Demonstrate multi-temporal cadastral analysis and robustness against extreme seasonal, illumination, and urban morphology changes.",
+      "emotionalBeat": "Resilience: proof that the system works across seasons, decades, and environmental shifts.",
+      "voiceover": "Inspect multi-temporal cadastral changes, test extreme illumination shifts, and evaluate spatial drift in real time.",
+      "layout": "Munich Cadastral split comparison viewer, interactive dual-layer opacity slider wiping between historical and modern orthophotos.",
+      "elements": "Dual-layer comparison canvas, opacity slider thumb with glowing white reticle, cadastral parcel boundary overlays.",
+      "animation": "Opacity slider moves smoothly left-to-right (0% -> 100% -> 50%) revealing historical vs modern aerial layers; cadastral boundaries pulse.",
+      "camera": "Steady centered framing focusing on the slider wipe motion.",
+      "lighting": "High-contrast split lighting emphasizing seasonal change across terrain.",
+      "transitionOut": "Subtle blur dissolve (blur 0->8px) into the diagnostic telemetry matrix."
+    },
+    {
+      "id": "climax-close",
+      "act": "climax",
+      "startSec": 45.8,
+      "durationSec": 12.2,
+      "audioFile": "public/vo/vo-climax-close.mp3",
+      "purpose": "Deliver the final climactic proof: Hartley-Zisserman validation report, 0.42m repeatability delta, and bold closing brand identity.",
+      "emotionalBeat": "Triumph, confidence, and ultimate authority: mission accomplished.",
+      "voiceover": "SceneNav AI. Visual Intelligence. Spatial Understanding. Even when the satellites fail.",
+      "layout": "Diagnostic matrix panel transitioning to bold centered cinematic logo reveal with live beacon and DRDO aerospace accreditation.",
+      "elements": "Reliability KPI score [98.4% ACCEPTED], 0.42m repeatability badge, SceneNav AI brand typography, tactical tagline, DRDO reconnaissance lock.",
+      "animation": "Reliability score springs into center with text slam; brand typography resolves with light sweep sheen; final fade to obsidian black.",
+      "camera": "Slow cinematic pull-out (scale 1.05 -> 1.0) holding on final logo.",
+      "lighting": "Cinematic volumetric cyan light beam sweeping behind the SceneNav AI logo; soft vignette.",
+      "transitionOut": "Cinematic 1.5s fade to obsidian black."
+    }
+  ]
+}

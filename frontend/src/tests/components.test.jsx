@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import MetricsPanel from '../components/MetricsPanel';
+import ResultsSummaryHeader from '../components/ResultsSummaryHeader';
+import ResultVisualizations from '../components/ResultVisualizations';
 
 describe('MetricsPanel Component', () => {
   it('renders nothing when result is null', () => {
@@ -90,4 +92,86 @@ describe('MetricsPanel Component', () => {
     expect(screen.getByText(/33.487987/)).toBeDefined();
   });
 });
+
+describe('ResultsSummaryHeader Component', () => {
+  it('renders executive summary with confidence and export buttons', () => {
+    const mockResult = {
+      job_id: 'test-header-job-1234',
+      status: 'success',
+      localization_status: 'localized',
+      filtered_matches: 500,
+      geometric_inliers: 480,
+      inlier_ratio: 0.96,
+      reprojection_error: { mean_px: 0.75 },
+      processing_time_s: 0.125,
+      algorithm_params: { algorithm: 'ORB', multi_scale: true, ransac_reproj_threshold: 4.0 },
+      quality_assessment: {
+        status: 'ACCEPTED',
+        confidence_score: 0.82,
+      },
+    };
+
+    render(<ResultsSummaryHeader result={mockResult} onExportJson={() => {}} />);
+    expect(screen.getByText(/ACCEPTED \(HIGH CONFIDENCE\)/i)).toBeDefined();
+    expect(screen.getByText(/GEOGRAPHICALLY REFERENCED/i)).toBeDefined();
+    expect(screen.getByText(/82%/)).toBeDefined();
+    expect(screen.getByText(/Generate Research Report \(PDF\)/i)).toBeDefined();
+    expect(screen.getByText(/Export JSON/i)).toBeDefined();
+  });
+});
+
+describe('ResultVisualizations Workspace Component', () => {
+  it('renders workspace with tabs and centerpiece badge', () => {
+    const mockResult = {
+      job_id: 'test-viz-job-5678',
+      status: 'success',
+      artifacts: {
+        footprint: 'results/test/04_footprint.png',
+        side_by_side: 'results/test/01_side_by_side.png',
+        tentative_matches: 'results/test/02_tentative_matches.png',
+        inlier_matches: 'results/test/03_inlier_matches.png',
+      },
+    };
+
+    render(<ResultVisualizations result={mockResult} />);
+    expect(screen.getByText(/Visualizations & Corresponding Footprint/i)).toBeDefined();
+    expect(screen.getAllByText(/Estimated Footprint Overlay/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/CENTERPIECE/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/4-Panel Quad View/i)).toBeDefined();
+  });
+});
+
+describe('ResearchAnalyticsWorkspace Component', () => {
+  it('renders technical diagnostics and benchmark comparison tab', async () => {
+    const { default: ResearchAnalyticsWorkspace } = await import('../components/ResearchAnalyticsWorkspace');
+    const mockResult = {
+      job_id: 'test-analytics-job',
+      status: 'SUCCESS',
+      processing_time_s: 0.42,
+      reference_keypoints: 5000,
+      query_keypoints: 3000,
+      tentative_matches: 2500,
+      filtered_matches: 800,
+      geometric_inliers: 750,
+      inlier_ratio: 0.9375,
+      reprojection_error: 0.85,
+      reliability_assessment: {
+        status: 'ACCEPTED',
+        confidence_score: 0.87,
+        conditioning_metrics: {
+          canonical_condition_number: 2.45,
+          horizon_crossing: false,
+        },
+      },
+    };
+
+    render(<ResearchAnalyticsWorkspace result={mockResult} />);
+    expect(screen.getByText(/Scientific Analytics & Quality Assessment/i)).toBeDefined();
+    expect(screen.getByText(/Executive Geometric Quality Signals/i)).toBeDefined();
+    expect(screen.getByText(/Export Research PDF/i)).toBeDefined();
+    expect(screen.getByText(/Algorithm Benchmarks/i)).toBeDefined();
+  });
+});
+
+
 

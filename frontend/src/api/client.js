@@ -120,3 +120,11 @@ export function researchArtifactUrl(filename) {
   return `${BASE_URL}/api/v1/research/artifacts/${filename}`;
 }
 
+/**
+ * Get job PDF research report URL.
+ */
+export function jobReportPdfUrl(jobId) {
+  return `${BASE_URL}/api/v1/jobs/${jobId}/report.pdf`;
+}
+
+

@@ -71,6 +71,8 @@ def detect_and_match(
     orb_max_features: int = 5000,
     ratio_threshold: float = 0.75,
     mutual_consistency: bool = False,
+    multi_scale: bool = False,
+    scale_factors: Optional[list[float]] = None,
     max_processing_dim: Optional[int] = None,
 ) -> MatchingResult:
     """
@@ -83,6 +85,8 @@ def detect_and_match(
         orb_max_features:   Maximum keypoints per image.
         ratio_threshold:    Lowe's ratio-test threshold.
         mutual_consistency: If True, keep only matches that agree in both directions.
+        multi_scale:        If True, construct scale pyramid candidate feature extraction on query image.
+        scale_factors:      Optional custom scale levels (e.g. [1.0, 0.75, 0.5]).
         max_processing_dim: Optional maximum dimension for feature extraction on large images.
 
     Returns:
@@ -99,6 +103,8 @@ def detect_and_match(
             "orb_max_features": orb_max_features,
             "ratio_threshold": ratio_threshold,
             "mutual_consistency": mutual_consistency,
+            "multi_scale": multi_scale,
+            "scale_factors": scale_factors,
             "max_processing_dim": max_processing_dim,
         }
     )
@@ -128,19 +134,59 @@ def detect_and_match(
         norm_type = cv2.NORM_HAMMING
 
     kp_ref, des_ref = detector.detectAndCompute(gray_ref, None)
-    kp_qry, des_qry = detector.detectAndCompute(gray_qry, None)
 
-    # Rescale keypoint coordinates back to full image pixel space
+    # Keypoint detection on query image (single-scale vs multi-scale pyramid)
+    if not multi_scale:
+        kp_qry, des_qry = detector.detectAndCompute(gray_qry, None)
+        if scale_qry != 1.0 and kp_qry:
+            kp_qry = [
+                cv2.KeyPoint(kp.pt[0] / scale_qry, kp.pt[1] / scale_qry, kp.size / scale_qry, kp.angle, kp.response, kp.octave, kp.class_id)
+                for kp in kp_qry
+            ]
+    else:
+        # Multi-scale pyramid candidate extraction
+        scales = scale_factors or [1.0, 0.75, 0.5]
+        pooled_kps = []
+        pooled_des = []
+        for s in scales:
+            if s <= 0:
+                continue
+            if abs(s - 1.0) < 1e-4:
+                curr_img = gray_qry
+            else:
+                target_w = max(16, int(gray_qry.shape[1] * s))
+                target_h = max(16, int(gray_qry.shape[0] * s))
+                interp = cv2.INTER_AREA if s < 1.0 else cv2.INTER_LINEAR
+                curr_img = cv2.resize(gray_qry, (target_w, target_h), interpolation=interp)
+
+            kps_s, des_s = detector.detectAndCompute(curr_img, None)
+            if des_s is not None and len(des_s) > 0:
+                effective_scale = scale_qry * s
+                for kp in kps_s:
+                    scaled_kp = cv2.KeyPoint(
+                        kp.pt[0] / effective_scale,
+                        kp.pt[1] / effective_scale,
+                        kp.size / effective_scale,
+                        kp.angle,
+                        kp.response,
+                        kp.octave,
+                        kp.class_id,
+                    )
+                    pooled_kps.append(scaled_kp)
+                pooled_des.append(des_s)
+
+        if pooled_des:
+            kp_qry = pooled_kps
+            des_qry = np.vstack(pooled_des)
+        else:
+            kp_qry = []
+            des_qry = None
+
+    # Rescale reference keypoint coordinates back to full image pixel space
     if scale_ref != 1.0 and kp_ref:
         kp_ref = [
             cv2.KeyPoint(kp.pt[0] / scale_ref, kp.pt[1] / scale_ref, kp.size / scale_ref, kp.angle, kp.response, kp.octave, kp.class_id)
             for kp in kp_ref
-        ]
-
-    if scale_qry != 1.0 and kp_qry:
-        kp_qry = [
-            cv2.KeyPoint(kp.pt[0] / scale_qry, kp.pt[1] / scale_qry, kp.size / scale_qry, kp.angle, kp.response, kp.octave, kp.class_id)
-            for kp in kp_qry
         ]
 
     result.reference_keypoints = len(kp_ref) if kp_ref else 0
@@ -221,6 +267,19 @@ def detect_and_match(
             len(good), len(consistent)
         )
         good = consistent
+
+    # Multi-scale landmark deduplication: ensure each physical reference landmark
+    # is matched at most once across pyramid levels, selecting the highest-affinity match.
+    if multi_scale and len(good) > 0:
+        best_by_ref: dict[int, cv2.DMatch] = {}
+        for m in good:
+            tid = m.trainIdx
+            if tid not in best_by_ref or m.distance < best_by_ref[tid].distance:
+                best_by_ref[tid] = m
+        n_dups = len(good) - len(best_by_ref)
+        if n_dups > 0:
+            logger.info("Multi-scale deduplication: removed %d redundant pyramid matches (%d unique)", n_dups, len(best_by_ref))
+        good = list(best_by_ref.values())
 
     result.good_matches = good
     result.filtered_matches = len(good)

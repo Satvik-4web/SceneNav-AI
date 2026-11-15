@@ -65,8 +65,8 @@ export default function SampleDataSelector({ onSelectSample, disabled }) {
   return (
     <div style={{ marginBottom: 14, padding: '10px 12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--accent-cyan)' }}>
-          ⚡ Preset Test Pairs
+        <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-secondary)' }}>
+          Preset Test Pairs
         </span>
         {loading && <span className="small muted">Loading images…</span>}
       </div>
@@ -89,9 +89,9 @@ export default function SampleDataSelector({ onSelectSample, disabled }) {
       {/* Dataset / Manifest Suite Switcher */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 6, flexWrap: 'wrap' }}>
         {[
-          { id: 'synthetic_pairs.json', label: '🔬 Synthetic' },
-          { id: 'real_world_pairs.json', label: '🛰️ USGS NAIP' },
-          { id: 'georeferenced_pairs.json', label: '🌐 Georef GeoTIFF' },
+          { id: 'synthetic_pairs.json', label: 'Synthetic' },
+          { id: 'real_world_pairs.json', label: 'Aerial crops' },
+          { id: 'georeferenced_pairs.json', label: 'Georef GeoTIFF' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -103,9 +103,9 @@ export default function SampleDataSelector({ onSelectSample, disabled }) {
               fontSize: 10,
               padding: '3px 8px',
               borderRadius: 4,
-              border: manifest === tab.id ? '1px solid var(--accent-cyan)' : '1px solid var(--border)',
-              background: manifest === tab.id ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
-              color: manifest === tab.id ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+              border: manifest === tab.id ? '1px solid var(--border-light)' : '1px solid var(--border)',
+              background: manifest === tab.id ? 'var(--bg-elevated)' : 'transparent',
+              color: manifest === tab.id ? 'var(--text-primary)' : 'var(--text-muted)',
               cursor: 'pointer',
               fontWeight: manifest === tab.id ? 600 : 400,
             }}
@@ -122,7 +122,7 @@ export default function SampleDataSelector({ onSelectSample, disabled }) {
         </div>
       )}
       <div className="small muted" style={{ marginTop: 4, fontSize: 11 }}>
-        Instantly loads verified reference rasters and query crops.
+        Controlled image pairs, not independent camera captures. GeoTIFF presets use assigned map metadata for coordinate-conversion tests.
       </div>
     </div>
   );

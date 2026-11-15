@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "title": "SceneNav AI — 65-Second Cinematic LinkedIn Launch Film",
+    "durationSec": 65,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "narrativeStructure": "problem-solution",
+    "fonts": {
+      "display": { "family": "Space Grotesk", "weights": ["700", "800"] },
+      "body": { "family": "Consolas", "weights": ["400", "700"] }
+    },
+    "colors": {
+      "background": "#03060a",
+      "surface": "#0b1420",
+      "primary": "#ffffff",
+      "muted": "#8ca0b8",
+      "accent": "#00f0ff",
+      "highlight": "#10b981",
+      "warning": "#f59e0b",
+      "danger": "#ef4444"
+    }
+  },
+  "voice": {
+    "enabled": true,
+    "gender": "male",
+    "age": "middle-aged",
+    "tone": ["documentary", "deep", "calm", "authoritative", "precise"],
+    "accent": "American",
+    "pace": "moderate"
+  },
+  "scenes": [
+    {
+      "id": "scene1-hook",
+      "act": "hook",
+      "startSec": 0,
+      "durationSec": 8.0,
+      "purpose": "Orbital space view of Earth with satellite signal geometry collapsing under electronic warfare.",
+      "emotionalBeat": "Tension and silence: satellites fail.",
+      "voiceover": "In contested domains, satellite navigation is fragile. When electronic warfare blinds GPS, positioning signals vanish into silence.",
+      "textOverlay": "WHAT HAPPENS WHEN POSITIONING SIGNALS ARE UNAVAILABLE?",
+      "subBadge": "CRITICAL ALERT: GNSS SATELLITE SIGNALS UNAVAILABLE"
+    },
+    {
+      "id": "scene2-problem",
+      "act": "problem",
+      "startSec": 8.0,
+      "durationSec": 9.0,
+      "purpose": "Camera descends through atmosphere; dual 3D floating image planes exhibit extreme scale, orientation, and perspective disparities.",
+      "emotionalBeat": "Curiosity and complexity: visual terrain has information, but camera angles collide.",
+      "voiceover": "Yet, the Earth still leaves visual clues. Between satellite reconnaissance and airborne sensors, scale, angle, and perspective collide.",
+      "textOverlay": "THE WORLD STILL LEAVES VISUAL CLUES.",
+      "telemetry": "SCALE DELTA: 4.8X // TILT SKEW: 28.4° // AZIMUTH: 42°"
+    },
+    {
+      "id": "scene3-technology",
+      "act": "technology",
+      "startSec": 17.0,
+      "durationSec": 12.0,
+      "purpose": "Multi-scale keypoints illuminate; luminous correspondence vectors shoot across space; RANSAC purges geometric outliers.",
+      "emotionalBeat": "Computational speed and mathematical clarity.",
+      "voiceover": "SceneNav AI bridges the gap. Invariant feature detectors extract distinctive structures, while robust RANSAC filtering eliminates hundreds of geometric outliers.",
+      "textOverlay": "INVARIANT FEATURE MATCHING & RANSAC FILTERING",
+      "algorithmBadges": ["SIFT // 128-DIM INVARIANT GRADIENT HISTOGRAMS", "ORB // ROTATION-AWARE BINARY DESCRIPTORS", "RANSAC // HARTLEY-ZISSERMAN OUTLIER REJECTION"]
+    },
+    {
+      "id": "scene4-transformation",
+      "act": "transformation",
+      "startSec": 29.0,
+      "durationSec": 11.0,
+      "purpose": "Projective homography warps the optical sensor plane into planar alignment over the satellite reference map; 4 illuminated corner vertices project ground footprint.",
+      "emotionalBeat": "Awe and precision: geometric alignment locked.",
+      "voiceover": "Through projective homography, the optical camera perspective is mathematically warped and locked onto the reference map, projecting the exact ground footprint.",
+      "textOverlay": "PROJECTIVE HOMOGRAPHY & FOOTPRINT ESTIMATION",
+      "matrixEquation": "[x', y', 1]ᵀ ~ H · [x, y, 1]ᵀ"
+    },
+    {
+      "id": "scene5-intelligence",
+      "act": "intelligence",
+      "startSec": 40.0,
+      "durationSec": 10.0,
+      "purpose": "Comprehensive scientific diagnostic matrix: spatial dispersion, condition number, reprojection residual, and heuristic reliability index.",
+      "emotionalBeat": "Scientific rigor and transparency.",
+      "voiceover": "Every fix is rigorously validated. Multi-scale dispersion, inlier geometry, and matrix conditioning inform our heuristic reliability index—safeguarding against false locks.",
+      "textOverlay": "MATHEMATICAL RELIABILITY & VERIFICATION",
+      "disclaimer": "* SCIENTIFIC NOTICE: Confidence index is an uncalibrated heuristic metric of internal matching consistency — not an independent probabilistic guarantee of true geographic localization."
+    },
+    {
+      "id": "scene6-pipeline",
+      "act": "pipeline",
+      "startSec": 50.0,
+      "durationSec": 8.0,
+      "purpose": "Dynamic animated 7-stage pipeline rail with travelling energy pulse.",
+      "emotionalBeat": "Completeness and engineering mastery.",
+      "voiceover": "A unified visual navigation pipeline: from raw pixels to verified spatial coordinates, operating entirely without satellite contact.",
+      "pipelineNodes": ["INPUT IMAGERY", "FEATURE DETECTION", "FEATURE MATCHING", "RANSAC FILTERING", "HOMOGRAPHY (H)", "FOOTPRINT ESTIMATION", "RELIABILITY ASSESSMENT"]
+    },
+    {
+      "id": "scene7-brand",
+      "act": "brand",
+      "startSec": 58.0,
+      "durationSec": 7.0,
+      "purpose": "Dark transition; vector lines converge into central SceneNav AI reticle, bold brand identity, and clean hold.",
+      "emotionalBeat": "Authority, trust, and lasting impression.",
+      "voiceover": "SceneNav AI. Visual intelligence. Spatial understanding. When the sky goes dark, autonomy endures.",
+      "brandTitle": "SCENENAV AI",
+      "brandSubtitle": "Scene-Aided Navigation Research Prototype",
+      "tagline": "VISUAL INTELLIGENCE. SPATIAL UNDERSTANDING."
+    }
+  ]
+}
