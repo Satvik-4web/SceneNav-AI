@@ -441,13 +441,47 @@ export default function MetricsPanel({ result }) {
             </div>
           </>
         ) : (
-          <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>Reliability assessment not available for this run.</div>
+          <div
+            className="reliability-unassessed-panel"
+            style={{
+              padding: '16px 18px',
+              background: 'linear-gradient(180deg, #141419 0%, #0d0d11 100%)',
+              borderRadius: 'var(--radius)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+              <span className="badge badge-info" style={{ fontSize: 11 }}>Reliability Assessment: Not Assessed</span>
+              <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>Uncalibrated Pixel-Space Evaluation</span>
+            </div>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55, margin: '0 0 12px 0' }}>
+              Multi-signal heuristic quality assessment (spatial entropy spread, condition number κ(H), and horizon crossing) is <strong>not assessed</strong> for this run because it was evaluated on uncalibrated 2D pixel-space imagery without georeferencing metadata or camera matrix calibration.
+              Geometric registration validity is governed deterministically by <strong>RANSAC consensus inliers ({inliers} verified inliers, {reprojMean} px mean reprojection residual)</strong>.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
+              <div className="metric-card" style={{ padding: '12px 14px' }}>
+                <div className="metric-label" style={{ fontSize: 10, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Geometric Verdict</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: inliers >= 15 ? 'var(--accent-green)' : 'var(--accent-red)', fontFamily: 'var(--font-mono)', marginTop: 2 }}>
+                  {inliers >= 15 ? 'ACCEPTED (GEOMETRIC)' : 'REJECTED (LOW CONSENSUS)'}
+                </div>
+                <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 4 }}>{inliers} inliers / 15 threshold</div>
+              </div>
+              <div className="metric-card" style={{ padding: '12px 14px' }}>
+                <div className="metric-label" style={{ fontSize: 10, textTransform: 'uppercase', color: 'var(--text-muted)' }}>Full Multi-Signal QA Activation</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent-cyan)', marginTop: 2 }}>
+                  Georef GeoTIFF Required
+                </div>
+                <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 4 }}>Select a Georef GeoTIFF preset to view condition number & entropy</div>
+              </div>
+            </div>
+          </div>
         )}
       </SectionCollapsible>
 
       {/* ===== SECTION 4: GEOSPATIAL INTELLIGENCE ===== */}
-      <SectionCollapsible title="4. Geospatial Intelligence & Footprint Containment">
-        {isGeoreferenced && result.geographic_footprint && result.georeference ? (
+      <div id="section-geospatial">
+        <SectionCollapsible title="4. Geospatial Intelligence & Footprint Containment">
+          {isGeoreferenced && result.geographic_footprint && result.georeference ? (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <span style={{ fontWeight: 600, fontSize: 12, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -574,6 +608,7 @@ export default function MetricsPanel({ result }) {
           </div>
         )}
       </SectionCollapsible>
+      </div>
 
       {/* ===== SECTION 5: PERFORMANCE & SOFTWARE ===== */}
       <SectionCollapsible title="5. System Performance & Reproducibility Record" defaultOpen={false}>

@@ -180,21 +180,27 @@ export default function ResearchAnalyticsWorkspace({ result, onSwitchToVisualize
             <div className="metrics-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
               <div className="metric-card">
                 <div className="metric-label">Reliability Verdict</div>
-                <div className="metric-value" style={{ color: qa.status === 'ACCEPTED' ? 'var(--accent-green)' : (qa.status === 'LOW_CONFIDENCE' ? 'var(--accent-orange)' : 'var(--accent-red)') }}>
-                  {qa.status || 'UNASSESSED'}
+                <div className="metric-value" style={{
+                  fontSize: qa.status ? 18 : 15,
+                  color: qa.status === 'ACCEPTED' ? 'var(--accent-green)' : (qa.status === 'LOW_CONFIDENCE' ? 'var(--accent-orange)' : (qa.status ? 'var(--accent-red)' : 'var(--text-secondary)'))
+                }}>
+                  {qa.status || 'Not assessed'}
                 </div>
                 <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 4 }}>
-                  Rule-based threshold gating
+                  {qa.status ? 'Rule-based threshold gating' : 'Uncalibrated pixel space'}
                 </div>
               </div>
 
               <div className="metric-card">
                 <div className="metric-label">Heuristic Confidence</div>
-                <div className="metric-value" style={{ color: 'var(--accent-cyan)' }}>
-                  {qa.confidence_score !== undefined ? `${(qa.confidence_score * 100).toFixed(1)}%` : '—'}
+                <div className="metric-value" style={{
+                  fontSize: qa.confidence_score !== undefined ? 18 : 15,
+                  color: qa.confidence_score !== undefined ? 'var(--accent-cyan)' : 'var(--text-secondary)'
+                }}>
+                  {qa.confidence_score !== undefined ? `${(qa.confidence_score * 100).toFixed(1)}%` : 'Not assessed'}
                 </div>
                 <div style={{ fontSize: 10.5, color: 'var(--text-muted)', marginTop: 4 }}>
-                  Multi-signal weighted heuristic
+                  {qa.confidence_score !== undefined ? 'Multi-signal weighted heuristic' : 'Requires georeferenced sensor matrix'}
                 </div>
               </div>
 

@@ -68,3 +68,4 @@ scenenav_launch_film/node_modules/
 scenenav_launch_film/out/
 *.mp4
 
+.vercel

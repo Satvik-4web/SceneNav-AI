@@ -60,7 +60,16 @@ export default function ResultsSummaryHeader({ result, onExportJson, onOpenExplo
   const inlierRatioPct = result.inlier_ratio != null ? (result.inlier_ratio * 100).toFixed(1) : '—';
   const reprojErr = result.reprojection_error?.mean_px != null ? `${result.reprojection_error.mean_px.toFixed(2)} px` : '—';
   const latency = `${result.processing_time_s?.toFixed(3) || '—'} s`;
-  const confScorePct = qa ? `${(qa.confidence_score * 100).toFixed(0)}%` : '—';
+
+  const hasQaConfidence = qa && typeof qa.confidence_score === 'number' && !isNaN(qa.confidence_score);
+  const confScoreText = hasQaConfidence ? `${(qa.confidence_score * 100).toFixed(0)}%` : 'Not assessed';
+  const confSubtext = hasQaConfidence
+    ? (qaStatus === 'ACCEPTED' ? 'High Confidence (Verified)' : qaStatus)
+    : 'Uncalibrated pixel-space';
+  const confTooltip = hasQaConfidence
+    ? 'Heuristic multi-signal index combining inlier count, inlier ratio, reprojection error, spatial dispersion, and condition number.'
+    : 'Multi-signal confidence score is not assessed on uncalibrated pixel-space pairs. Geometric inlier consensus governs registration validity.';
+
   const algorithmName = result.algorithm_params?.algorithm || 'ORB';
   const isMultiScale = Boolean(result.algorithm_params?.multi_scale);
 
@@ -103,7 +112,11 @@ export default function ResultsSummaryHeader({ result, onExportJson, onOpenExplo
       }}
     >
       <div className="result-intro">
-        <div><span className="result-kicker">SCENENAV / MATCH REPORT</span><h2>{isSuccess ? 'We found the overlap.' : 'This pair needs another look.'}</h2><p>{isSuccess ? 'The images align. Here’s the evidence behind the result.' : 'The system could not verify a reliable geometric match.'}</p></div>
+        <div>
+          <span className="result-kicker">SCENENAV / MATCH REPORT</span>
+          <h2>{isSuccess ? 'Geometric overlap estimated.' : 'Geometric verification failed.'}</h2>
+          <p>{isSuccess ? 'Planar correspondences align in pixel space. Review the geometric evidence and residual metrics below.' : 'Correspondences failed to satisfy geometric constraints or minimum inlier thresholds.'}</p>
+        </div>
         <div className="result-orb" aria-hidden="true"><span>⌖</span></div>
       </div>
       {/* Top Row: Primary Badges & Action Buttons */}
@@ -189,87 +202,139 @@ export default function ResultsSummaryHeader({ result, onExportJson, onOpenExplo
         </div>
       </div>
 
-      {/* Main KPI Strip */}
+      {/* Main KPI Strip with Hero Metric Prominence and Generous Spacing */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-          gap: 10,
-          marginBottom: 12,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: 12,
+          marginBottom: 14,
         }}
       >
-        {/* Metric 1: Inliers */}
-        <div style={{ background: 'linear-gradient(180deg, #141419 0%, #0d0d11 100%)', padding: '10px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)' }}>
-          <div style={{ fontSize: 10, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+        {/* Metric 1: Inliers (Primary Hero) */}
+        <div
+          className="summary-metric-card hero-kpi"
+          style={{
+            background: 'linear-gradient(180deg, #161822 0%, #0e1017 100%)',
+            padding: '14px 16px',
+            borderRadius: 'var(--radius)',
+            border: '1px solid rgba(59, 130, 246, 0.32)',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+          }}
+        >
+          <div style={{ fontSize: 10.5, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.06em', fontWeight: 600 }}>
             RANSAC Inliers
           </div>
-          <div className="mono" style={{ fontSize: 18, fontWeight: 700, color: inliers > 15 ? 'var(--accent-green)' : (inliers > 0 ? 'var(--accent-orange)' : 'var(--accent-red)') }}>
+          <div className="mono" style={{ fontSize: 22, fontWeight: 700, color: inliers > 15 ? 'var(--accent-green)' : (inliers > 0 ? 'var(--accent-orange)' : 'var(--accent-red)'), marginTop: 2 }}>
             {inliers}
-            <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400, marginLeft: 4 }}>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500, marginLeft: 6 }}>
               ({inlierRatioPct}%)
             </span>
           </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
             of {totalFiltered} filtered matches
           </div>
         </div>
 
-        {/* Metric 2: Reprojection Error */}
-        <div style={{ background: 'linear-gradient(180deg, #141419 0%, #0d0d11 100%)', padding: '10px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)' }}>
-          <div style={{ fontSize: 10, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+        {/* Metric 2: Reprojection Error (Primary Hero) */}
+        <div
+          className="summary-metric-card hero-kpi"
+          style={{
+            background: 'linear-gradient(180deg, #161822 0%, #0e1017 100%)',
+            padding: '14px 16px',
+            borderRadius: 'var(--radius)',
+            border: '1px solid rgba(59, 130, 246, 0.32)',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+          }}
+        >
+          <div style={{ fontSize: 10.5, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.06em', fontWeight: 600 }}>
             Mean Reproj. Error
           </div>
-          <div className="mono" style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>
+          <div className="mono" style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', marginTop: 2 }}>
             {reprojErr}
           </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
             tolerance: {result.algorithm_params?.ransac_reproj_threshold || 4.0} px
           </div>
         </div>
 
         {/* Metric 3: Confidence Score */}
-        <div style={{ background: 'linear-gradient(180deg, #141419 0%, #0d0d11 100%)', padding: '10px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)' }}>
+        <div
+          className="summary-metric-card"
+          style={{
+            background: 'linear-gradient(180deg, #141419 0%, #0d0d11 100%)',
+            padding: '14px 16px',
+            borderRadius: 'var(--radius)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+          }}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 10, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+            <span style={{ fontSize: 10.5, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.06em', fontWeight: 600 }}>
               Confidence Index
             </span>
             <span
               style={{ cursor: 'help', fontSize: 11, color: 'var(--text-muted)' }}
-              title="Heuristic multi-signal index combining inlier count, inlier ratio, reprojection error, spatial dispersion, and condition number. Not an absolute calibrated probability."
+              title={confTooltip}
             >
               ℹ
             </span>
           </div>
-          <div className="mono" style={{ fontSize: 18, fontWeight: 700, color: qa?.confidence_score >= 0.55 ? 'var(--accent-green)' : (qa?.confidence_score >= 0.35 ? 'var(--accent-orange)' : 'var(--accent-red)') }}>
-            {confScorePct}
+          <div className="mono" style={{
+            fontSize: hasQaConfidence ? 20 : 15,
+            fontWeight: 700,
+            color: hasQaConfidence
+              ? (qa?.confidence_score >= 0.55 ? 'var(--accent-green)' : (qa?.confidence_score >= 0.35 ? 'var(--accent-orange)' : 'var(--accent-red)'))
+              : 'var(--text-secondary)',
+            marginTop: 2,
+          }}>
+            {confScoreText}
           </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
-            {qa?.status || 'uncalibrated heuristic'}
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+            {confSubtext}
           </div>
         </div>
 
         {/* Metric 4: Algorithm & Pyramid */}
-        <div style={{ background: 'linear-gradient(180deg, #141419 0%, #0d0d11 100%)', padding: '10px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)' }}>
-          <div style={{ fontSize: 10, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+        <div
+          className="summary-metric-card"
+          style={{
+            background: 'linear-gradient(180deg, #141419 0%, #0d0d11 100%)',
+            padding: '14px 16px',
+            borderRadius: 'var(--radius)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+          }}
+        >
+          <div style={{ fontSize: 10.5, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.06em', fontWeight: 600 }}>
             Feature Engine
           </div>
-          <div className="mono" style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
+          <div className="mono" style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', marginTop: 2 }}>
             {algorithmName}
           </div>
-          <div style={{ fontSize: 10, color: isMultiScale ? 'var(--accent-green)' : 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: isMultiScale ? 'var(--accent-green)' : 'var(--text-muted)', marginTop: 4 }}>
             {isMultiScale ? 'Pyramid Multi-Scale' : 'Single Scale'}
           </div>
         </div>
 
         {/* Metric 5: Execution Latency */}
-        <div style={{ background: 'linear-gradient(180deg, #141419 0%, #0d0d11 100%)', padding: '10px 14px', borderRadius: 'var(--radius)', border: '1px solid rgba(255, 255, 255, 0.08)', boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)' }}>
-          <div style={{ fontSize: 10, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+        <div
+          className="summary-metric-card"
+          style={{
+            background: 'linear-gradient(180deg, #141419 0%, #0d0d11 100%)',
+            padding: '14px 16px',
+            borderRadius: 'var(--radius)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+          }}
+        >
+          <div style={{ fontSize: 10.5, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.06em', fontWeight: 600 }}>
             Pipeline Latency
           </div>
-          <div className="mono" style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>
+          <div className="mono" style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', marginTop: 2 }}>
             {latency}
           </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
             feature + homography + QA
           </div>
         </div>

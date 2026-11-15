@@ -163,14 +163,43 @@ export default function DashboardPage({ activeWorkspace = 'studio', onSelectWork
       {activeWorkspace === 'explorer' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {result ? (
-            <>
-              <ResultsSummaryHeader
-                result={result}
-                onExportJson={generateReport}
-                onOpenAnalytics={() => onSelectWorkspace('analytics')}
-              />
-              <ResultVisualizations result={result} />
-            </>
+            <div className="results-wrapper">
+              {/* Sticky Section Quick Navigation Bar */}
+              <nav className="results-sticky-nav" aria-label="Explorer sections quick jump">
+                <span className="results-sticky-nav-label">Jump to:</span>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('explorer-summary')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  <span>⌖</span> Summary
+                </button>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('explorer-visualizations')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  <span>🖼</span> Visualizations
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  style={{ marginLeft: 'auto', color: 'var(--text-muted)' }}
+                  title="Scroll back to top"
+                >
+                  ↑ Top
+                </button>
+              </nav>
+
+              <div id="explorer-summary">
+                <ResultsSummaryHeader
+                  result={result}
+                  onExportJson={generateReport}
+                  onOpenAnalytics={() => onSelectWorkspace('analytics')}
+                />
+              </div>
+              <div id="explorer-visualizations">
+                <ResultVisualizations result={result} />
+              </div>
+            </div>
           ) : (
             <div className="panel">
               <div className="empty-state">
@@ -341,16 +370,61 @@ export default function DashboardPage({ activeWorkspace = 'studio', onSelectWork
             )}
 
             {result && !loading && (
-              <>
-                <ResultsSummaryHeader
-                  result={result}
-                  onExportJson={generateReport}
-                  onOpenExplorer={() => onSelectWorkspace('explorer')}
-                  onOpenAnalytics={() => onSelectWorkspace('analytics')}
-                />
-                <ResultVisualizations result={result} />
-                <MetricsPanel result={result} />
-              </>
+              <div className="results-wrapper">
+                {/* Sticky Section Quick Navigation Bar */}
+                <nav className="results-sticky-nav" aria-label="Results sections quick jump">
+                  <span className="results-sticky-nav-label">Jump to:</span>
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('section-summary')?.scrollIntoView({ behavior: 'smooth' })}
+                  >
+                    <span>⌖</span> Summary
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('section-visualizations')?.scrollIntoView({ behavior: 'smooth' })}
+                  >
+                    <span>🖼</span> Visualizations
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('section-metrics')?.scrollIntoView({ behavior: 'smooth' })}
+                  >
+                    <span>📊</span> Diagnostics & Metrics
+                  </button>
+                  {result.localization_status === 'localized' && (
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('section-geospatial')?.scrollIntoView({ behavior: 'smooth' })}
+                    >
+                      <span>🌐</span> Geodetic Coordinates
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    style={{ marginLeft: 'auto', color: 'var(--text-muted)' }}
+                    title="Scroll back to top"
+                  >
+                    ↑ Top
+                  </button>
+                </nav>
+
+                <div id="section-summary">
+                  <ResultsSummaryHeader
+                    result={result}
+                    onExportJson={generateReport}
+                    onOpenExplorer={() => onSelectWorkspace('explorer')}
+                    onOpenAnalytics={() => onSelectWorkspace('analytics')}
+                  />
+                </div>
+                <div id="section-visualizations">
+                  <ResultVisualizations result={result} />
+                </div>
+                <div id="section-metrics">
+                  <MetricsPanel result={result} />
+                </div>
+              </div>
             )}
           </div>
         </div>
