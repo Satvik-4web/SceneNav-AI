@@ -1,0 +1,355 @@
+{
+  "job_id": "2cf8b0df-5f77-42b0-8db2-7ff8e2b5dd25",
+  "status": "success",
+  "reference_image": {
+    "filename": "georef_usgs_greenwood.tif",
+    "width": 701,
+    "height": 643,
+    "channels": 3,
+    "file_size_bytes": 1353891
+  },
+  "query_image": {
+    "filename": "georef_greenwood_rot15_scale.tif",
+    "width": 260,
+    "height": 260,
+    "channels": 3,
+    "file_size_bytes": 203328
+  },
+  "reference_keypoints": 5000,
+  "query_keypoints": 4343,
+  "tentative_matches": 4343,
+  "filtered_matches": 613,
+  "geometric_inliers": 606,
+  "inlier_ratio": 0.9885807504078303,
+  "reprojection_error": {
+    "mean_px": 0.9588443636894226,
+    "median_px": 0.8404690027236938,
+    "max_px": 3.9917378425598145
+  },
+  "homography_matrix": [
+    [
+      0.946591211531934,
+      -0.23284804281960364,
+      261.4743632313491
+    ],
+    [
+      0.2615891605892596,
+      0.9365061389332798,
+      168.13631930634023
+    ],
+    [
+      5.0000313574527065e-05,
+      3.966436609021118e-05,
+      1.0
+    ]
+  ],
+  "estimated_region": {
+    "top_left": [
+      261.474365234375,
+      168.13632202148438
+    ],
+    "top_right": [
+      500.164306640625,
+      232.8721923828125
+    ],
+    "bottom_right": [
+      436.2038269042969,
+      467.584228515625
+    ],
+    "bottom_left": [
+      199.1211395263672,
+      406.5152587890625
+    ]
+  },
+  "region_warnings": [],
+  "localization_status": "localized",
+  "georeference": {
+    "is_georeferenced": true,
+    "crs": "EPSG:32616",
+    "crs_epsg": 32616,
+    "crs_name": "WGS 84 / UTM zone 16N",
+    "units": "metre",
+    "gsd_x": 1.0,
+    "gsd_y": 1.0,
+    "bounds_projected": {
+      "left": 770500.0,
+      "bottom": 3708857.0,
+      "right": 771201.0,
+      "top": 3709500.0
+    },
+    "affine_transform": [
+      1.0,
+      0.0,
+      770500.0,
+      0.0,
+      -1.0,
+      3709500.0
+    ]
+  },
+  "projected_footprint": {
+    "top_left": {
+      "x": 770761.4743652344,
+      "y": 3709331.8636779785
+    },
+    "top_right": {
+      "x": 771000.1643066406,
+      "y": 3709267.127807617
+    },
+    "bottom_right": {
+      "x": 770936.2038269043,
+      "y": 3709032.4157714844
+    },
+    "bottom_left": {
+      "x": 770699.1211395264,
+      "y": 3709093.484741211
+    },
+    "center": {
+      "x": 770849.8418884277,
+      "y": 3709180.421142578
+    },
+    "crs_name": "WGS 84 / UTM zone 16N",
+    "units": "metre",
+    "area_m2": 60243.65234375,
+    "in_raster_area_m2": 60243.65234375,
+    "extrapolated_area_m2": 0.0,
+    "overlap_percentage": 100.0
+  },
+  "geographic_footprint": {
+    "top_left": {
+      "lat": 33.48927816194756,
+      "lon": -84.08584797738915
+    },
+    "top_right": {
+      "lat": 33.48863460399114,
+      "lon": -84.08330147111256
+    },
+    "bottom_right": {
+      "lat": 33.48653652436969,
+      "lon": -84.08405999920389
+    },
+    "bottom_left": {
+      "lat": 33.48714662599457,
+      "lon": -84.08659028027238
+    },
+    "center": {
+      "lat": 33.487891611041185,
+      "lon": -84.08494371336424
+    },
+    "area_m2": 60243.65234375,
+    "in_raster_area_m2": 60243.65234375,
+    "extrapolated_area_m2": 0.0,
+    "overlap_percentage": 100.0
+  },
+  "localization": {
+    "status": "localized",
+    "georeference": {
+      "is_georeferenced": true,
+      "crs": "EPSG:32616",
+      "crs_epsg": 32616,
+      "crs_name": "WGS 84 / UTM zone 16N",
+      "units": "metre",
+      "gsd_x": 1.0,
+      "gsd_y": 1.0,
+      "bounds_projected": {
+        "left": 770500.0,
+        "bottom": 3708857.0,
+        "right": 771201.0,
+        "top": 3709500.0
+      },
+      "affine_transform": [
+        1.0,
+        0.0,
+        770500.0,
+        0.0,
+        -1.0,
+        3709500.0
+      ]
+    },
+    "projected_footprint": {
+      "top_left": {
+        "x": 770761.4743652344,
+        "y": 3709331.8636779785
+      },
+      "top_right": {
+        "x": 771000.1643066406,
+        "y": 3709267.127807617
+      },
+      "bottom_right": {
+        "x": 770936.2038269043,
+        "y": 3709032.4157714844
+      },
+      "bottom_left": {
+        "x": 770699.1211395264,
+        "y": 3709093.484741211
+      },
+      "center": {
+        "x": 770849.8418884277,
+        "y": 3709180.421142578
+      },
+      "crs_name": "WGS 84 / UTM zone 16N",
+      "units": "metre",
+      "area_m2": 60243.65234375,
+      "in_raster_area_m2": 60243.65234375,
+      "extrapolated_area_m2": 0.0,
+      "overlap_percentage": 100.0
+    },
+    "geographic_footprint": {
+      "top_left": {
+        "lat": 33.48927816194756,
+        "lon": -84.08584797738915
+      },
+      "top_right": {
+        "lat": 33.48863460399114,
+        "lon": -84.08330147111256
+      },
+      "bottom_right": {
+        "lat": 33.48653652436969,
+        "lon": -84.08405999920389
+      },
+      "bottom_left": {
+        "lat": 33.48714662599457,
+        "lon": -84.08659028027238
+      },
+      "center": {
+        "lat": 33.487891611041185,
+        "lon": -84.08494371336424
+      },
+      "area_m2": 60243.65234375,
+      "in_raster_area_m2": 60243.65234375,
+      "extrapolated_area_m2": 0.0,
+      "overlap_percentage": 100.0
+    },
+    "estimated_center_geographic": {
+      "lat": 33.487891611041185,
+      "lon": -84.08494371336424
+    },
+    "estimated_center_projected": {
+      "x": 770849.8418884277,
+      "y": 3709180.421142578
+    },
+    "is_within_bounds": true,
+    "quality_assessment": {
+      "status": "ACCEPTED",
+      "confidence_score": 0.8278,
+      "is_calibrated": false,
+      "confidence_components": {
+        "inlier_count_factor": 1.0,
+        "inlier_ratio_factor": 1.0,
+        "reprojection_factor": 0.7603,
+        "spatial_dispersion_factor": 0.5796,
+        "conditioning_factor": 0.732
+      },
+      "spatial_metrics": {
+        "bbox_area_ratio": 0.5682692307692307,
+        "convex_hull_area_ratio": 0.461329140665855,
+        "grid_coverage_ratio": 0.9375,
+        "spatial_entropy": 0.7692915813646402,
+        "spatial_spread_score": 0.5796367872511502
+      },
+      "conditioning_metrics": {
+        "raw_condition_number": 99713.5270978873,
+        "canonical_condition_number": 2.8536122548115768,
+        "singular_values": [
+          310.87077738530564,
+          0.9591564174550636,
+          0.00311763896467255
+        ],
+        "determinant": 0.9295979488783981,
+        "horizon_crossing": false,
+        "quad_angles_deg": [
+          89.48419785160671,
+          89.93101797743051,
+          90.79878905931729,
+          89.7859951116455
+        ],
+        "min_quad_angle_deg": 89.48419785160671,
+        "max_quad_angle_deg": 90.79878905931729,
+        "area_ratio": 0.8911782963950353,
+        "scale_factor": 0.944022402485786
+      },
+      "reprojection_mean_px": 0.9588443636894226,
+      "reprojection_median_px": 0.8404690027236938,
+      "reprojection_max_px": 3.9917378425598145,
+      "inlier_count": 606,
+      "inlier_ratio": 0.9885807504078303,
+      "failure_reasons": [],
+      "diagnostic_flags": [],
+      "disclaimer": "Heuristic multi-signal confidence metric; not an absolute calibrated Bayesian probability."
+    },
+    "warnings": []
+  },
+  "quality_assessment": {
+    "status": "ACCEPTED",
+    "confidence_score": 0.8278,
+    "is_calibrated": false,
+    "confidence_components": {
+      "inlier_count_factor": 1.0,
+      "inlier_ratio_factor": 1.0,
+      "reprojection_factor": 0.7603,
+      "spatial_dispersion_factor": 0.5796,
+      "conditioning_factor": 0.732
+    },
+    "spatial_metrics": {
+      "bbox_area_ratio": 0.5682692307692307,
+      "convex_hull_area_ratio": 0.461329140665855,
+      "grid_coverage_ratio": 0.9375,
+      "spatial_entropy": 0.7692915813646402,
+      "spatial_spread_score": 0.5796367872511502
+    },
+    "conditioning_metrics": {
+      "raw_condition_number": 99713.5270978873,
+      "canonical_condition_number": 2.8536122548115768,
+      "singular_values": [
+        310.87077738530564,
+        0.9591564174550636,
+        0.00311763896467255
+      ],
+      "determinant": 0.9295979488783981,
+      "horizon_crossing": false,
+      "quad_angles_deg": [
+        89.48419785160671,
+        89.93101797743051,
+        90.79878905931729,
+        89.7859951116455
+      ],
+      "min_quad_angle_deg": 89.48419785160671,
+      "max_quad_angle_deg": 90.79878905931729,
+      "area_ratio": 0.8911782963950353,
+      "scale_factor": 0.944022402485786
+    },
+    "reprojection_mean_px": 0.9588443636894226,
+    "reprojection_median_px": 0.8404690027236938,
+    "reprojection_max_px": 3.9917378425598145,
+    "inlier_count": 606,
+    "inlier_ratio": 0.9885807504078303,
+    "failure_reasons": [],
+    "diagnostic_flags": [],
+    "disclaimer": "Heuristic multi-signal confidence metric; not an absolute calibrated Bayesian probability."
+  },
+  "warnings": [],
+  "failure_reason": null,
+  "processing_time_s": 0.1887990000541322,
+  "algorithm_params": {
+    "algorithm": "ORB",
+    "orb_max_features": 5000,
+    "ratio_threshold": 0.75,
+    "ransac_reproj_threshold": 4.0,
+    "min_inliers": 10,
+    "mutual_consistency": false,
+    "multi_scale": true,
+    "max_processing_dim": null
+  },
+  "algorithm_version": "ORB-v1",
+  "software_versions": {
+    "opencv": "5.0.0",
+    "numpy": "2.2.6",
+    "app": "0.1.0"
+  },
+  "artifacts": {
+    "side_by_side": "results/2cf8b0df-5f77-42b0-8db2-7ff8e2b5dd25/01_side_by_side.png",
+    "tentative_matches": "results/2cf8b0df-5f77-42b0-8db2-7ff8e2b5dd25/02_tentative_matches.png",
+    "inlier_matches": "results/2cf8b0df-5f77-42b0-8db2-7ff8e2b5dd25/03_inlier_matches.png",
+    "footprint": "results/2cf8b0df-5f77-42b0-8db2-7ff8e2b5dd25/04_footprint.png",
+    "warped_blend": "results/2cf8b0df-5f77-42b0-8db2-7ff8e2b5dd25/05_warped_blend.png"
+  }
+}

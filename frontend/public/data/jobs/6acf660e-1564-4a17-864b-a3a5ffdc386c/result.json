@@ -1,0 +1,240 @@
+{
+  "job_id": "6acf660e-1564-4a17-864b-a3a5ffdc386c",
+  "status": "success",
+  "reference_image": {
+    "filename": "georef_usgs_chico.tif",
+    "width": 768,
+    "height": 768,
+    "channels": 3,
+    "file_size_bytes": 1771380
+  },
+  "query_image": {
+    "filename": "georef_chico_rot12_scale.tif",
+    "width": 260,
+    "height": 260,
+    "channels": 3,
+    "file_size_bytes": 203328
+  },
+  "reference_keypoints": 5001,
+  "query_keypoints": 520,
+  "tentative_matches": 520,
+  "filtered_matches": 186,
+  "geometric_inliers": 184,
+  "inlier_ratio": 0.989247311827957,
+  "reprojection_error": {
+    "mean_px": 0.1407703459262848,
+    "median_px": 0.10945740342140198,
+    "max_px": 1.0615516901016235
+  },
+  "homography_matrix": [
+    [
+      0.8816994000015026,
+      0.18740069490788946,
+      261.1690249743439
+    ],
+    [
+      -0.18600969638095877,
+      0.8808544890205979,
+      289.8815959182961
+    ],
+    [
+      2.5200208951393277e-06,
+      3.115690569324492e-07,
+      0.9999999999999999
+    ]
+  ],
+  "estimated_region": {
+    "top_left": [
+      261.1690368652344,
+      289.881591796875
+    ],
+    "top_right": [
+      489.2098693847656,
+      241.54742431640625
+    ],
+    "bottom_right": [
+      537.671630859375,
+      469.5020751953125
+    ],
+    "bottom_left": [
+      309.6808166503906,
+      517.9810791015625
+    ]
+  },
+  "region_warnings": [],
+  "localization_status": "localized",
+  "georeference": {
+    "is_georeferenced": true,
+    "crs": "EPSG:32610",
+    "crs_epsg": 32610,
+    "crs_name": "EPSG:32610",
+    "units": "metre",
+    "gsd_x": 1.0,
+    "gsd_y": 1.0,
+    "bounds_projected": {
+      "left": 597500.0,
+      "bottom": 4404732.0,
+      "right": 598268.0,
+      "top": 4405500.0
+    },
+    "affine_transform": [
+      1.0,
+      0.0,
+      597500.0,
+      0.0,
+      -1.0,
+      4405500.0
+    ]
+  },
+  "projected_footprint": {
+    "top_left": {
+      "x": 597761.1690368652,
+      "y": 4405210.118408203
+    },
+    "top_right": {
+      "x": 597989.2098693848,
+      "y": 4405258.452575684
+    },
+    "bottom_right": {
+      "x": 598037.6716308594,
+      "y": 4405030.497924805
+    },
+    "bottom_left": {
+      "x": 597809.6808166504,
+      "y": 4404982.018920898
+    },
+    "center": {
+      "x": 597899.4710083008,
+      "y": 4405120.275238037
+    },
+    "crs_name": "EPSG:32610",
+    "units": "metre"
+  },
+  "geographic_footprint": {
+    "top_left": {
+      "lat": 39.79123402198532,
+      "lon": -121.85819860756808
+    },
+    "top_right": {
+      "lat": 39.79164319799599,
+      "lon": -121.8555284883587
+    },
+    "bottom_right": {
+      "lat": 39.7895841251921,
+      "lon": -121.85499663138866
+    },
+    "bottom_left": {
+      "lat": 39.7891736497041,
+      "lon": -121.8576661110619
+    },
+    "center": {
+      "lat": 39.79040878195813,
+      "lon": -121.8565970133819
+    }
+  },
+  "localization": {
+    "status": "localized",
+    "georeference": {
+      "is_georeferenced": true,
+      "crs": "EPSG:32610",
+      "crs_epsg": 32610,
+      "crs_name": "EPSG:32610",
+      "units": "metre",
+      "gsd_x": 1.0,
+      "gsd_y": 1.0,
+      "bounds_projected": {
+        "left": 597500.0,
+        "bottom": 4404732.0,
+        "right": 598268.0,
+        "top": 4405500.0
+      },
+      "affine_transform": [
+        1.0,
+        0.0,
+        597500.0,
+        0.0,
+        -1.0,
+        4405500.0
+      ]
+    },
+    "projected_footprint": {
+      "top_left": {
+        "x": 597761.1690368652,
+        "y": 4405210.118408203
+      },
+      "top_right": {
+        "x": 597989.2098693848,
+        "y": 4405258.452575684
+      },
+      "bottom_right": {
+        "x": 598037.6716308594,
+        "y": 4405030.497924805
+      },
+      "bottom_left": {
+        "x": 597809.6808166504,
+        "y": 4404982.018920898
+      },
+      "center": {
+        "x": 597899.4710083008,
+        "y": 4405120.275238037
+      },
+      "crs_name": "EPSG:32610",
+      "units": "metre"
+    },
+    "geographic_footprint": {
+      "top_left": {
+        "lat": 39.79123402198532,
+        "lon": -121.85819860756808
+      },
+      "top_right": {
+        "lat": 39.79164319799599,
+        "lon": -121.8555284883587
+      },
+      "bottom_right": {
+        "lat": 39.7895841251921,
+        "lon": -121.85499663138866
+      },
+      "bottom_left": {
+        "lat": 39.7891736497041,
+        "lon": -121.8576661110619
+      },
+      "center": {
+        "lat": 39.79040878195813,
+        "lon": -121.8565970133819
+      }
+    },
+    "estimated_center_geographic": {
+      "lat": 39.79040878195813,
+      "lon": -121.8565970133819
+    },
+    "estimated_center_projected": {
+      "x": 597899.4710083008,
+      "y": 4405120.275238037
+    },
+    "is_within_bounds": true,
+    "warnings": []
+  },
+  "warnings": [],
+  "failure_reason": null,
+  "processing_time_s": 0.1860919000027934,
+  "algorithm_params": {
+    "algorithm": "SIFT",
+    "orb_max_features": 5000,
+    "ratio_threshold": 0.75,
+    "ransac_reproj_threshold": 4.0,
+    "min_inliers": 10,
+    "mutual_consistency": false
+  },
+  "algorithm_version": "SIFT-v1",
+  "software_versions": {
+    "opencv": "5.0.0",
+    "numpy": "2.2.6",
+    "app": "0.1.0"
+  },
+  "artifacts": {
+    "side_by_side": "results/6acf660e-1564-4a17-864b-a3a5ffdc386c/01_side_by_side.png",
+    "tentative_matches": "results/6acf660e-1564-4a17-864b-a3a5ffdc386c/02_tentative_matches.png",
+    "inlier_matches": "results/6acf660e-1564-4a17-864b-a3a5ffdc386c/03_inlier_matches.png",
+    "footprint": "results/6acf660e-1564-4a17-864b-a3a5ffdc386c/04_footprint.png"
+  }
+}

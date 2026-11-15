@@ -1,0 +1,88 @@
+{
+  "job_id": "04b935f6-1291-43f6-aceb-4847e0628bcf",
+  "status": "success",
+  "reference_image": {
+    "filename": "real_usgs_chico_ref.png",
+    "width": 768,
+    "height": 768,
+    "channels": 3,
+    "file_size_bytes": 1267019
+  },
+  "query_image": {
+    "filename": "real_chico_query_crop_center.png",
+    "width": 400,
+    "height": 380,
+    "channels": 3,
+    "file_size_bytes": 326321
+  },
+  "reference_keypoints": 5001,
+  "query_keypoints": 1341,
+  "tentative_matches": 1341,
+  "filtered_matches": 1246,
+  "geometric_inliers": 1246,
+  "inlier_ratio": 1.0,
+  "reprojection_error": {
+    "mean_px": 0.005012400448322296,
+    "median_px": 0.0018468177877366543,
+    "max_px": 0.7682921290397644
+  },
+  "homography_matrix": [
+    [
+      0.999966276758311,
+      -1.1380213362252084e-05,
+      160.0009246006959
+    ],
+    [
+      -1.7030572016341894e-05,
+      0.999971611974591,
+      140.00215087368184
+    ],
+    [
+      -5.852761642390273e-08,
+      -1.7804206246480385e-08,
+      1.0
+    ]
+  ],
+  "estimated_region": {
+    "top_left": [
+      160.0009307861328,
+      140.0021514892578
+    ],
+    "top_right": [
+      559.0005493164062,
+      139.99862670898438
+    ],
+    "bottom_right": [
+      559.0,
+      519.000244140625
+    ],
+    "bottom_left": [
+      159.99769592285156,
+      518.994873046875
+    ]
+  },
+  "region_warnings": [],
+  "warnings": [],
+  "failure_reason": null,
+  "processing_time_s": 0.2192427999980282,
+  "algorithm_params": {
+    "algorithm": "SIFT",
+    "orb_max_features": 5000,
+    "ratio_threshold": 0.75,
+    "ransac_reproj_threshold": 4.0,
+    "min_inliers": 10,
+    "mutual_consistency": false
+  },
+  "algorithm_version": "ORB-v1",
+  "software_versions": {
+    "opencv": "5.0.0",
+    "numpy": "2.2.6",
+    "app": "0.1.0"
+  },
+  "artifacts": {
+    "side_by_side": "results/04b935f6-1291-43f6-aceb-4847e0628bcf/01_side_by_side.png",
+    "tentative_matches": "results/04b935f6-1291-43f6-aceb-4847e0628bcf/02_tentative_matches.png",
+    "inlier_matches": "results/04b935f6-1291-43f6-aceb-4847e0628bcf/03_inlier_matches.png",
+    "footprint": "results/04b935f6-1291-43f6-aceb-4847e0628bcf/04_footprint.png"
+  }
+}

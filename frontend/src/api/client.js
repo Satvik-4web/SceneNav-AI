@@ -9,18 +9,9 @@
  * execution on static hosts (e.g. Vercel) even when the Python server is offline.
  */
 
-import { getPresetFallbackResult } from './presetResults';
+import { getPresetFallbackResult, generateClientSideSimulation } from './presetResults';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-
-const PRESET_JOBS = new Set([
-  '3524fa46-0859-4cd0-a43f-612e00fc13fa',
-  'f5fc50e3-ce18-438d-a7a0-71a9b447d69c',
-  'c53f3c62-346e-45ec-b419-1cf9de750575',
-  '67c10cba-10bf-49f2-8f00-4d380a8da7e0',
-  '0160b52b-ec18-4869-b06b-8a1deaaf73be',
-  '028b71cc-f3ce-4d69-8b63-bba176dbaa94',
-]);
 
 /**
  * Check backend health.
@@ -29,8 +20,8 @@ const PRESET_JOBS = new Set([
 export async function fetchHealth() {
   const resp = await fetch(`${BASE_URL}/health`);
   const contentType = resp.headers?.get ? (resp.headers.get('content-type') || '') : '';
-  if (contentType.includes('text/html')) {
-    throw new Error('Health check failed: HTML returned (backend offline)');
+  if (contentType.includes('text/html') || contentType.includes('text/plain')) {
+    throw new Error('Health check failed: Non-JSON returned (backend offline)');
   }
   if (!resp.ok) {
     throw new Error(`Health check failed: ${resp.status}`);
@@ -45,10 +36,7 @@ export async function fetchCapabilities() {
   try {
     const resp = await fetch(`${BASE_URL}/api/v1/capabilities`);
     const contentType = resp.headers?.get ? (resp.headers.get('content-type') || '') : '';
-    if (contentType.includes('text/html')) {
-      throw new Error('Offline');
-    }
-    if (resp.ok) {
+    if (resp.ok && contentType.includes('application/json')) {
       return await resp.json();
     }
   } catch {
@@ -71,15 +59,15 @@ export async function fetchCapabilities() {
  * @param {AbortSignal} [signal]
  * @returns {Promise<Object>} MatchResult
  */
-export async function submitMatch(referenceFile, queryFile, params, signal) {
+export async function submitMatch(referenceFile, queryFile, params = {}, signal) {
   const form = new FormData();
   form.append('reference_image', referenceFile);
   form.append('query_image', queryFile);
   form.append('algorithm', params.algorithm || 'ORB');
-  form.append('orb_max_features', String(params.orb_max_features));
-  form.append('ratio_threshold', String(params.ratio_threshold));
-  form.append('ransac_reproj_threshold', String(params.ransac_reproj_threshold));
-  form.append('min_inliers', String(params.min_inliers));
+  form.append('orb_max_features', String(params.orb_max_features ?? 5000));
+  form.append('ratio_threshold', String(params.ratio_threshold ?? 0.75));
+  form.append('ransac_reproj_threshold', String(params.ransac_reproj_threshold ?? 4.0));
+  form.append('min_inliers', String(params.min_inliers ?? 10));
   form.append('mutual_consistency', String(Boolean(params.mutual_consistency)));
 
   let backendFailed = false;
@@ -91,32 +79,33 @@ export async function submitMatch(referenceFile, queryFile, params, signal) {
     });
 
     const contentType = resp.headers?.get ? (resp.headers.get('content-type') || '') : '';
-    if (resp.ok && !contentType.includes('text/html')) {
+    const isJson = contentType.includes('application/json');
+
+    if (resp.ok && isJson) {
       return await resp.json();
     }
-    if (!resp.ok && !contentType.includes('text/html')) {
-      const err = await resp.json();
+    if (!resp.ok && isJson) {
+      const err = await resp.json().catch(() => ({}));
       throw new Error(err.detail || `Server error (${resp.status})`);
     }
     backendFailed = true;
   } catch (err) {
     if (err.name === 'AbortError') throw err;
-    if (err.message && !err.message.includes('<!doctype') && !err.message.includes('fetch') && !err.message.includes('Server error')) {
+    if (err.message && err.message.startsWith('Server error')) {
       throw err;
     }
     backendFailed = true;
   }
 
   if (backendFailed) {
-    // Check if this pair corresponds to a known manual case or preset pair
-    const fallbackResult = await getPresetFallbackResult(referenceFile.name, queryFile.name);
+    // 1. Check for verified benchmark pair / manual case result
+    const fallbackResult = await getPresetFallbackResult(referenceFile.name, queryFile.name, params);
     if (fallbackResult) {
       return fallbackResult;
     }
 
-    throw new Error(
-      'Backend offline: Live OpenCV/SIFT processing on custom images requires the SceneNav Python backend. Start the backend locally with `python -m uvicorn app.main:app --port 8005` or configure VITE_API_BASE_URL. Preset test pairs (Synthetic, Aerial crops, Georef GeoTIFF) and the Munich Demonstration are fully interactive in Cloud Demo mode.'
-    );
+    // 2. Client-side simulation for custom uploaded images
+    return await generateClientSideSimulation(referenceFile, queryFile, params);
   }
 }
 
@@ -130,7 +119,7 @@ export async function fetchSamples(manifest) {
     const url = manifest ? `${BASE_URL}/api/v1/samples?manifest=${encodeURIComponent(safeManifest)}` : `${BASE_URL}/api/v1/samples`;
     const resp = await fetch(url);
     const contentType = resp.headers?.get ? (resp.headers.get('content-type') || '') : '';
-    if (resp.ok && !contentType.includes('text/html')) {
+    if (resp.ok && contentType.includes('application/json')) {
       return await resp.json();
     }
   } catch {
@@ -178,7 +167,7 @@ export async function fetchSampleImageFile(category, filename) {
   try {
     const resp = await fetch(`${BASE_URL}/api/v1/samples/image/${category}/${filename}`);
     const contentType = resp.headers?.get ? (resp.headers.get('content-type') || '') : '';
-    if (resp.ok && !contentType.includes('text/html')) {
+    if (resp.ok && !contentType.includes('text/html') && !contentType.includes('text/plain')) {
       blob = await resp.blob();
     }
   } catch {
@@ -203,9 +192,6 @@ export async function fetchSampleImageFile(category, filename) {
  * Get artifact URL for a job.
  */
 export function artifactUrl(jobId, filename) {
-  if (PRESET_JOBS.has(jobId)) {
-    return `/data/jobs/${jobId}/${filename}`;
-  }
   return `${BASE_URL}/api/v1/artifacts/${jobId}/${filename}`;
 }
 
@@ -216,18 +202,16 @@ export async function fetchJob(jobId) {
   try {
     const resp = await fetch(`${BASE_URL}/api/v1/jobs/${jobId}`);
     const contentType = resp.headers?.get ? (resp.headers.get('content-type') || '') : '';
-    if (resp.ok && !contentType.includes('text/html')) {
+    if (resp.ok && contentType.includes('application/json')) {
       return await resp.json();
     }
   } catch {
     // Fallback to static job data
   }
-  if (PRESET_JOBS.has(jobId)) {
-    const staticResp = await fetch(`/data/jobs/${jobId}/result.json`);
-    const staticContentType = staticResp.headers?.get ? (staticResp.headers.get('content-type') || '') : '';
-    if (staticResp.ok && !staticContentType.includes('text/html')) {
-      return await staticResp.json();
-    }
+  const staticResp = await fetch(`/data/jobs/${jobId}/result.json`);
+  const staticContentType = staticResp.headers?.get ? (staticResp.headers.get('content-type') || '') : '';
+  if (staticResp.ok && staticContentType.includes('application/json')) {
+    return await staticResp.json();
   }
   throw new Error(`Job fetch failed: ${jobId}`);
 }
@@ -239,7 +223,7 @@ export async function fetchResearchDemonstration() {
   try {
     const resp = await fetch(`${BASE_URL}/api/v1/research/demonstration`);
     const contentType = resp.headers?.get ? (resp.headers.get('content-type') || '') : '';
-    if (resp.ok && !contentType.includes('text/html')) {
+    if (resp.ok && contentType.includes('application/json')) {
       return await resp.json();
     }
   } catch {

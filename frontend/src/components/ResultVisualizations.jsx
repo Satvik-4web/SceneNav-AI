@@ -269,14 +269,120 @@ function ArtifactImageCard({ jobId, filename, title }) {
   );
 }
 
-function InteractiveStageCanvas({ url, title, onDownload }) {
+function DynamicFootprintCanvas({ result, scale, position, isDragging }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !result?.estimated_region) return;
+    const ctx = canvas.getContext('2d');
+    const refFilename = result.reference_image?.filename;
+    const refUrl = `/data/references/${refFilename}`;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+
+    const drawFootprint = (w, h) => {
+      canvas.width = w;
+      canvas.height = h;
+
+      const r = result.estimated_region;
+      const pts = [r.top_left, r.top_right, r.bottom_right, r.bottom_left];
+      if (pts.every((p) => Array.isArray(p) && p.length === 2)) {
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        ctx.lineTo(pts[1][0], pts[1][1]);
+        ctx.lineTo(pts[2][0], pts[2][1]);
+        ctx.lineTo(pts[3][0], pts[3][1]);
+        ctx.closePath();
+
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.22)';
+        ctx.fill();
+
+        ctx.strokeStyle = '#06b6d4';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        pts.forEach(([x, y]) => {
+          ctx.beginPath();
+          ctx.arc(x, y, 7, 0, Math.PI * 2);
+          ctx.fillStyle = '#f43f5e';
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        });
+
+        const cx = (pts[0][0] + pts[1][0] + pts[2][0] + pts[3][0]) / 4;
+        const cy = (pts[0][1] + pts[1][1] + pts[2][1] + pts[3][1]) / 4;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#10b981';
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    };
+
+    img.onload = () => {
+      const w = img.naturalWidth || 800;
+      const h = img.naturalHeight || 800;
+      canvas.width = w;
+      canvas.height = h;
+      ctx.drawImage(img, 0, 0);
+      drawFootprint(w, h);
+    };
+
+    img.onerror = () => {
+      const w = result.reference_image?.width || 800;
+      const h = result.reference_image?.height || 800;
+      canvas.width = w;
+      canvas.height = h;
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+      for (let i = 0; i < w; i += 40) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke();
+      }
+      for (let j = 0; j < h; j += 40) {
+        ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(w, j); ctx.stroke();
+      }
+      drawFootprint(w, h);
+    };
+
+    img.src = refUrl;
+  }, [result]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+        transition: isDragging ? 'none' : 'transform 0.08s ease-out',
+        maxWidth: '100%',
+        maxHeight: '100%',
+        objectFit: 'contain',
+        userSelect: 'none',
+      }}
+    />
+  );
+}
+
+function InteractiveStageCanvas({ url, title, onDownload, result, panelId }) {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [imgDims, setImgDims] = useState(null);
+  const [imgError, setImgError] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(url);
   const containerRef = useRef(null);
   const dragStartRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    setCurrentSrc(url);
+    setImgError(false);
+  }, [url]);
 
   const handleZoomIn = () => setScale((prev) => Math.min(prev + 0.25, 4.0));
   const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.25, 0.25));
@@ -404,27 +510,41 @@ function InteractiveStageCanvas({ url, title, onDownload }) {
         onWheel={handleWheel}
         onDoubleClick={handleDoubleClick}
       >
-        <img
-          src={url}
-          alt={title}
-          draggable={false}
-          onLoad={(e) => {
-            if (e.target.naturalWidth && e.target.naturalHeight) {
-              setImgDims({ w: e.target.naturalWidth, h: e.target.naturalHeight });
-            }
-          }}
-          style={{
-            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-            transition: isDragging ? 'none' : 'transform 0.08s ease-out',
-            maxWidth: '100%',
-            maxHeight: '100%',
-            objectFit: 'contain',
-            userSelect: 'none',
-          }}
-          onError={(e) => {
-            e.target.style.display = 'none';
-          }}
-        />
+        {imgError && panelId === 'footprint' && result?.estimated_region ? (
+          <DynamicFootprintCanvas
+            result={result}
+            scale={scale}
+            position={position}
+            isDragging={isDragging}
+          />
+        ) : (
+          <img
+            src={currentSrc}
+            alt={title}
+            draggable={false}
+            onLoad={(e) => {
+              if (e.target.naturalWidth && e.target.naturalHeight) {
+                setImgDims({ w: e.target.naturalWidth, h: e.target.naturalHeight });
+              }
+            }}
+            style={{
+              transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+              transition: isDragging ? 'none' : 'transform 0.08s ease-out',
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain',
+              userSelect: 'none',
+              display: imgError ? 'none' : 'block',
+            }}
+            onError={() => {
+              if (currentSrc && currentSrc.includes('/api/v1/artifacts/')) {
+                setCurrentSrc(currentSrc.replace('/api/v1/artifacts/', '/data/jobs/'));
+              } else {
+                setImgError(true);
+              }
+            }}
+          />
+        )}
       </div>
 
       <div
@@ -602,6 +722,8 @@ export default function ResultVisualizations({ result }) {
             url={artifactUrl(job_id, getFilename(artifacts[activePanel.artifactKey]))}
             title={`${activePanel.code} — ${activePanel.title}`}
             onDownload={() => handleDownload(getFilename(artifacts[activePanel.artifactKey]), activePanel.title)}
+            result={result}
+            panelId={activePanel.id}
           />
 
           {/* Technical Contextual Legend */}
