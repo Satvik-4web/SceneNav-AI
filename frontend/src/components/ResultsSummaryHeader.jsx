@@ -70,7 +70,9 @@ export default function ResultsSummaryHeader({ result, onExportJson, onOpenExplo
       const url = jobReportPdfUrl(result.job_id);
       const resp = await fetch(url);
       if (!resp.ok || resp.headers.get('content-type')?.includes('text/html')) {
-        throw new Error('PDF report generation requires a live Python backend connection.');
+        // Fallback for client-side / cloud deployment: trigger browser print-to-PDF
+        window.print();
+        return;
       }
       const blob = await resp.blob();
       const blobUrl = URL.createObjectURL(blob);
@@ -81,8 +83,8 @@ export default function ResultsSummaryHeader({ result, onExportJson, onOpenExplo
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      alert(`Could not download PDF report: ${err.message}`);
+    } catch {
+      window.print();
     } finally {
       setDownloadingPdf(false);
     }

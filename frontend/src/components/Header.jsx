@@ -9,11 +9,27 @@ import { useBackendStatus } from '../hooks/useBackendStatus';
 export default function Header({ activeWorkspace = 'studio', onSelectWorkspace = () => {} }) {
   const { status, info } = useBackendStatus();
 
-  const statusLabel = {
-    checking: 'Connecting…',
-    connected: 'Backend connected',
-    disconnected: 'Backend offline',
-  }[status] || 'Connecting…';
+  const statusConfig = {
+    checking: {
+      label: 'Connecting…',
+      dotClass: 'checking',
+      title: 'Connecting to localization engine…',
+    },
+    connected: {
+      label: info?.algorithm_version ? `Live Backend (${info.algorithm_version})` : 'Live API Connected',
+      dotClass: 'connected',
+      title: `Connected to local Python/FastAPI backend (${info?.version || 'v0.1.0'})`,
+    },
+    disconnected: {
+      label: 'Interactive Cloud Engine',
+      dotClass: 'connected',
+      title: 'Interactive client-side engine active with 51 pre-computed benchmarks and simulation.',
+    },
+  }[status] || {
+    label: 'Interactive Cloud Engine',
+    dotClass: 'connected',
+    title: 'Interactive client-side engine active.',
+  };
 
   return (
     <header className="app-header">
@@ -91,12 +107,12 @@ export default function Header({ activeWorkspace = 'studio', onSelectWorkspace =
           </span>
         ) : (
           <span className="mono muted small" style={{ fontSize: 10.5, padding: '3px 8px', background: '#09090b', borderRadius: 4, border: '1px solid var(--border)' }}>
-            v0.1.0-release
+            51 Presets · v0.1.0
           </span>
         )}
-        <div className="telemetry-pill">
-          <span className={`status-dot ${status}`} />
-          <span style={{ fontSize: 11.5 }}>{statusLabel}</span>
+        <div className="telemetry-pill" title={statusConfig.title}>
+          <span className={`status-dot ${statusConfig.dotClass}`} />
+          <span style={{ fontSize: 11.5 }}>{statusConfig.label}</span>
         </div>
       </div>
     </header>
